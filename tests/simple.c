@@ -19,7 +19,7 @@
 #include <string.h>
 #include <CUnit/Basic.h>
 #include <stdbool.h>
-
+#include <cJSON.h>
 #include "../src/wdmp-c.h"
 
 void test_1()
@@ -27,10 +27,38 @@ void test_1()
     CU_ASSERT_EQUAL( true, true );
 }
 
+void test_to_parse ()
+{
+    printf("\nInside test_to_parse command\n");
+    char * payload= "{ \"command\": \"GET\"}";
+    __wdmp_parse_request(payload);
+}
+void test_to_response ()
+{
+    printf("\nInside test_to_parse\n");
+    
+    int i,paramCount;
+    ParamVal *paramvalArr = NULL;
+      
+    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0,\"parameterCount\":1,\"status\":\"Success\"},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0,\"parameterCount\":1,\"status\":\"Success\"} ],\"command\":\"GET\"}";
+ 
+    __wdmp_json_to_struct(request,&paramvalArr,&paramCount,"SET");
+    
+    for (i = 0; i < paramCount; i++) 
+	{
+	    printf("parameter name is %s \n",paramvalArr[i].name);
+	    printf("parameter value is %s \n",paramvalArr[i].value);
+	}
+		
+}
+
+
 void add_suites( CU_pSuite *suite )
 {
     *suite = CU_add_suite( "wdmp-c encoding tests", NULL, NULL );
     CU_add_test( *suite, "Test 1", test_1 );
+    CU_add_test( *suite, "Test __wrp_parse_request()", test_to_parse );
+    CU_add_test( *suite, "Test __wrp_parse_request()", test_to_response );
 }
 
 /*----------------------------------------------------------------------------*/
