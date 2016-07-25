@@ -198,7 +198,7 @@ void __wdmp_json_to_struct(char * request, ParamVal  **paramvalArr,int *paramCou
 	}
 	
     	*paramvalArr = parametervalArr;
- 
+        cJSON_Delete(processRequest);
 }
 
 
