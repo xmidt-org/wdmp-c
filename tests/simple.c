@@ -44,11 +44,17 @@ void test_to_response ()
  
     __wdmp_json_to_struct(request,&paramvalArr,&paramCount,"SET");
     
+    CU_ASSERT( NULL != paramvalArr);
+    
     for (i = 0; i < paramCount; i++) 
 	{
 	    printf("parameter name is %s \n",paramvalArr[i].name);
 	    printf("parameter value is %s \n",paramvalArr[i].value);
 	}
+    
+    if (NULL != paramvalArr) {
+        free(paramvalArr);
+    }
 		
 }
 
