@@ -25,7 +25,9 @@ add_executable(simple simple.c ../src/wdmp-c.c)
 target_link_libraries (simple  gcov
                                cunit
                               -lcJSON
-                              -lwrp-c)
+                              -lwrp-c
+                              -lmsgpackc
+                              -ltrower-base64)
 
 add_custom_target(coverage
                   COMMAND lcov -q --capture --directory ${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/simple.dir/__/src --output-file coverage.info
