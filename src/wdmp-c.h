@@ -37,12 +37,127 @@ typedef enum
     WDMP_NONE
 } DATA_TYPE;
 
+typedef enum
+{
+    WDMP_SUCCESS = 0,                    /**< Success. */
+    WDMP_FAILURE,                        /**< General Failure */
+    WDMP_ERR_TIMEOUT,
+    WDMP_ERR_NOT_EXIST,
+    WDMP_ERR_INVALID_PARAMETER_NAME,
+    WDMP_ERR_INVALID_PARAMETER_TYPE,
+    WDMP_ERR_INVALID_PARAMETER_VALUE,
+    WDMP_ERR_NOT_WRITABLE,
+    WDMP_ERR_SETATTRIBUTE_REJECTED,
+    WDMP_ERR_NAMESPACE_OVERLAP,
+    WDMP_ERR_UNKNOWN_COMPONENT,
+    WDMP_ERR_NAMESPACE_MISMATCH,
+    WDMP_ERR_UNSUPPORTED_NAMESPACE,
+    WDMP_ERR_DP_COMPONENT_VERSION_MISMATCH,
+    WDMP_ERR_INVALID_PARAM,
+    WDMP_ERR_UNSUPPORTED_DATATYPE,
+    WDMP_STATUS_RESOURCES,
+    WDMP_ERR_WIFI_BUSY
+} WDMP_STATUS;
+
 typedef struct
 {
     char *name;
     char *value;
     DATA_TYPE type;
-} ParamVal;
+} param_t;
+
+typedef enum
+{
+    GET = 0,
+    GET_ATTRIBUTES,
+    SET,
+    SET_ATTRIBUTES,
+    TEST_AND_SET,
+    REPLACE_ROWS,
+    ADD_ROWS,
+    DELETE_ROW
+} REQ_TYPE;
+
+typedef struct
+{
+    char *paramNames[512];
+    size_t paramCnt;
+} get_req_t;
+
+typedef struct
+{	
+    param_t *param;
+    size_t paramCnt;
+} set_req_t;
+
+typedef struct
+{	
+    param_t *param;
+    char *newCid;
+    char *oldCid;
+    char *syncCmc;
+    size_t paramCnt;
+} test_set_req_t;
+
+
+typedef struct 
+{
+    size_t paramCnt;   
+    char **names;
+    char **values;
+} TableData;
+
+typedef struct
+{
+    char *objectName;
+    TableData *rows;
+    size_t rowCnt;
+} table_req_t;
+
+typedef struct {
+    REQ_TYPE reqType;
+    union {
+        get_req_t *getReq;
+        set_req_t *setReq;
+        table_req_t *tableReq;
+        test_set_req_t *testSetReq;
+    } u;
+} req_struct;
+
+typedef struct  
+{
+    char *name;
+    uint64_t start;     
+    uint32_t duration;  
+} money_trace_span;
+
+typedef struct  
+{
+    money_trace_span *spans;
+    size_t count;
+} money_trace_spans;
+
+typedef struct
+{
+    param_t **params;
+    size_t retParamCnt;
+} get_res_t;
+
+typedef struct
+{
+    char *newObj;
+} table_res_t;
+
+typedef struct
+{
+    REQ_TYPE reqType;
+    union {
+        get_res_t *getRes;	
+        table_res_t *tableRes;
+    } u;
+    money_trace_spans *timeSpan;
+    WDMP_STATUS *retStatus;
+} res_struct;
 
 /*----------------------------------------------------------------------------*/
 /*                                   Macros                                   */
@@ -67,27 +182,38 @@ typedef struct
 /*----------------------------------------------------------------------------*/
 /*                             External Functions                             */
 /*----------------------------------------------------------------------------*/
-/* none */
 
 /**
- *  To parse command from given request
- *  @param payload [in]  payload from request
- *  
+ *  To convert json string to struct 
+ * 
+ *  @note If the reqObj returned is not NULL, the value pointed at by
+ *      bytes must be freed using wdmp_free_req_struct() by the caller.
+ *
+ *  @param payload    [in]  payload JSON string to be converted 
+ *  @param reqObj    [out] the resulting req_struct structure if successful
  */
 
-void __wdmp_parse_request(char * payload );
+void wdmp_parse_request(char * payload, req_struct **reqObj);
+
 
 /**
- *  To convert json to struct 
- *  @param request [in]  request
- *  @param paramvalArr [in]  paramvalArr struct to be updated
- *  @param paramCount [in]  parameter count
- *  @param command [in]  GET /SET request 
- *  
+ *  To convert response struct to json string 
+
+ *  @param resObj    [in]  the response structure to be converted 
+ *  @param payload    [out] the resulting payload string if successful
  */
+ 
+void wdmp_form_response(res_struct *resObj, char **payload);
 
-void __wdmp_json_to_struct(char * request, ParamVal  **paramvalArr,int *paramCount,char * command);
-
+/**
+ *  Free the req_struct structure if allocated by the wdmp-c library.
+ *
+ *  @note Do not call this function on the req_struct structure if the wdmp-c
+ *        library did not create the structure!
+ *
+ *  @param msg [in] the req_struct structure to free
+ */
+void wdmp_free_req_struct( req_struct *reqObj );
 /*----------------------------------------------------------------------------*/
 /*                             Internal functions                             */
 /*----------------------------------------------------------------------------*/
