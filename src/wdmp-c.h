@@ -139,9 +139,18 @@ typedef struct
 
 typedef struct
 {
+    char **paramNames;
+    size_t paramCnt;
     param_t **params;
-    size_t retParamCnt;
+    size_t *retParamCnt;
 } get_res_t;
+
+typedef struct
+{
+    int statusCode;
+    char * message;	
+    param_t *params;
+} param_res_t;
 
 typedef struct
 {
@@ -152,11 +161,13 @@ typedef struct
 {
     REQ_TYPE reqType;
     union {
-        get_res_t *getRes;	
+        get_res_t *getRes;
+        param_res_t *paramRes;	
         table_res_t *tableRes;
     } u;
     money_trace_spans *timeSpan;
     WDMP_STATUS *retStatus;
+    size_t paramCnt;
 } res_struct;
 
 /*----------------------------------------------------------------------------*/
@@ -214,6 +225,7 @@ void wdmp_form_response(res_struct *resObj, char **payload);
  *  @param msg [in] the req_struct structure to free
  */
 void wdmp_free_req_struct( req_struct *reqObj );
+
 /*----------------------------------------------------------------------------*/
 /*                             Internal functions                             */
 /*----------------------------------------------------------------------------*/

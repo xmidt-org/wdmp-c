@@ -362,10 +362,330 @@ void get_req_empty_names ()
     }  
 }
 
+void get_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n\n******** GET Response Forming *******\n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = GET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.getRes = (get_res_t *) malloc(sizeof(get_res_t));
+        memset(resObj->u.getRes, 0, sizeof(get_res_t));
+        
+        resObj->u.getRes->retParamCnt = (size_t *) malloc(sizeof(size_t)*2);
+        resObj->u.getRes->retParamCnt[0] = 1;
+        resObj->u.getRes->retParamCnt[1] = 1;
+        
+        resObj->u.getRes->paramCnt = resObj->paramCnt;
+        resObj->u.getRes->paramNames = (char **) malloc(sizeof(char *) * resObj->u.getRes->paramCnt);
+        resObj->u.getRes->paramNames[0] = "Device.WIFi.SSID.1.SSID";
+        resObj->u.getRes->paramNames[1] = "Device.DeviceInfo.Webpa.Enable";
+        
+        resObj->u.getRes->params = (param_t **) malloc(sizeof(param_t*)*2);
+        memset(resObj->u.getRes->params, 0, sizeof(param_t*)*2);
+        
+        resObj->u.getRes->params[0]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[0]);
+        resObj->u.getRes->params[1]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[1]);
+        
+        resObj->u.getRes->params[0][0].name = "Device.WIFi.SSID.1.SSID";
+        resObj->u.getRes->params[0][0].value = "ssid1";
+        resObj->u.getRes->params[0][0].type = WDMP_STRING;
+        
+        resObj->u.getRes->params[1][0].name = "Device.DeviceInfo.Webpa.Enable";
+        resObj->u.getRes->params[1][0].value = "true";
+        resObj->u.getRes->params[1][0].type = WDMP_BOOLEAN;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj, &payload);
+        
+        printf("payload :%s\n",payload);
+}
 
-void add_suites( CU_pSuite *suite )
+void get_wildcard_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n\n******** GET wildcard Response Forming *******\n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = GET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.getRes = (get_res_t *) malloc(sizeof(get_res_t));
+        memset(resObj->u.getRes, 0, sizeof(get_res_t));
+        
+        resObj->u.getRes->retParamCnt = (size_t *) malloc(sizeof(size_t)*2);
+        resObj->u.getRes->retParamCnt[0] = 1;
+        resObj->u.getRes->retParamCnt[1] = 3;
+        
+        resObj->u.getRes->paramCnt = resObj->paramCnt;
+        resObj->u.getRes->paramNames = (char **) malloc(sizeof(char *) * resObj->u.getRes->paramCnt);
+        resObj->u.getRes->paramNames[0] = "Device.WIFi.SSID.1.Enable";
+        resObj->u.getRes->paramNames[1] = "Device.Webpa.";
+        
+        resObj->u.getRes->params = (param_t **) malloc(sizeof(param_t*)*2);
+        memset(resObj->u.getRes->params, 0, sizeof(param_t*)*2);
+        
+        resObj->u.getRes->params[0]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[0]);
+        resObj->u.getRes->params[1]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[1]);
+        
+        resObj->u.getRes->params[0][0].name = "Device.WIFi.SSID.1.Enable";
+        resObj->u.getRes->params[0][0].value = "true";
+        resObj->u.getRes->params[0][0].type = WDMP_BOOLEAN;
+        
+        resObj->u.getRes->params[1][0].name = "Device.Webpa.PostData";
+        resObj->u.getRes->params[1][0].value = "Not Supported";
+        resObj->u.getRes->params[1][0].type = WDMP_STRING;
+        
+        resObj->u.getRes->params[1][1].name = "Device.Webpa.X_RDKCENTRAL-COM_WebPA_Notification";
+        resObj->u.getRes->params[1][1].value = "Not Supported";
+        resObj->u.getRes->params[1][1].type = WDMP_STRING;
+        
+        resObj->u.getRes->params[1][2].name = "Device.Webpa.X_RDKCENTRAL-COM_Connected-Client";
+        resObj->u.getRes->params[1][2].value = "Not Supported";
+        resObj->u.getRes->params[1][2].type = WDMP_STRING;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void get_attr_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n\n******** GET_ATTRIBUTES Response Forming *******\n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = GET_ATTRIBUTES;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
+        memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
+        
+        resObj->u.paramRes->params[0].name = "Device.WIFi.SSID.1.Enable";
+        resObj->u.paramRes->params[0].value = "1";
+        
+        resObj->u.paramRes->params[1].name = "Device.WIFi.SSID.1.SSID";
+        resObj->u.paramRes->params[1].value = "1";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void set_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n\n******** SET Response Forming *******\n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = SET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
+        memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
+        
+        resObj->u.paramRes->params[0].name = "Device.DeviceInfo.Webpa.Enable";
+        resObj->u.paramRes->params[1].name = "Device.WiFi.SSID.2.SSID";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj, &payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void set_attr_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n\n******** SET_ATTRIBUTES Response Forming *******\n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = SET_ATTRIBUTES;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
+        memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
+        
+        resObj->u.paramRes->params[0].name = "Device.WiFi.SSID.1.Enable";
+        resObj->u.paramRes->params[1].name = "Device.WiFi.SSID.1.SSID";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj, &payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void test_and_set_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n\n******** TEST_AND_SET Response Forming *******\n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = TEST_AND_SET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
+        memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
+        
+        resObj->u.paramRes->params[0].name = "Device.DeviceInfo.Webpa.X_COMCAST-COM_CID";
+        resObj->u.paramRes->params[0].value = "1234";
+        
+        resObj->u.paramRes->params[1].name = "Device.DeviceInfo.Webpa.X_COMCAST-COM_CMC";
+        resObj->u.paramRes->params[1].value = "512";
+        
+        resObj->timeSpan = NULL;
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void add_rows_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n\n******** ADD_ROWS Response Forming *******\n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = ADD_ROWS;
+        
+        resObj->u.tableRes = (table_res_t *) malloc(sizeof(table_res_t));
+        
+        resObj->u.tableRes->newObj = "Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void replace_rows_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n\n******** REPLACE_ROWS Response Forming *******\n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = REPLACE_ROWS;
+        
+        resObj->u.tableRes = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        printf("payload :%s\n",payload);
+
+}
+
+void delete_row_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n\n******** DELETE_ROW Response Forming *******\n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = DELETE_ROW;
+        
+        resObj->u.tableRes = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj, &payload);
+        
+        printf("payload :%s\n",payload);
+
+}
+
+void add_request_parse_suites( CU_pSuite *suite )
 {
     *suite = CU_add_suite( "wdmp-c encoding tests", NULL, NULL );
+    
     CU_add_test( *suite, "Test Get Request Parse", get_req_parse );
     CU_add_test( *suite, "Test Get attr Request Parse", get_attr_req_parse );
     CU_add_test( *suite, "Test Set Request Parse", set_req_parse );
@@ -379,7 +699,20 @@ void add_suites( CU_pSuite *suite )
    
 }
 
-
+void add_response_form_suites ( CU_pSuite *suite )
+{
+    *suite = CU_add_suite( "wdmp-c Response forming tests", NULL, NULL );
+    
+    CU_add_test( *suite, "Test Get Response Form", get_res_form );
+    CU_add_test( *suite, "Test Get Response Form", get_wildcard_res_form );
+    CU_add_test( *suite, "Test Get attr Response Form", get_attr_res_form );
+    CU_add_test( *suite, "Test Set Response Form", set_res_form );
+    CU_add_test( *suite, "Test Set attr Response Form", set_attr_res_form );
+    CU_add_test( *suite, "Test Test and Set Response Form", test_and_set_res_form );
+    CU_add_test( *suite, "Test Add row Response Form", add_rows_res_form );
+    CU_add_test( *suite, "Test Replace rows Response Form", replace_rows_res_form );
+    CU_add_test( *suite, "Test Delete row Response Form", delete_row_res_form );            
+}
 
 /*----------------------------------------------------------------------------*/
 /*                             External Functions                             */
@@ -387,12 +720,15 @@ void add_suites( CU_pSuite *suite )
 int main( void )
 {
     unsigned rv = 1;
-    CU_pSuite suite = NULL;
+    CU_pSuite req_suite = NULL, res_suite = NULL;
 
-    if( CUE_SUCCESS == CU_initialize_registry() ) {
-        add_suites( &suite );
+    if( CUE_SUCCESS == CU_initialize_registry() ) 
+    {
+        add_request_parse_suites( &req_suite );
+        add_response_form_suites( &res_suite );
 
-        if( NULL != suite ) {
+        if( NULL != req_suite ||  NULL != res_suite) 
+        {
             CU_basic_set_mode( CU_BRM_VERBOSE );
             CU_basic_run_tests();
             printf( "\n" );
@@ -404,7 +740,8 @@ int main( void )
         CU_cleanup_registry();
     }
 
-    if( 0 != rv ) {
+    if( 0 != rv ) 
+    {
         return 1;
     }
     return 0;
