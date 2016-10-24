@@ -56,7 +56,19 @@ typedef enum
     WDMP_ERR_INVALID_PARAM,
     WDMP_ERR_UNSUPPORTED_DATATYPE,
     WDMP_STATUS_RESOURCES,
-    WDMP_ERR_WIFI_BUSY
+    WDMP_ERR_WIFI_BUSY,
+    WDMP_ERR_INVALID_ATTRIBUTES,
+    WDMP_ERR_WILDCARD_NOT_SUPPORTED,
+    WDMP_ERR_SET_OF_CMC_OR_CID_NOT_SUPPORTED,
+    WDMP_ERR_VALUE_IS_EMPTY,
+    WDMP_ERR_VALUE_IS_NULL,
+    WDMP_ERR_DATATYPE_IS_NULL,
+    WDMP_ERR_CMC_TEST_FAILED,
+    WDMP_ERR_NEW_CID_IS_MISSING,
+    WDMP_ERR_CID_TEST_FAILED,
+    WDMP_ERR_SETTING_CMC_OR_CID,
+    WDMP_ERR_INVALID_INPUT_PARAMETER,
+    WDMP_ERR_ATOMIC_GET_SET_FAILED
 } WDMP_STATUS;
 
 typedef struct
@@ -139,9 +151,16 @@ typedef struct
 
 typedef struct
 {
+    char **paramNames;
+    size_t paramCnt;
     param_t **params;
-    size_t retParamCnt;
+    size_t *retParamCnt;
 } get_res_t;
+
+typedef struct
+{
+    param_t *params;
+} param_res_t;
 
 typedef struct
 {
@@ -152,11 +171,13 @@ typedef struct
 {
     REQ_TYPE reqType;
     union {
-        get_res_t *getRes;	
+        get_res_t *getRes;
+        param_res_t *paramRes;	
         table_res_t *tableRes;
     } u;
     money_trace_spans *timeSpan;
     WDMP_STATUS *retStatus;
+    size_t paramCnt;
 } res_struct;
 
 /*----------------------------------------------------------------------------*/
@@ -214,6 +235,7 @@ void wdmp_form_response(res_struct *resObj, char **payload);
  *  @param msg [in] the req_struct structure to free
  */
 void wdmp_free_req_struct( req_struct *reqObj );
+
 /*----------------------------------------------------------------------------*/
 /*                             Internal functions                             */
 /*----------------------------------------------------------------------------*/

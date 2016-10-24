@@ -20,17 +20,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cJSON.h>
-
+#include "wdmp-c_internal.h"
 #include "wdmp-c.h"
+
 /*----------------------------------------------------------------------------*/
 /*                                   Macros                                   */
 /*----------------------------------------------------------------------------*/
-/* none */
+
 
 /*----------------------------------------------------------------------------*/
 /*                               Data Structures                              */
 /*----------------------------------------------------------------------------*/
-/* none */
+
 
 /*----------------------------------------------------------------------------*/
 /*                            File Scoped Variables                           */
@@ -40,16 +41,17 @@
 /*----------------------------------------------------------------------------*/
 /*                             Function Prototypes                            */
 /*----------------------------------------------------------------------------*/
+
 void parse_get_request(cJSON *request, req_struct **reqObj);
 void parse_set_request(cJSON *request, req_struct **reqObj);
 void parse_test_and_set_request(cJSON *request, req_struct **reqObj);
 void parse_replace_rows_request(cJSON *request, req_struct **reqObj);
 void parse_add_row_request(cJSON *request, req_struct **reqObj);
 void parse_delete_row_request(cJSON *request, req_struct **reqObj);
+
 /*----------------------------------------------------------------------------*/
 /*                             External Functions                             */
 /*----------------------------------------------------------------------------*/
-/* none */
 
 void wdmp_parse_request(char * payload, req_struct **reqObj)
 {
@@ -132,6 +134,103 @@ void wdmp_parse_request(char * payload, req_struct **reqObj)
 	   	
 }
 
+void wdmp_form_response(res_struct *resObj, char **payload)
+{
+        cJSON *response = NULL;
+        WDMP_RESPONSE_STATUS_CODE statusCode = WDMP_STATUS_GENERAL_FALURE;
+        char *result = NULL;
+        
+        if(resObj != NULL)
+	{
+	        response = cJSON_CreateObject();
+	        printf("resObj->reqType: %d\n",resObj->reqType);
+	        
+                switch( resObj->reqType ) {
+                
+                        case GET:
+                        {
+                                wdmp_form_get_response(resObj, response);
+                        }
+                        break;
+                        
+                        case GET_ATTRIBUTES:
+                        {
+                                wdmp_form_get_attr_response(resObj, response);
+                        }
+                        break;
+                        
+                        case SET:
+                        case SET_ATTRIBUTES:
+                        {
+		                wdmp_form_set_response(resObj, response);
+                        }
+                        break;
+                        
+                        case TEST_AND_SET:
+                        {
+		                wdmp_form_test_and_set_response(resObj, response);
+                        }
+                        break;
+                        
+                        case REPLACE_ROWS:
+                        case DELETE_ROW:
+                        {
+	                        printf("resObj->retStatus : %d\n",resObj->retStatus[0]);
+                                getStatusCode(&statusCode,1,resObj->retStatus);
+	                        printf("statusCode :%d\n",statusCode);
+	                        cJSON_AddNumberToObject(response, "statusCode", statusCode);
+	                        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+	                        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+	                        printf("result : %s\n",result);
+	                        cJSON_AddStringToObject(response, "message", result);
+	                        if(result)
+                                {
+                                        free(result); 
+                                }
+                        }
+                        break;
+                        
+                        case ADD_ROWS:
+                        {
+                                
+	                        printf("resObj->retStatus : %d\n",resObj->retStatus[0]);
+                                getStatusCode(&statusCode,1,resObj->retStatus);
+	                        printf("statusCode :%d\n",statusCode);
+	                        if(statusCode == WDMP_STATUS_SUCCESS)
+	                        {
+		                        statusCode = WDMP_ADDROW_STATUS_SUCCESS;
+		                        if(resObj->u.tableRes)
+                                        {
+                                                printf("resObj->u.tableRes->newObj : %s\n",resObj->u.tableRes->newObj);
+                                                cJSON_AddStringToObject(response, "row", resObj->u.tableRes->newObj);
+                                        }
+	                        }
+	                        cJSON_AddNumberToObject(response, "statusCode", statusCode);
+	                        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+	                        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+	                        printf("result : %s\n",result);
+	                        cJSON_AddStringToObject(response, "message", result);
+	                        if(result)
+                                {
+                                        free(result); 
+                                }
+                        }
+                        break;
+                        
+                        default:
+                                printf("Unknown request type\n");
+                }
+	}
+	
+	printf("Response Payload :\n%s\n",cJSON_Print(response));
+        *payload = cJSON_PrintUnformatted(response);
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+
+}
 
 void wdmp_free_req_struct( req_struct *reqObj )
 {
@@ -205,6 +304,9 @@ void wdmp_free_req_struct( req_struct *reqObj )
         }
         free(reqObj);
 }
+/*----------------------------------------------------------------------------*/
+/*                             Internal functions                             */
+/*----------------------------------------------------------------------------*/
 
 void parse_get_request(cJSON *request, req_struct **reqObj)
 {
