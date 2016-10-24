@@ -332,6 +332,10 @@ void test_unknown_command ()
     wdmp_parse_request(request,&reqObj);
     
     CU_ASSERT( NULL == reqObj);
+    if (NULL != reqObj) 
+    {
+	wdmp_free_req_struct(reqObj );
+    }
 }
 
 void get_req_empty_names ()
@@ -362,10 +366,188 @@ void get_req_empty_names ()
     }  
 }
 
+void get_req_empty_notify ()
+{
+    printf("\n\n******** get_req_empty_notify *******\n\n");
+    req_struct *reqObj = NULL;
+    
+    char * request= "{ \"names\":[\"Device.WiFi.SSID.1.Enable\",\"Device.WiFi.SSID.1.SSID\"],\"attributes\":\"\",\"command\": \"GET_ATTRIBUTES\"}";
+    
+    wdmp_parse_request(request,&reqObj);
+    
+    CU_ASSERT( NULL == reqObj);    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+}
+
+void set_req_empty_notify ()
+{
+    printf("\n\n******** set_req_empty_notify *******\n\n");
+    
+    int i,paramCount;
+    req_struct *reqObj = NULL;
+      
+    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"attributes\": \"\"}],\"command\":\"SET_ATTRIBUTES\"}";
+
+    wdmp_parse_request(request,&reqObj);
+    
+    CU_ASSERT( NULL != reqObj);
+    CU_ASSERT_EQUAL( SET_ATTRIBUTES, reqObj->reqType );
+    
+    printf("Request Type : %d\n",reqObj->reqType);
+    printf("Param Count : %lu\n",reqObj->u.setReq->paramCnt);
+    paramCount = (int)reqObj->u.setReq->paramCnt;
+    for (i = 0; i < paramCount; i++) 
+	{
+	    printf("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+	    printf("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+	    printf("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+	}	
+    CU_ASSERT( NULL == reqObj->u.setReq->param[0].value );
+   
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+}
+
+void test_and_set_without_cid ()
+{
+    printf("\n\n******** test_and_set_without_cid *******\n\n");
+    int i,paramCount;
+    req_struct *reqObj = NULL;
+      
+    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.X_CISCO_COM_FirmwareName\",\"value\":\"TG1682\",\"dataType\":0}],\"sync-cmc\":\"512\",\"command\":\"TEST_AND_SET\"}";
+ 
+    wdmp_parse_request(request,&reqObj);
+
+    printf("Request Type : %d\n",reqObj->reqType);    
+    printf("New Cid : %s\n",reqObj->u.testSetReq->newCid); 
+    printf("Old Cid : %s\n",reqObj->u.testSetReq->oldCid);    
+    
+    CU_ASSERT( NULL != reqObj);    
+    CU_ASSERT ( NULL == reqObj->u.testSetReq->newCid ); 
+    CU_ASSERT ( NULL == reqObj->u.testSetReq->oldCid );
+    CU_ASSERT_EQUAL( TEST_AND_SET, reqObj->reqType );    
+    CU_ASSERT_STRING_EQUAL( "512", reqObj->u.testSetReq->syncCmc ); 
+    
+    paramCount = (int)reqObj->u.testSetReq->paramCnt;
+    
+    for (i = 0; i < paramCount; i++) 
+    {
+	    printf("param[%d].name : %s\n",i,reqObj->u.testSetReq->param[i].name);
+	    printf("param[%d].value : %s\n",i,reqObj->u.testSetReq->param[i].value);
+	    printf("param[%d].type : %d\n",i,reqObj->u.testSetReq->param[i].type);
+    }
+    
+    CU_ASSERT_EQUAL( 1, paramCount );
+    CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.X_CISCO_COM_FirmwareName", reqObj->u.testSetReq->param[0].name );
+    CU_ASSERT_STRING_EQUAL( "TG1682", reqObj->u.testSetReq->param[0].value );   
+    CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.testSetReq->param[0].type );
+   
+    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+		
+}
+
+void empty_test_and_set ()
+{
+    printf("\n\n******** empty_test_and_set *******\n\n");
+    
+    req_struct *reqObj = NULL;
+      
+    char * request= "{\"command\":\"TEST_AND_SET\"}";
+
+    wdmp_parse_request(request,&reqObj);
+
+    printf("Request Type : %d\n",reqObj->reqType);    
+    printf("New Cid : %s\n",reqObj->u.testSetReq->newCid);    
+    printf("param struct is %s\n", (char*)reqObj->u.testSetReq->param);
+    CU_ASSERT( NULL != reqObj);
+    CU_ASSERT_EQUAL( TEST_AND_SET, reqObj->reqType );
+    CU_ASSERT(NULL == reqObj->u.testSetReq->param);   
+   
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+		
+}
+
+void set_req_null_param_value ()
+{
+    printf("\n\n******** set_req_null_param_value *******\n\n");
+    
+    int i,paramCount;
+    req_struct *reqObj = NULL;
+      
+    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.HardwareVersion\",\"value\":\"\",\"dataType\":0},{\"name\":\"Device.WiFi.SSID.Enable\",\"value\":\"true\",\"dataType\":3}],\"command\":\"SET\"}";
+ 
+    wdmp_parse_request(request,&reqObj);
+    
+    CU_ASSERT( NULL != reqObj);
+    CU_ASSERT_EQUAL( SET, reqObj->reqType );
+    
+    printf("Request Type : %d\n",reqObj->reqType);
+    printf("Param Count : %lu\n",reqObj->u.setReq->paramCnt);
+    paramCount = (int)reqObj->u.setReq->paramCnt;
+    for (i = 0; i < paramCount; i++) 
+	{
+	    printf("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+	    printf("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+	    printf("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+	}
+	
+    CU_ASSERT_EQUAL( 2, paramCount );
+    CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.HardwareVersion", reqObj->u.setReq->param[0].name );
+    CU_ASSERT_STRING_EQUAL( "Device.WiFi.SSID.Enable", reqObj->u.setReq->param[1].name );
+    CU_ASSERT( NULL == reqObj->u.setReq->param[0].value );
+    CU_ASSERT_STRING_EQUAL( "true" , reqObj->u.setReq->param[1].value );  
+    CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.setReq->param[0].type );
+    CU_ASSERT_EQUAL( WDMP_BOOLEAN, reqObj->u.setReq->param[1].type );  
+    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+		
+}
+
+void set_req_value_field_empty ()
+{
+    printf("\n\n******** set_req_value_field_empty *******\n\n");
+    
+    int paramCount;
+    req_struct *reqObj = NULL;
+      
+    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.HardwareVersion\",\"dataType\":0}],\"command\":\"SET\"}";
+ 
+    wdmp_parse_request(request,&reqObj);
+    
+    CU_ASSERT( NULL != reqObj);
+    printf("Param Count : %lu\n",reqObj->u.setReq->paramCnt);
+    paramCount = (int)reqObj->u.setReq->paramCnt;
+    
+    printf("param.name : %s\n",reqObj->u.setReq->param[0].name);
+    printf("param.value : %s\n",reqObj->u.setReq->param[0].value);
+    printf("param.type : %d\n",reqObj->u.setReq->param[0].type);
+	
+    CU_ASSERT_EQUAL( 1, paramCount );
+    CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.HardwareVersion", reqObj->u.setReq->param[0].name );
+    CU_ASSERT( NULL == reqObj->u.setReq->param[0].value );
+    CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.setReq->param[0].type );
+    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+		
+}
 
 void add_suites( CU_pSuite *suite )
 {
     *suite = CU_add_suite( "wdmp-c encoding tests", NULL, NULL );
+    
+    /* positive scenario tests */
     CU_add_test( *suite, "Test Get Request Parse", get_req_parse );
     CU_add_test( *suite, "Test Get attr Request Parse", get_attr_req_parse );
     CU_add_test( *suite, "Test Set Request Parse", set_req_parse );
@@ -373,13 +555,19 @@ void add_suites( CU_pSuite *suite )
     CU_add_test( *suite, "Test Test and set Request Parse", test_and_set_req_parse );
     CU_add_test( *suite, "Test Replace row Request Parse", replace_rows_req_parse );
     CU_add_test( *suite, "Test Add row Request Parse", add_row_req_parse );
-    CU_add_test( *suite, "Test Delete row Request Parse", delete_row_req_parse );    
+    CU_add_test( *suite, "Test Delete row Request Parse", delete_row_req_parse );
+        
+    /* negative scenario tests */
     CU_add_test( *suite, "Test Unknown command", test_unknown_command );
-    CU_add_test( *suite, "Test Empty_names", get_req_empty_names );
-   
+    CU_add_test( *suite, "Test Get Empty names", get_req_empty_names );
+    CU_add_test( *suite, "Test Get Empty notify", get_req_empty_notify );
+    CU_add_test( *suite, "Test Set Empty notify", set_req_empty_notify );
+    CU_add_test( *suite, "Test and Set without cid", test_and_set_without_cid );
+    CU_add_test( *suite, "Test Empty Test and Set Request", empty_test_and_set );
+    CU_add_test( *suite, "Test Set Req NULL Param value", set_req_null_param_value );
+    CU_add_test( *suite, "Test Set Req empty value field", set_req_value_field_empty );
+ 
 }
-
-
 
 /*----------------------------------------------------------------------------*/
 /*                             External Functions                             */
