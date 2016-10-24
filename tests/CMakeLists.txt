@@ -20,7 +20,7 @@ set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fprofile-arcs -ftest-cov
 
 link_directories ( ${LIBRARY_DIR} )
 
-add_executable(simple simple.c ../src/wdmp-c.c)
+add_executable(simple simple.c ../src/wdmp-c.c ../src/wdmp-c_internal.c)
 
 target_link_libraries (simple  gcov
                                cunit

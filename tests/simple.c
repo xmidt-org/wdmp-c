@@ -20,11 +20,13 @@
 #include <CUnit/Basic.h>
 #include <stdbool.h>
 #include <cJSON.h>
+
 #include "../src/wdmp-c.h"
+#include "../src/wdmp-c_internal.h"
 
 void get_req_parse ()
 {
-    printf("\n\n******** GET Request Parsing *******\n\n");
+    printf("\n***************************************************** \n\n");
     int i,paramCount;
     req_struct *reqObj = NULL;
     char * request= "{ \"names\":[\"Device.DeviceInfo.Webpa.Enable\",\"Device.DeviceInfo.Webpa.\"],\"command\": \"GET\"}";
@@ -58,7 +60,7 @@ void get_req_parse ()
 
 void get_attr_req_parse ()
 {
-    printf("\n\n******** GET_ATTRIBUTES Request Parsing *******\n\n");
+    printf("\n***************************************************** \n\n");
     int i,paramCount;
     req_struct *reqObj = NULL;
     
@@ -88,7 +90,7 @@ void get_attr_req_parse ()
 
 void set_req_parse ()
 {
-    printf("\n\n******** SET Request Parsing *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     int i,paramCount;
     req_struct *reqObj = NULL;
@@ -126,7 +128,7 @@ void set_req_parse ()
 
 void set_attr_req_parse ()
 {
-    printf("\n\n******** SET_ATTRIBUTES Request Parsing *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     int i,paramCount;
     req_struct *reqObj = NULL;
@@ -164,7 +166,7 @@ void set_attr_req_parse ()
 
 void test_and_set_req_parse ()
 {
-    printf("\n\n******** TEST_AND_SET Request Parsing *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     int i,paramCount;
     req_struct *reqObj = NULL;
@@ -211,7 +213,7 @@ void test_and_set_req_parse ()
 
 void replace_rows_req_parse ()
 {
-    printf("\n\n******** REPLACE_ROWS Request Parsing *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     int i,paramCount,j,rowCnt;
     req_struct *reqObj = NULL;
@@ -255,7 +257,7 @@ void replace_rows_req_parse ()
 
 void add_row_req_parse ()
 {
-    printf("\n\n******** ADD_ROW Request Parsing *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     int i,paramCount,j,rowCnt;
     req_struct *reqObj = NULL;
@@ -300,7 +302,7 @@ void add_row_req_parse ()
 
 void delete_row_req_parse ()
 {
-    printf("\n\n******** DELETE_ROWS Request Parsing *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     req_struct *reqObj = NULL;
     
@@ -325,7 +327,7 @@ void delete_row_req_parse ()
 
 void test_unknown_command ()
 {
-    printf("\n\n******** Negative Test case Unknown command *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     req_struct *reqObj = NULL;
     char * request= "{ \"names\":[\"Device.DeviceInfo.Webpa.Enable\",\"Device.WiFi.SSID.1.Enable\"],\"command\": \"UNKNOWN\"}";
@@ -336,7 +338,7 @@ void test_unknown_command ()
 
 void get_req_empty_names ()
 {
-    printf("\n\n******** Negative Test case Get Req Empty names *******\n\n");
+    printf("\n***************************************************** \n\n");
     int paramCount;
     req_struct *reqObj = NULL;
     char * request= "{ \"names\":\" \",\"command\": \"GET\"}";
@@ -367,7 +369,7 @@ void get_res_form()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n\n******** GET Response Forming *******\n\n");
+        printf("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -417,7 +419,7 @@ void get_wildcard_res_form()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n\n******** GET wildcard Response Forming *******\n\n");
+        printf("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -475,7 +477,7 @@ void get_attr_res_form()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n\n******** GET_ATTRIBUTES Response Forming *******\n\n");
+        printf("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -511,7 +513,7 @@ void set_res_form()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n\n******** SET Response Forming *******\n\n");
+        printf("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -544,7 +546,7 @@ void set_attr_res_form()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n\n******** SET_ATTRIBUTES Response Forming *******\n\n");
+        printf("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -577,7 +579,7 @@ void test_and_set_res_form()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n\n******** TEST_AND_SET Response Forming *******\n\n");
+        printf("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -611,7 +613,7 @@ void add_rows_res_form()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n\n******** ADD_ROWS Response Forming *******\n\n");
+        printf("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -637,7 +639,7 @@ void replace_rows_res_form()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n\n******** REPLACE_ROWS Response Forming *******\n\n");
+        printf("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -662,7 +664,7 @@ void delete_row_res_form()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n\n******** DELETE_ROW Response Forming *******\n\n");
+        printf("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -684,7 +686,7 @@ void delete_row_res_form()
 
 void add_request_parse_suites( CU_pSuite *suite )
 {
-    *suite = CU_add_suite( "wdmp-c encoding tests", NULL, NULL );
+    *suite = CU_add_suite( "wdmp-c request parsing tests", NULL, NULL );
     
     CU_add_test( *suite, "Test Get Request Parse", get_req_parse );
     CU_add_test( *suite, "Test Get attr Request Parse", get_attr_req_parse );
@@ -703,15 +705,15 @@ void add_response_form_suites ( CU_pSuite *suite )
 {
     *suite = CU_add_suite( "wdmp-c Response forming tests", NULL, NULL );
     
-    CU_add_test( *suite, "Test Get Response Form", get_res_form );
-    CU_add_test( *suite, "Test Get Response Form", get_wildcard_res_form );
-    CU_add_test( *suite, "Test Get attr Response Form", get_attr_res_form );
-    CU_add_test( *suite, "Test Set Response Form", set_res_form );
-    CU_add_test( *suite, "Test Set attr Response Form", set_attr_res_form );
-    CU_add_test( *suite, "Test Test and Set Response Form", test_and_set_res_form );
-    CU_add_test( *suite, "Test Add row Response Form", add_rows_res_form );
-    CU_add_test( *suite, "Test Replace rows Response Form", replace_rows_res_form );
-    CU_add_test( *suite, "Test Delete row Response Form", delete_row_res_form );            
+    CU_add_test( *suite, "Get Response Form", get_res_form );
+    CU_add_test( *suite, "Get wild card Response Form", get_wildcard_res_form );
+    CU_add_test( *suite, "Get attributes Response Form", get_attr_res_form );
+    CU_add_test( *suite, "Set Response Form", set_res_form );
+    CU_add_test( *suite, "Set attributes Response Form", set_attr_res_form );
+    CU_add_test( *suite, "Test and Set Response Form", test_and_set_res_form );
+    CU_add_test( *suite, "Add row Response Form", add_rows_res_form );
+    CU_add_test( *suite, "Replace rows Response Form", replace_rows_res_form );
+    CU_add_test( *suite, "Delete row Response Form", delete_row_res_form );            
 }
 
 /*----------------------------------------------------------------------------*/
