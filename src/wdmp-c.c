@@ -20,8 +20,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <cJSON.h>
-
+#include "wdmp_internal.h"
 #include "wdmp-c.h"
+
 /*----------------------------------------------------------------------------*/
 /*                                   Macros                                   */
 /*----------------------------------------------------------------------------*/
@@ -40,23 +41,16 @@
 /*----------------------------------------------------------------------------*/
 /*                             Function Prototypes                            */
 /*----------------------------------------------------------------------------*/
-void parse_get_request(cJSON *request, req_struct **reqObj);
-void parse_set_request(cJSON *request, req_struct **reqObj);
-void parse_test_and_set_request(cJSON *request, req_struct **reqObj);
-void parse_replace_rows_request(cJSON *request, req_struct **reqObj);
-void parse_add_row_request(cJSON *request, req_struct **reqObj);
-void parse_delete_row_request(cJSON *request, req_struct **reqObj);
+
+
 /*----------------------------------------------------------------------------*/
 /*                             External Functions                             */
 /*----------------------------------------------------------------------------*/
-/* none */
 
 void wdmp_parse_request(char * payload, req_struct **reqObj)
 {
 	cJSON *request = NULL;
 	char *out = NULL, *command = NULL;
-	
-	printf("----- Start of wdmp_parse_request ------\n"); 
 	
 	request=cJSON_Parse(payload);
 		
@@ -118,11 +112,69 @@ void wdmp_parse_request(char * payload, req_struct **reqObj)
 	{
 		printf("Empty payload\n");
 	}
-    	
-    	printf("----- End of wdmp_parse_request ------\n"); 
-	   	
+ 	
 }
 
+void wdmp_form_response(res_struct *resObj, char **payload)
+{
+        cJSON *response = NULL;
+        
+        if(resObj != NULL)
+	{
+	        response = cJSON_CreateObject();
+	        printf("resObj->reqType: %d\n",resObj->reqType);
+	        
+                switch( resObj->reqType ) {
+                
+                        case GET:
+                        {
+                                wdmp_form_get_response(resObj, response);
+                        }
+                        break;
+                        
+                        case GET_ATTRIBUTES:
+                        {
+                                wdmp_form_get_attr_response(resObj, response);
+                        }
+                        break;
+                        
+                        case SET:
+                        case SET_ATTRIBUTES:
+                        {
+		                wdmp_form_set_response(resObj, response);
+                        }
+                        break;
+                        
+                        case TEST_AND_SET:
+                        {
+		                wdmp_form_test_and_set_response(resObj, response);
+                        }
+                        break;
+                        
+                        case REPLACE_ROWS:
+                        case DELETE_ROW:
+                        case ADD_ROWS:
+                        {
+                                wdmp_form_table_response(resObj, response);
+                        }
+                        break;
+                        
+                        default:
+                                printf("Unknown request type\n");
+                }
+	}
+	
+	wdmp_free_res_struct(resObj);
+	
+	printf("Response Payload :\n%s\n",cJSON_Print(response));
+        *payload = cJSON_PrintUnformatted(response);
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+
+}
 
 void wdmp_free_req_struct( req_struct *reqObj )
 {
@@ -194,282 +246,96 @@ void wdmp_free_req_struct( req_struct *reqObj )
                 default:
                 printf("Unknown request type\n");
         }
+        
         free(reqObj);
 }
 
-void parse_get_request(cJSON *request, req_struct **reqObj)
+void wdmp_free_res_struct( res_struct *resObj )
 {
-
-	cJSON *paramArray = NULL;	
-	size_t paramCount, i;	
-	
-	(*reqObj)->u.getReq = (get_req_t *) malloc(sizeof(get_req_t));
-	memset((*reqObj)->u.getReq,0,(sizeof(get_req_t)));
-
-	char *param = NULL;
-	(*reqObj)->reqType = GET;
-	printf("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
-	paramArray = cJSON_GetObjectItem(request, "names");
-	paramCount = cJSON_GetArraySize(paramArray);
-	(*reqObj)->u.getReq->paramCnt = paramCount;
-	printf("(*reqObj)->u.getReq->paramCnt : %lu\n",(*reqObj)->u.getReq->paramCnt);
-	
-	for (i = 0; i < paramCount; i++) 
-	{
-		(*reqObj)->u.getReq->paramNames[i] = cJSON_GetArrayItem(paramArray, i)->valuestring;
-		printf("(*reqObj)->u.getReq->paramNames[%lu] : %s\n",i,(*reqObj)->u.getReq->paramNames[i]);
-	}
-
-	if(cJSON_GetObjectItem(request, "attributes") != NULL) 
-	{
-		if(strlen(cJSON_GetObjectItem(request, "attributes")->valuestring) != 0)
-		{	
-			if(strncmp(cJSON_GetObjectItem(request, "attributes")->valuestring, "notify", 6) == 0)
-			{
-				(*reqObj)->reqType = GET_ATTRIBUTES;
-				printf("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
-				for (i = 0; i < paramCount; i++) 
-				{
-					param = (cJSON_GetArrayItem(paramArray, i)->valuestring);
-					printf("param : %s\n",param);
-					(*reqObj)->u.getReq->paramNames[i] = param;
-					printf("(*reqObj)->u.getReq->paramNames[%lu] : %s\n",i,(*reqObj)->u.getReq->paramNames[i]);			
-				}
-			}
-		}
-		else
-		{	
-			printf("Empty notify received\n");
-			wdmp_free_req_struct(*reqObj );
-			(*reqObj) = NULL;
-		}
-	}
-	
-}
-
-void parse_set_request(cJSON *request, req_struct **reqObj)
-{
-
-	cJSON *reqParamObj = NULL, *attributes = NULL,*paramArray = NULL;	
-	size_t paramCount, i;
-	int notification;
-	char notif[20] = "";
-	
-	printf("parsing Set Request\n");
-	
-	(*reqObj)->reqType = SET_ATTRIBUTES;
-	printf("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
-	paramArray = cJSON_GetObjectItem(request, "parameters");
-	paramCount = cJSON_GetArraySize(paramArray);
-
-	(*reqObj)->u.setReq = (set_req_t *) malloc(sizeof(set_req_t));
-	memset((*reqObj)->u.setReq,0,(sizeof(set_req_t)));
-
-	(*reqObj)->u.setReq->paramCnt = paramCount;
-	printf("(*reqObj)->u.setReq->paramCnt : %lu\n",(*reqObj)->u.setReq->paramCnt);
-	(*reqObj)->u.setReq->param = (param_t *) malloc(sizeof(param_t) * paramCount);
-	memset((*reqObj)->u.setReq->param,0,(sizeof(param_t) * paramCount));
-
-	for (i = 0; i < paramCount; i++) 
-	{
-		reqParamObj = cJSON_GetArrayItem(paramArray, i);
-		(*reqObj)->u.setReq->param[i].name = cJSON_GetObjectItem(reqParamObj, "name")->valuestring;
-		printf("(*reqObj)->u.setReq->param[%lu].name : %s\n",i,(*reqObj)->u.setReq->param[i].name);
-		
-		if (cJSON_GetObjectItem(reqParamObj, "value") != NULL )
-		{
-			(*reqObj)->reqType = SET;
-			if(cJSON_GetObjectItem(reqParamObj, "value")->valuestring != NULL && strlen(cJSON_GetObjectItem(reqParamObj, "value")->valuestring) == 0)
-			{
-				printf("Parameter value is null\n");
-			}
-			else if(cJSON_GetObjectItem(reqParamObj, "value")->valuestring == NULL)
-			{
-				printf("Parameter value field is not a string\n");
-			}
-			else
-			{
-				(*reqObj)->u.setReq->param[i].value = cJSON_GetObjectItem(reqParamObj, "value")->valuestring;
-				printf("(*reqObj)->u.setReq->param[%lu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
-			}
-		}
-	
-		if (cJSON_GetObjectItem(reqParamObj, "attributes") != NULL )
-		{
-			attributes = cJSON_GetObjectItem(reqParamObj, "attributes");
-			if(cJSON_GetObjectItem(attributes, "notify") != NULL) 
-			{
-				notification = cJSON_GetObjectItem(attributes, "notify")->valueint;
-				printf("notification :%d\n",notification);
-				snprintf(notif, sizeof(notif), "%d", notification);
-				(*reqObj)->u.setReq->param[i].value = (char *) malloc(sizeof(char) * 20);
-				strcpy((*reqObj)->u.setReq->param[i].value, notif);
-				printf("(*reqObj)->u.setReq->param[%lu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
-			}
-		}
-			
-		if (cJSON_GetObjectItem(reqParamObj, "dataType") != NULL)
-		{
-			(*reqObj)->u.setReq->param[i].type = cJSON_GetObjectItem(reqParamObj, "dataType")->valueint;
-			printf("(*reqObj)->u.setReq->param[%lu].type : %d\n",i,(*reqObj)->u.setReq->param[i].type);
-		}
-	}
-			
-}
-
-void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
-{
-
-	cJSON *reqParamObj = NULL, *paramArray = NULL;	
-	size_t paramCount, i;
-	
-	printf("parsing Test and Set Request\n");
-	(*reqObj)->reqType = TEST_AND_SET;
-	printf("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
-	
-	(*reqObj)->u.testSetReq = (test_set_req_t *) malloc(sizeof(test_set_req_t));
-	memset((*reqObj)->u.testSetReq,0,(sizeof(test_set_req_t)));
-		
-	if(cJSON_GetObjectItem(request, "old-cid") != NULL)
-	{
-	        (*reqObj)->u.testSetReq->oldCid = cJSON_GetObjectItem(request, "old-cid")->valuestring;
-	        printf("(*reqObj)->u.testSetReq->oldCid : %s\n",(*reqObj)->u.testSetReq->oldCid);
-	}
-	if(cJSON_GetObjectItem(request, "new-cid") != NULL)
-	{
-	        (*reqObj)->u.testSetReq->newCid = cJSON_GetObjectItem(request, "new-cid")->valuestring;
-	        printf("(*reqObj)->u.testSetReq->newCid : %s\n",(*reqObj)->u.testSetReq->newCid);
-	}
-	if(cJSON_GetObjectItem(request, "sync-cmc") != NULL)
-	{
-		(*reqObj)->u.testSetReq->syncCmc = cJSON_GetObjectItem(request, "sync-cmc")->valuestring;
-		printf("(*reqObj)->u.testSetReq->syncCmc : %s\n",(*reqObj)->u.testSetReq->syncCmc);
-	}
-		
-	if (cJSON_GetObjectItem(request, "parameters") != NULL) // No Parameters
-	{
-		paramArray = cJSON_GetObjectItem(request, "parameters");
-		paramCount = cJSON_GetArraySize(paramArray);
-	
-		(*reqObj)->u.testSetReq->paramCnt = paramCount;
-		printf("(*reqObj)->u.testSetReq->paramCnt : %lu\n",(*reqObj)->u.testSetReq->paramCnt);
-	
-		(*reqObj)->u.testSetReq->param = (param_t *) malloc(sizeof(param_t) * paramCount);
-	
-		
-		for (i = 0; i < paramCount; i++) 
-		{
-			reqParamObj = cJSON_GetArrayItem(paramArray, i);
-			(*reqObj)->u.testSetReq->param[i].name = cJSON_GetObjectItem(reqParamObj, "name")->valuestring;
-			printf("(*reqObj)->u.testSetReq->param[%lu].name : %s\n",i,(*reqObj)->u.testSetReq->param[i].name);
-		
-			if (cJSON_GetObjectItem(reqParamObj, "value") != NULL)
-			{
-				(*reqObj)->u.testSetReq->param[i].value = cJSON_GetObjectItem(reqParamObj, "value")->valuestring;
-				printf("(*reqObj)->u.testSetReq->param[%lu].value : %s\n",i,(*reqObj)->u.testSetReq->param[i].value);
-			
-			}
-		
-			if (cJSON_GetObjectItem(reqParamObj, "dataType") != NULL)
-			{
-				(*reqObj)->u.testSetReq->param[i].type = cJSON_GetObjectItem(reqParamObj, "dataType")->valueint;
-				printf("(*reqObj)->u.testSetReq->param[%lu].type : %d\n",i,(*reqObj)->u.testSetReq->param[i].type);
-			}
-		}
-	}
-}
-		
-void parse_replace_rows_request(cJSON *request, req_struct **reqObj)
-{
-	
-	cJSON *paramArray = NULL, *subitem = NULL;	
-	size_t paramCount,rowCnt, i, j;
-	
-	printf("parsing Replace Rows Request\n");
-	(*reqObj)->reqType = REPLACE_ROWS;
-	printf("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
-	
-	paramArray = cJSON_GetObjectItem(request, "rows");
-	rowCnt = cJSON_GetArraySize(paramArray);
-	printf("rowCnt : %lu\n",rowCnt);
-	
-	(*reqObj)->u.tableReq = (table_req_t *) malloc(sizeof(table_req_t));
-	memset((*reqObj)->u.tableReq,0,(sizeof(table_req_t)));
-	
-	(*reqObj)->u.tableReq->rowCnt = rowCnt;
-	printf("(*reqObj)->u.tableReq->rowCnt : %lu\n",(*reqObj)->u.tableReq->rowCnt);
-	(*reqObj)->u.tableReq->objectName = cJSON_GetObjectItem(request,"table")->valuestring;
-	(*reqObj)->u.tableReq->rows = (TableData *) malloc(sizeof(TableData) * rowCnt);
-	memset((*reqObj)->u.tableReq->rows,0,(sizeof(TableData) * rowCnt));
-	
-        for ( i = 0 ; i < rowCnt ; i++)
+        size_t i;
+        switch( resObj->reqType ) 
         {
-                subitem = cJSON_GetArrayItem(paramArray, i);
-	        paramCount = cJSON_GetArraySize(subitem);
-	 	printf("paramCount: %lu\n",paramCount);
-	        (*reqObj)->u.tableReq->rows[i].paramCnt = paramCount;
-	        printf("(*reqObj)->u.tableReq->rows[%lu].paramCnt : %lu\n",i,(*reqObj)->u.tableReq->rows[i].paramCnt);
-	        
-	        (*reqObj)->u.tableReq->rows[i].names = (char **) malloc(sizeof(char *) * paramCount);
-	        (*reqObj)->u.tableReq->rows[i].values = (char **) malloc(sizeof(char *) * paramCount);
-	        for( j = 0 ; j < paramCount ; j++)
-	        {
-		        (*reqObj)->u.tableReq->rows[i].names[j] = cJSON_GetArrayItem(subitem, j)->string;
-		        printf("(*reqObj)->u.tableReq->rows[%lu].names[%lu] : %s\n",i,j,(*reqObj)->u.tableReq->rows[i].names[j]);		
-		        		
-		        (*reqObj)->u.tableReq->rows[i].values[j] = cJSON_GetArrayItem(subitem, j)->valuestring;
-		        printf("(*reqObj)->u.tableReq->rows[%lu].values[%lu] : %s\n",i,j,(*reqObj)->u.tableReq->rows[i].values[j]);	
-		        	
-	        }
-	}
-}
-
-void parse_add_row_request(cJSON *request, req_struct **reqObj)
-{
-
-	cJSON *paramArray = NULL;	
-	size_t paramCount, i;
-	
-	printf("parsing Add Row Request\n");
-	(*reqObj)->reqType = ADD_ROWS;
-	printf("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
-	
-	paramArray = cJSON_GetObjectItem(request, "row");
-	paramCount = cJSON_GetArraySize(paramArray);
-	printf("paramCount : %lu\n",paramCount);
-	
-	(*reqObj)->u.tableReq = (table_req_t *) malloc(sizeof(table_req_t));
-	memset((*reqObj)->u.tableReq,0,(sizeof(table_req_t)));
-	
-	(*reqObj)->u.tableReq->rowCnt = 1;
-	printf("(*reqObj)->u.tableReq->rowCnt : %lu\n",(*reqObj)->u.tableReq->rowCnt);
-	(*reqObj)->u.tableReq->objectName = cJSON_GetObjectItem(request,"table")->valuestring;
-	(*reqObj)->u.tableReq->rows = (TableData *) malloc(sizeof(TableData));
-	memset((*reqObj)->u.tableReq->rows,0,(sizeof(TableData)));
-	
-	(*reqObj)->u.tableReq->rows->names = (char **) malloc(sizeof(char *) * paramCount);
-        (*reqObj)->u.tableReq->rows->values = (char **) malloc(sizeof(char *) * paramCount);
-        (*reqObj)->u.tableReq->rows->paramCnt = paramCount;
-        printf("(*reqObj)->u.tableReq->rows->paramCnt : %lu\n",(*reqObj)->u.tableReq->rows->paramCnt);
+                case GET:
+                {
+                        if(resObj->u.getRes)
+                        {
+                                if(resObj->u.getRes->paramNames)
+                                {
+                                        free(resObj->u.getRes->paramNames);
+                                }
+                                
+                                if(resObj->u.getRes->params)
+                                {
+                                        for (i = 0; i < resObj->u.getRes->paramCnt; i++)
+                                        {
+                                                if(resObj->u.getRes->params[i])
+                                                {
+                                                        free(resObj->u.getRes->params[i]);
+                                                }
+                                        }
+                                        free(resObj->u.getRes->params);
+                                }
+                                
+                                if(resObj->u.getRes->retParamCnt)
+                                {
+                                        free(resObj->u.getRes->retParamCnt);
+                                }
+                                
+                                free(resObj->u.getRes);
+                        }
+                }
+                break;
+                
+                case GET_ATTRIBUTES:
+                case SET:
+                case SET_ATTRIBUTES:
+                case TEST_AND_SET:
+                {
+                        if(resObj->u.paramRes)
+                        {
+                                if(resObj->u.paramRes->params)
+                                {
+                                        free(resObj->u.paramRes->params);
+                                }
+                                free(resObj->u.paramRes);
+                        }
+                }
+                break;
+                
+                case REPLACE_ROWS:
+                case ADD_ROWS:
+                case DELETE_ROW:
+                {
+                        if(resObj->u.tableRes)
+                        {
+                                free(resObj->u.tableRes);
+                        }
+                }
+                break;
+                
+                default:
+                        printf("Unknown response type\n");
+                break;
+        }
         
-        for ( i = 0 ; i < paramCount ; i++)
+        if(resObj->timeSpan)
         {
-	        (*reqObj)->u.tableReq->rows->names[i] = cJSON_GetArrayItem(paramArray, i)->string;
-	         printf("(*reqObj)->u.tableReq->rows->names[%lu] : %s\n",i,(*reqObj)->u.tableReq->rows->names[i]);				
-	        (*reqObj)->u.tableReq->rows->values[i] = cJSON_GetArrayItem(paramArray, i)->valuestring;
-	        printf("(*reqObj)->u.tableReq->rows->values[%lu] : %s\n",i,(*reqObj)->u.tableReq->rows->values[i]);		
-	        	
-	}
+                if(resObj->timeSpan->spans)
+                {
+                        free(resObj->timeSpan->spans);
+                }
+                free(resObj->timeSpan);
+        }
+        
+        if(resObj->retStatus)
+        {
+        
+                free(resObj->retStatus);
+        }
+        
+        free(resObj);
 }
+/*----------------------------------------------------------------------------*/
+/*                             Internal functions                             */
+/*----------------------------------------------------------------------------*/
 
-void parse_delete_row_request(cJSON *request, req_struct **reqObj)
-{
-	
-	printf("parsing Delete Row Request\n");
-	(*reqObj)->reqType = DELETE_ROW;
-	printf("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
-	
-	(*reqObj)->u.tableReq = (table_req_t *) malloc(sizeof(table_req_t));
-	memset((*reqObj)->u.tableReq,0,(sizeof(table_req_t)));
-	(*reqObj)->u.tableReq->objectName = cJSON_GetObjectItem(request,"row")->valuestring;
-}

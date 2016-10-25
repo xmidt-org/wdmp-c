@@ -20,14 +20,20 @@
 #include <CUnit/Basic.h>
 #include <stdbool.h>
 #include <cJSON.h>
+
 #include "../src/wdmp-c.h"
+#include "../src/wdmp_internal.h"
 
 void get_req_parse ()
 {
-    printf("\n\n******** GET Request Parsing *******\n\n");
     int i,paramCount;
+    char *request = NULL;
     req_struct *reqObj = NULL;
-    char * request= "{ \"names\":[\"Device.DeviceInfo.Webpa.Enable\",\"Device.DeviceInfo.Webpa.\"],\"command\": \"GET\"}";
+    
+    printf("\n***************************************************** \n\n");
+    
+    request = "{ \"names\":[\"Device.DeviceInfo.Webpa.Enable\",\"Device.DeviceInfo.Webpa.\"],\"command\": \"GET\"}";
+    
     wdmp_parse_request(request,&reqObj);
     
     CU_ASSERT( NULL != reqObj);
@@ -58,13 +64,26 @@ void get_req_parse ()
 
 void get_attr_req_parse ()
 {
-    printf("\n\n******** GET_ATTRIBUTES Request Parsing *******\n\n");
+    
     int i,paramCount;
+    cJSON *request = NULL;
     req_struct *reqObj = NULL;
+    char * payload= NULL;
     
-    char * request= "{ \"names\":[\"Device.WiFi.SSID.1.Enable\",\"Device.WiFi.SSID.1.SSID\"],\"attributes\":\"notify\",\"command\": \"GET_ATTRIBUTES\"}";
+    printf("\n***************************************************** \n\n");
     
-    wdmp_parse_request(request,&reqObj);
+    payload= "{ \"names\":[\"Device.WiFi.SSID.1.Enable\",\"Device.WiFi.SSID.1.SSID\"],\"attributes\":\"notify\",\"command\": \"GET_ATTRIBUTES\"}";
+    
+    CU_ASSERT( NULL != payload);
+    
+    request = cJSON_Parse(payload);
+    
+    printf("Request: \n%s\n",cJSON_Print(request));
+    
+    (reqObj) = (req_struct *) malloc(sizeof(req_struct));
+    memset( (reqObj), 0, sizeof( req_struct ) );
+    
+    parse_get_request(request,&reqObj);
     
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( GET_ATTRIBUTES, reqObj->reqType );
@@ -88,12 +107,14 @@ void get_attr_req_parse ()
 
 void set_req_parse ()
 {
-    printf("\n\n******** SET Request Parsing *******\n\n");
     
     int i,paramCount;
+    char *request = NULL;
     req_struct *reqObj = NULL;
+    
+    printf("\n***************************************************** \n\n");
       
-    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0}],\"command\":\"SET\"}";
+    request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0}],\"command\":\"SET\"}";
  
     wdmp_parse_request(request,&reqObj);
     
@@ -126,14 +147,26 @@ void set_req_parse ()
 
 void set_attr_req_parse ()
 {
-    printf("\n\n******** SET_ATTRIBUTES Request Parsing *******\n\n");
     
     int i,paramCount;
+    cJSON *request = NULL;
     req_struct *reqObj = NULL;
+    char * payload= NULL;
+    
+    printf("\n***************************************************** \n\n");
       
-    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"attributes\": { \"notify\": 1}},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"attributes\": { \"notify\": 0}}],\"command\":\"SET_ATTRIBUTES\"}";
+    payload = "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"attributes\": { \"notify\": 1}},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"attributes\": { \"notify\": 0}}],\"command\":\"SET_ATTRIBUTES\"}";
  
-    wdmp_parse_request(request,&reqObj);
+    CU_ASSERT( NULL != payload);
+    
+    request = cJSON_Parse(payload);
+    
+    printf("Request: \n%s\n",cJSON_Print(request));
+    
+    (reqObj) = (req_struct *) malloc(sizeof(req_struct));
+    memset( (reqObj), 0, sizeof( req_struct ) );
+    
+    parse_set_request(request,&reqObj);
     
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( SET_ATTRIBUTES, reqObj->reqType );
@@ -142,11 +175,11 @@ void set_attr_req_parse ()
     printf("Param Count : %lu\n",reqObj->u.setReq->paramCnt);
     paramCount = (int)reqObj->u.setReq->paramCnt;
     for (i = 0; i < paramCount; i++) 
-	{
-	    printf("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
-	    printf("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
-	    printf("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
-	}
+    {
+        printf("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+        printf("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+        printf("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+    }
 	
     CU_ASSERT_EQUAL( 2, paramCount );
     CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.ProductClass", reqObj->u.setReq->param[0].name );
@@ -164,14 +197,25 @@ void set_attr_req_parse ()
 
 void test_and_set_req_parse ()
 {
-    printf("\n\n******** TEST_AND_SET Request Parsing *******\n\n");
-    
     int i,paramCount;
+    cJSON *request = NULL;
     req_struct *reqObj = NULL;
+    char * payload= NULL;
+    
+    printf("\n***************************************************** \n\n");
       
-    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0}],\"new-cid\":\"1234\",\"old-cid\":\"aq12\",\"sync-cmc\":\"512\",\"command\":\"TEST_AND_SET\"}";
+    payload = "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0}],\"new-cid\":\"1234\",\"old-cid\":\"aq12\",\"sync-cmc\":\"512\",\"command\":\"TEST_AND_SET\"}";
  
-    wdmp_parse_request(request,&reqObj);
+    CU_ASSERT( NULL != payload);
+    
+    request = cJSON_Parse(payload);
+    
+    printf("Request: \n%s\n",cJSON_Print(request));
+    
+    (reqObj) = (req_struct *) malloc(sizeof(req_struct));
+    memset( (reqObj), 0, sizeof( req_struct ) );
+    
+    parse_test_and_set_request(request,&reqObj);
     
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( TEST_AND_SET, reqObj->reqType );
@@ -211,14 +255,26 @@ void test_and_set_req_parse ()
 
 void replace_rows_req_parse ()
 {
-    printf("\n\n******** REPLACE_ROWS Request Parsing *******\n\n");
     
     int i,paramCount,j,rowCnt;
+    cJSON *request = NULL;
     req_struct *reqObj = NULL;
+    char * payload= NULL;
+    
+    printf("\n***************************************************** \n\n");
        
-    char * request= "{\"rows\":{\"0\":{\"DeviceName\":\"Device1\",\"MacAddress\":\"12:2:3:5:11\"},\"1\":{\"DeviceName\":\"Device2\",\"MacAddress\":\"2:1:3:5:7\"} },\"table\" : \"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.\",\"command\":\"REPLACE_ROWS\"}";
+    payload= "{\"rows\":{\"0\":{\"DeviceName\":\"Device1\",\"MacAddress\":\"12:2:3:5:11\"},\"1\":{\"DeviceName\":\"Device2\",\"MacAddress\":\"2:1:3:5:7\"} },\"table\" : \"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.\",\"command\":\"REPLACE_ROWS\"}";
  
-    wdmp_parse_request(request,&reqObj);
+    CU_ASSERT( NULL != payload);
+    
+    request = cJSON_Parse(payload);
+    
+    printf("Request: \n%s\n",cJSON_Print(request));
+    
+    (reqObj) = (req_struct *) malloc(sizeof(req_struct));
+    memset( (reqObj), 0, sizeof( req_struct ) );
+    
+    parse_replace_rows_request(request,&reqObj);
     
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( REPLACE_ROWS, reqObj->reqType );
@@ -255,14 +311,26 @@ void replace_rows_req_parse ()
 
 void add_row_req_parse ()
 {
-    printf("\n\n******** ADD_ROW Request Parsing *******\n\n");
     
     int i,paramCount,j,rowCnt;
+    cJSON *request = NULL;
     req_struct *reqObj = NULL;
+    char * payload= NULL;
+    
+    printf("\n***************************************************** \n\n");
 
-    char * request= "{\"row\":{\"DeviceName\":\"Device1\",\"MacAddress\":\"12:2:3:5:11\"},\"table\":\"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.\",\"command\":\"ADD_ROW\"}";
+    payload = "{\"row\":{\"DeviceName\":\"Device1\",\"MacAddress\":\"12:2:3:5:11\"},\"table\":\"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.\",\"command\":\"ADD_ROW\"}";
  
-    wdmp_parse_request(request,&reqObj);
+    CU_ASSERT( NULL != payload);
+    
+    request = cJSON_Parse(payload);
+    
+    printf("Request: \n%s\n",cJSON_Print(request));
+    
+    (reqObj) = (req_struct *) malloc(sizeof(req_struct));
+    memset( (reqObj), 0, sizeof( req_struct ) );
+    
+    parse_add_row_request(request,&reqObj);
     
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( ADD_ROWS, reqObj->reqType );
@@ -300,13 +368,25 @@ void add_row_req_parse ()
 
 void delete_row_req_parse ()
 {
-    printf("\n\n******** DELETE_ROWS Request Parsing *******\n\n");
     
+    cJSON *request = NULL;
     req_struct *reqObj = NULL;
+    char * payload= NULL;
     
-    char * request= "{\"row\":\"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.\",\"command\":\"DELETE_ROW\"}";
+    printf("\n***************************************************** \n\n");
+    
+    payload = "{\"row\":\"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.\",\"command\":\"DELETE_ROW\"}";
  
-    wdmp_parse_request(request,&reqObj);
+    CU_ASSERT( NULL != payload);
+    
+    request = cJSON_Parse(payload);
+    
+    printf("Request: \n%s\n",cJSON_Print(request));
+    
+    (reqObj) = (req_struct *) malloc(sizeof(req_struct));
+    memset( (reqObj), 0, sizeof( req_struct ) );
+    
+    parse_delete_row_request(request,&reqObj);
     
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( DELETE_ROW, reqObj->reqType );
@@ -325,7 +405,7 @@ void delete_row_req_parse ()
 
 void test_unknown_command ()
 {
-    printf("\n\n******** Negative Test case Unknown command *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     req_struct *reqObj = NULL;
     char * request= "{ \"names\":[\"Device.DeviceInfo.Webpa.Enable\",\"Device.WiFi.SSID.1.Enable\"],\"command\": \"UNKNOWN\"}";
@@ -340,7 +420,7 @@ void test_unknown_command ()
 
 void get_req_empty_names ()
 {
-    printf("\n\n******** Negative Test case Get Req Empty names *******\n\n");
+    printf("\n***************************************************** \n\n");
     int paramCount;
     req_struct *reqObj = NULL;
     char * request= "{ \"names\":\" \",\"command\": \"GET\"}";
@@ -368,7 +448,7 @@ void get_req_empty_names ()
 
 void get_req_empty_notify ()
 {
-    printf("\n\n******** get_req_empty_notify *******\n\n");
+    printf("\n***************************************************** \n\n");
     req_struct *reqObj = NULL;
     
     char * request= "{ \"names\":[\"Device.WiFi.SSID.1.Enable\",\"Device.WiFi.SSID.1.SSID\"],\"attributes\":\"\",\"command\": \"GET_ATTRIBUTES\"}";
@@ -383,7 +463,7 @@ void get_req_empty_notify ()
 
 void set_req_empty_notify ()
 {
-    printf("\n\n******** set_req_empty_notify *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     int i,paramCount;
     req_struct *reqObj = NULL;
@@ -413,7 +493,7 @@ void set_req_empty_notify ()
 
 void test_and_set_without_cid ()
 {
-    printf("\n\n******** test_and_set_without_cid *******\n\n");
+    printf("\n***************************************************** \n\n");
     int i,paramCount;
     req_struct *reqObj = NULL;
       
@@ -454,7 +534,7 @@ void test_and_set_without_cid ()
 
 void empty_test_and_set ()
 {
-    printf("\n\n******** empty_test_and_set *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     req_struct *reqObj = NULL;
       
@@ -477,7 +557,7 @@ void empty_test_and_set ()
 
 void set_req_null_param_value ()
 {
-    printf("\n\n******** set_req_null_param_value *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     int i,paramCount;
     req_struct *reqObj = NULL;
@@ -515,7 +595,7 @@ void set_req_null_param_value ()
 
 void set_req_value_field_empty ()
 {
-    printf("\n\n******** set_req_value_field_empty *******\n\n");
+    printf("\n***************************************************** \n\n");
     
     int paramCount;
     req_struct *reqObj = NULL;
@@ -543,9 +623,700 @@ void set_req_value_field_empty ()
 		
 }
 
-void add_suites( CU_pSuite *suite )
+void get_res_form()
 {
-    *suite = CU_add_suite( "wdmp-c encoding tests", NULL, NULL );
+        res_struct *resObj = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        cJSON *response = cJSON_CreateObject();
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = GET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.getRes = (get_res_t *) malloc(sizeof(get_res_t));
+        memset(resObj->u.getRes, 0, sizeof(get_res_t));
+        
+        resObj->u.getRes->retParamCnt = (size_t *) malloc(sizeof(size_t)*2);
+        resObj->u.getRes->retParamCnt[0] = 1;
+        resObj->u.getRes->retParamCnt[1] = 1;
+        
+        resObj->u.getRes->paramCnt = resObj->paramCnt;
+        resObj->u.getRes->paramNames = (char **) malloc(sizeof(char *) * resObj->u.getRes->paramCnt);
+        resObj->u.getRes->paramNames[0] = "Device.WIFi.SSID.1.SSID";
+        resObj->u.getRes->paramNames[1] = "Device.DeviceInfo.Webpa.Enable";
+        
+        resObj->u.getRes->params = (param_t **) malloc(sizeof(param_t*)*2);
+        memset(resObj->u.getRes->params, 0, sizeof(param_t*)*2);
+        
+        resObj->u.getRes->params[0]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[0]);
+        resObj->u.getRes->params[1]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[1]);
+        
+        resObj->u.getRes->params[0][0].name = "Device.WIFi.SSID.1.SSID";
+        resObj->u.getRes->params[0][0].value = "ssid1";
+        resObj->u.getRes->params[0][0].type = WDMP_STRING;
+        
+        resObj->u.getRes->params[1][0].name = "Device.DeviceInfo.Webpa.Enable";
+        resObj->u.getRes->params[1][0].value = "true";
+        resObj->u.getRes->params[1][0].type = WDMP_BOOLEAN;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_get_response(resObj, response);
+        
+        CU_ASSERT( NULL != response);
+        
+        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+}
+
+void get_wildcard_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = GET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.getRes = (get_res_t *) malloc(sizeof(get_res_t));
+        memset(resObj->u.getRes, 0, sizeof(get_res_t));
+        
+        resObj->u.getRes->retParamCnt = (size_t *) malloc(sizeof(size_t)*2);
+        resObj->u.getRes->retParamCnt[0] = 1;
+        resObj->u.getRes->retParamCnt[1] = 3;
+        
+        resObj->u.getRes->paramCnt = resObj->paramCnt;
+        resObj->u.getRes->paramNames = (char **) malloc(sizeof(char *) * resObj->u.getRes->paramCnt);
+        resObj->u.getRes->paramNames[0] = "Device.WIFi.SSID.1.Enable";
+        resObj->u.getRes->paramNames[1] = "Device.Webpa.";
+        
+        resObj->u.getRes->params = (param_t **) malloc(sizeof(param_t*)*2);
+        memset(resObj->u.getRes->params, 0, sizeof(param_t*)*2);
+        
+        resObj->u.getRes->params[0]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[0]);
+        resObj->u.getRes->params[1]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[1]);
+        
+        resObj->u.getRes->params[0][0].name = "Device.WIFi.SSID.1.Enable";
+        resObj->u.getRes->params[0][0].value = "true";
+        resObj->u.getRes->params[0][0].type = WDMP_BOOLEAN;
+        
+        resObj->u.getRes->params[1][0].name = "Device.Webpa.PostData";
+        resObj->u.getRes->params[1][0].value = "Not Supported";
+        resObj->u.getRes->params[1][0].type = WDMP_STRING;
+        
+        resObj->u.getRes->params[1][1].name = "Device.Webpa.X_RDKCENTRAL-COM_WebPA_Notification";
+        resObj->u.getRes->params[1][1].value = "Not Supported";
+        resObj->u.getRes->params[1][1].type = WDMP_STRING;
+        
+        resObj->u.getRes->params[1][2].name = "Device.Webpa.X_RDKCENTRAL-COM_Connected-Client";
+        resObj->u.getRes->params[1][2].value = "Not Supported";
+        resObj->u.getRes->params[1][2].type = WDMP_STRING;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj,&payload);
+        CU_ASSERT( NULL != payload);
+        printf("payload :%s\n",payload);
+}
+
+void get_attr_res_form()
+{
+        res_struct *resObj = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        response = cJSON_CreateObject();
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = GET_ATTRIBUTES;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
+        memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
+        
+        resObj->u.paramRes->params[0].name = "Device.WIFi.SSID.1.Enable";
+        resObj->u.paramRes->params[0].value = "1";
+        
+        resObj->u.paramRes->params[1].name = "Device.WIFi.SSID.1.SSID";
+        resObj->u.paramRes->params[1].value = "1";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_get_attr_response(resObj,response);
+        
+        CU_ASSERT( NULL != response);
+        
+        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+}
+
+void set_res_form()
+{
+        res_struct *resObj = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        response = cJSON_CreateObject();
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = SET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
+        memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
+        
+        resObj->u.paramRes->params[0].name = "Device.DeviceInfo.Webpa.Enable";
+        resObj->u.paramRes->params[1].name = "Device.WiFi.SSID.2.SSID";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_set_response(resObj, response);
+        
+        CU_ASSERT( NULL != response);
+        
+        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+}
+
+void set_attr_res_form()
+{
+        res_struct *resObj = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        response = cJSON_CreateObject();
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = SET_ATTRIBUTES;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
+        memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
+        
+        resObj->u.paramRes->params[0].name = "Device.WiFi.SSID.1.Enable";
+        resObj->u.paramRes->params[1].name = "Device.WiFi.SSID.1.SSID";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_set_response(resObj, response);
+        
+        CU_ASSERT( NULL != response);
+        
+        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+}
+
+void test_and_set_res_form()
+{
+        res_struct *resObj = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        response = cJSON_CreateObject();
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = TEST_AND_SET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = NULL;
+        
+        resObj->u.paramRes->syncCMC = "512";
+        resObj->u.paramRes->syncCID = "1234";
+        
+        resObj->timeSpan = NULL;
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        
+        wdmp_form_test_and_set_response(resObj, response);
+        
+        CU_ASSERT( NULL != response);
+        
+        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+}
+
+void add_rows_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = ADD_ROWS;
+        
+        resObj->u.tableRes = (table_res_t *) malloc(sizeof(table_res_t));
+        
+        resObj->u.tableRes->newObj = "Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        CU_ASSERT( NULL != payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void replace_rows_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = REPLACE_ROWS;
+        
+        resObj->u.tableRes = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        CU_ASSERT( NULL != payload);
+        
+        printf("payload :%s\n",payload);
+
+}
+
+void delete_row_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = DELETE_ROW;
+        
+        resObj->u.tableRes = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj, &payload);
+        
+        CU_ASSERT( NULL != payload);
+        
+        printf("payload :%s\n",payload);
+
+}
+
+void table_res_form()
+{
+        res_struct *resObj = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        response = cJSON_CreateObject();
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = ADD_ROWS;
+        resObj->u.tableRes = (table_res_t *) malloc(sizeof(table_res_t));
+        
+        resObj->u.tableRes->newObj = "Device.NAT.PortMapping.5.";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        
+        wdmp_form_table_response(resObj, response);
+        
+        CU_ASSERT( NULL != response);
+        
+        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+
+}
+
+void test_get_status_code()
+{
+        WDMP_RESPONSE_STATUS_CODE statusCode;
+        WDMP_STATUS * ret = NULL;
+        int paramCount = 3;
+        
+        printf("\n***************************************************** \n\n");
+        
+        ret = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS)*paramCount);
+        
+        ret[0] = WDMP_SUCCESS;
+        ret[1] = WDMP_SUCCESS;
+        ret[2] = WDMP_ERR_INVALID_PARAMETER_NAME;
+        
+        getStatusCode(&statusCode, paramCount, ret);
+        
+        CU_ASSERT( statusCode );
+        
+        printf("statusCode : %d\n",statusCode);
+        
+        if(ret)
+        {
+                free(ret);
+        }
+}
+
+void test_map_wdmp_status()
+{
+        WDMP_STATUS status;
+        char *result = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        result = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+        status = WDMP_ERR_SET_OF_CMC_OR_CID_NOT_SUPPORTED;
+                
+        mapWdmpStatusToStatusMessage(status, result);
+        
+        CU_ASSERT( NULL != result );
+        
+        printf("result : %s\n",result);
+        
+        if(result)
+        {
+                free(result);
+        }
+}
+
+void neg_get_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = GET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.getRes = (get_res_t *) malloc(sizeof(get_res_t));
+        memset(resObj->u.getRes, 0, sizeof(get_res_t));
+        
+        resObj->u.getRes->retParamCnt = NULL;
+        
+        resObj->u.getRes->paramCnt = resObj->paramCnt;
+        resObj->u.getRes->paramNames = (char **) malloc(sizeof(char *) * resObj->u.getRes->paramCnt);
+        resObj->u.getRes->paramNames[0] = "Device.WIFi.SSID.1.Enable";
+        resObj->u.getRes->paramNames[1] = "Device.DeviceIfo.SSID.";
+        
+        resObj->u.getRes->params = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_ERR_UNSUPPORTED_NAMESPACE;
+        resObj->retStatus[1] = WDMP_ERR_UNSUPPORTED_NAMESPACE;
+        
+        wdmp_form_response(resObj,&payload);
+        CU_ASSERT( NULL != payload);
+        printf("payload :%s\n",payload);
+}
+
+void get_wildcard_empty_value_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = GET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.getRes = (get_res_t *) malloc(sizeof(get_res_t));
+        memset(resObj->u.getRes, 0, sizeof(get_res_t));
+        
+        resObj->u.getRes->retParamCnt = (size_t *) malloc(sizeof(size_t)*2);
+        resObj->u.getRes->retParamCnt[0] = 1;
+        resObj->u.getRes->retParamCnt[1] = 0;
+        
+        resObj->u.getRes->paramCnt = resObj->paramCnt;
+        resObj->u.getRes->paramNames = (char **) malloc(sizeof(char *) * resObj->u.getRes->paramCnt);
+        resObj->u.getRes->paramNames[0] = "Device.WIFi.SSID.2.Enable";
+        resObj->u.getRes->paramNames[1] = "Device.Hosts.Host.";
+        
+        resObj->u.getRes->params = (param_t **) malloc(sizeof(param_t*)*2);
+        memset(resObj->u.getRes->params, 0, sizeof(param_t*)*2);
+        
+        resObj->u.getRes->params[0]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[0]);
+        resObj->u.getRes->params[1]= NULL;
+        
+        resObj->u.getRes->params[0][0].name = "Device.WIFi.SSID.2.Enable";
+        resObj->u.getRes->params[0][0].value = "true";
+        resObj->u.getRes->params[0][0].type = WDMP_BOOLEAN;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_SUCCESS;
+        resObj->retStatus[1] = WDMP_SUCCESS;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        CU_ASSERT( NULL != payload);
+        printf("payload :%s\n",payload);
+}
+
+void neg_get_attr_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = GET_ATTRIBUTES;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_ERR_INVALID_ATTRIBUTES;
+        resObj->retStatus[1] = WDMP_ERR_INVALID_ATTRIBUTES;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        CU_ASSERT( NULL != payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void neg_set_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = SET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_ERR_WILDCARD_NOT_SUPPORTED;
+        resObj->retStatus[1] = WDMP_ERR_WILDCARD_NOT_SUPPORTED;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        CU_ASSERT( NULL != payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void neg_set_attr_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = SET_ATTRIBUTES;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
+        memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
+        
+        resObj->u.paramRes->params[0].name = "Device.WiFi.SSID.4.SSID";
+        resObj->u.paramRes->params[1].name = "Device.WiFi.Radio.2.Enable";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
+        resObj->retStatus[0] = WDMP_ERR_INVALID_PARAMETER_NAME;
+        resObj->retStatus[1] = WDMP_ERR_INVALID_PARAMETER_NAME;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        CU_ASSERT( NULL != payload);
+        
+        printf("payload :%s\n",payload);
+}
+
+void neg_test_and_set_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = TEST_AND_SET;
+        resObj->paramCnt = 0;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = NULL;
+        
+        resObj->u.paramRes->syncCMC = "128";
+        resObj->u.paramRes->syncCID = "abcd";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_ERR_SETTING_CMC_OR_CID;
+        
+        wdmp_form_response(resObj, &payload);
+        
+        CU_ASSERT( NULL != payload);
+        
+        printf("Payload :%s\n",payload);
+}
+void add_request_parse_suites( CU_pSuite *suite )
+{
+    *suite = CU_add_suite( "wdmp-c request parsing tests", NULL, NULL );
     
     /* positive scenario tests */
     CU_add_test( *suite, "Test Get Request Parse", get_req_parse );
@@ -569,18 +1340,46 @@ void add_suites( CU_pSuite *suite )
  
 }
 
+void add_response_form_suites ( CU_pSuite *suite )
+{
+    *suite = CU_add_suite( "wdmp-c Response forming tests", NULL, NULL );
+    
+    CU_add_test( *suite, "Get Response Form", get_res_form );
+    CU_add_test( *suite, "Get wild card Response Form", get_wildcard_res_form );
+    CU_add_test( *suite, "Get attributes Response Form", get_attr_res_form );
+    CU_add_test( *suite, "Set Response Form", set_res_form );
+    CU_add_test( *suite, "Set attributes Response Form", set_attr_res_form );
+    CU_add_test( *suite, "Test and Set Response Form", test_and_set_res_form );
+    CU_add_test( *suite, "Add row Response Form", add_rows_res_form );
+    CU_add_test( *suite, "Replace rows Response Form", replace_rows_res_form );
+    CU_add_test( *suite, "Delete row Response Form", delete_row_res_form ); 
+    CU_add_test( *suite, "Table response Form", table_res_form );  
+    CU_add_test( *suite, "Get status code", test_get_status_code );
+    CU_add_test( *suite, "Map wdmp status", test_map_wdmp_status );   
+    
+    CU_add_test( *suite, "Negative Get Response Form", neg_get_res_form );
+    CU_add_test( *suite, "Get Wildcard empty Response Form", get_wildcard_empty_value_res_form);
+    CU_add_test( *suite, "Negative Get attributes Response Form", neg_get_attr_res_form );
+    CU_add_test( *suite, "Negative Set Response Form", neg_set_res_form );   
+    CU_add_test( *suite, "Negative Set attributes Response Form", neg_set_attr_res_form );  
+    CU_add_test( *suite, "Negative test and set Response Form", neg_test_and_set_res_form);  
+}
+
 /*----------------------------------------------------------------------------*/
 /*                             External Functions                             */
 /*----------------------------------------------------------------------------*/
 int main( void )
 {
     unsigned rv = 1;
-    CU_pSuite suite = NULL;
+    CU_pSuite req_suite = NULL, res_suite = NULL;
 
-    if( CUE_SUCCESS == CU_initialize_registry() ) {
-        add_suites( &suite );
+    if( CUE_SUCCESS == CU_initialize_registry() ) 
+    {
+        add_request_parse_suites( &req_suite );
+        add_response_form_suites( &res_suite );
 
-        if( NULL != suite ) {
+        if( NULL != req_suite ||  NULL != res_suite) 
+        {
             CU_basic_set_mode( CU_BRM_VERBOSE );
             CU_basic_run_tests();
             printf( "\n" );
@@ -592,7 +1391,8 @@ int main( void )
         CU_cleanup_registry();
     }
 
-    if( 0 != rv ) {
+    if( 0 != rv ) 
+    {
         return 1;
     }
     return 0;
