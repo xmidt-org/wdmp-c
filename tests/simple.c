@@ -623,6 +623,229 @@ void set_req_value_field_empty ()
 		
 }
 
+void verify_get_reponse(cJSON *response, res_struct *resObj)
+{
+        cJSON *paramArray = NULL, *resParamObj = NULL, *value = NULL, *valueObj = NULL;
+        size_t i, j;
+        WDMP_RESPONSE_STATUS_CODE statusCode;
+        char *result = NULL;
+        
+        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        getStatusCode(&statusCode, resObj->paramCnt, resObj->retStatus);
+        CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
+        
+        paramArray = cJSON_GetObjectItem(response, "parameters");
+        
+        CU_ASSERT( NULL != paramArray );
+        
+        printf("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
+        CU_ASSERT_EQUAL( (int)resObj->paramCnt, cJSON_GetArraySize(paramArray) );
+        
+        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        
+        for (i = 0; i < resObj->paramCnt; i++) 
+	{
+		resParamObj = cJSON_GetArrayItem(paramArray, i);
+		
+		printf("Returnparamcount[%lu]: %d\n",i, cJSON_GetObjectItem(resParamObj, "parameterCount")->valueint); 
+		CU_ASSERT_EQUAL((int)resObj->u.getRes->retParamCnt[i],cJSON_GetObjectItem(resParamObj, "parameterCount")->valueint);
+		
+		if( resObj->u.getRes->retParamCnt[i] > 1)
+		{
+		        printf("ParamName[%lu] : %s\n",i, cJSON_GetObjectItem(resParamObj, "name")->valuestring);
+		        CU_ASSERT_STRING_EQUAL( resObj->u.getRes->paramNames[i], cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+		        
+		        value = cJSON_GetObjectItem(resParamObj, "value");
+		        CU_ASSERT( NULL != value );
+		        CU_ASSERT_EQUAL((int)resObj->u.getRes->retParamCnt[i],cJSON_GetArraySize(value));
+		        
+		        for (j = 0; j < resObj->u.getRes->retParamCnt[i]; j++)
+		        {
+		                valueObj = cJSON_GetArrayItem(value, j);
+		                
+		                printf("Name[%lu][%lu] : %s\n", i,j,cJSON_GetObjectItem(valueObj, "name")->valuestring );
+		                CU_ASSERT_STRING_EQUAL( resObj->u.getRes->params[i][j].name, cJSON_GetObjectItem(valueObj, "name")->valuestring );
+		                printf("Value[%lu][%lu] : %s\n", i,j,cJSON_GetObjectItem(valueObj, "value")->valuestring );
+		                CU_ASSERT_STRING_EQUAL( resObj->u.getRes->params[i][j].value, cJSON_GetObjectItem(valueObj, "value")->valuestring );
+		                printf("Type[%lu][%lu] : %d\n", i,j,cJSON_GetObjectItem(valueObj, "dataType")->valueint);
+	                        CU_ASSERT_EQUAL((int)resObj->u.getRes->params[i][j].type,cJSON_GetObjectItem(valueObj, "dataType")->valueint);
+		        }
+		        
+		        printf("DataType[%lu] : %d\n",i, cJSON_GetObjectItem(resParamObj, "dataType")->valueint);
+		        CU_ASSERT_EQUAL( WDMP_NONE, cJSON_GetObjectItem(resParamObj, "dataType")->valueint );
+		        
+		        printf("Message[%lu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
+		        mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                        CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(resParamObj, "message")->valuestring);
+		        
+		}
+		else if( resObj->u.getRes->retParamCnt[i] == 1)
+		{
+		        j = 0;
+		        printf("ParamName[%lu] : %s\n",i, cJSON_GetObjectItem(resParamObj, "name")->valuestring);
+		        CU_ASSERT_STRING_EQUAL( resObj->u.getRes->paramNames[i], cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+		        printf("Name[%lu][%lu] : %s\n", i,j,cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+	                CU_ASSERT_STRING_EQUAL( resObj->u.getRes->params[i][j].name, cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+	                printf("Value[%lu][%lu] : %s\n", i,j,cJSON_GetObjectItem(resParamObj, "value")->valuestring );
+	                CU_ASSERT_STRING_EQUAL( resObj->u.getRes->params[i][j].value, cJSON_GetObjectItem(resParamObj, "value")->valuestring );
+	                printf("Type[%lu][%lu] : %d\n", i,j,cJSON_GetObjectItem(resParamObj, "dataType")->valueint);
+                        CU_ASSERT_EQUAL((int)resObj->u.getRes->params[i][j].type,cJSON_GetObjectItem(resParamObj, "dataType")->valueint);
+                        
+                        printf("Message[%lu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
+                        mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                        CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(resParamObj, "message")->valuestring);
+		}
+		else
+		{
+                        printf("ParamName[%lu] : %s\n",i, cJSON_GetObjectItem(resParamObj, "name")->valuestring);
+                        CU_ASSERT_STRING_EQUAL( resObj->u.getRes->paramNames[i], cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+                         
+                        printf("Value[%lu] : %s\n", i,cJSON_GetObjectItem(resParamObj, "value")->valuestring );
+	                CU_ASSERT_STRING_EQUAL( "EMPTY", cJSON_GetObjectItem(resParamObj, "value")->valuestring );   
+		}
+	}
+	
+	if(result)
+        {
+                free(result); 
+        }
+	
+}
+
+void verify_param_response(cJSON *response, res_struct *resObj)
+{
+        cJSON *paramArray = NULL, *resParamObj = NULL, *attributes = NULL;
+        size_t i;
+        WDMP_RESPONSE_STATUS_CODE statusCode;
+        char *result = NULL;
+        
+        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        getStatusCode(&statusCode, resObj->paramCnt, resObj->retStatus);
+        CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
+        
+        paramArray = cJSON_GetObjectItem(response, "parameters");
+        
+        CU_ASSERT( NULL != paramArray );
+        
+        printf("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
+        CU_ASSERT_EQUAL( (int)resObj->paramCnt, cJSON_GetArraySize(paramArray) );
+        
+        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        
+        for (i = 0; i < resObj->paramCnt; i++) 
+	{
+		resParamObj = cJSON_GetArrayItem(paramArray, i);
+		printf("Name[%lu] : %s\n", i,cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+                CU_ASSERT_STRING_EQUAL( resObj->u.paramRes->params[i].name, cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+                
+                if(resObj->reqType == GET_ATTRIBUTES)
+                {
+                        attributes = cJSON_GetObjectItem(resParamObj, "attributes");
+                        CU_ASSERT( NULL != attributes );
+                        printf("Value[%lu] : %d\n", i,cJSON_GetObjectItem(attributes, "notify")->valueint );
+                        CU_ASSERT_EQUAL( atoi(resObj->u.paramRes->params[i].value), cJSON_GetObjectItem(attributes, "notify")->valueint );
+                }
+                printf("Message[%lu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
+                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(resParamObj, "message")->valuestring);
+	}
+	
+	if(result)
+        {
+                free(result); 
+        }
+	
+}
+
+void verify_testandset_response(cJSON *response, res_struct *resObj)
+{
+        cJSON *paramArray = NULL, *resParamObj = NULL;
+        size_t i;
+        WDMP_RESPONSE_STATUS_CODE statusCode;
+        char *result = NULL;
+        
+        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        getStatusCode(&statusCode, 1, resObj->retStatus);
+        CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
+        
+        paramArray = cJSON_GetObjectItem(response, "parameters");
+        
+        CU_ASSERT( NULL != paramArray );
+        
+        printf("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
+        CU_ASSERT_EQUAL( (int)resObj->paramCnt, cJSON_GetArraySize(paramArray) );
+        
+        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        
+        for (i = 0; i < resObj->paramCnt; i++) 
+	{
+		resParamObj = cJSON_GetArrayItem(paramArray, i);
+		printf("Name[%lu] : %s\n", i,cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+		if(0 == strcmp(cJSON_GetObjectItem(resParamObj, "name")->valuestring, WDMP_SYNC_PARAM_CID))
+		{
+		        printf("CID: %s\n", cJSON_GetObjectItem(resParamObj, "value")->valuestring);
+                        CU_ASSERT_STRING_EQUAL( resObj->u.paramRes->syncCID, cJSON_GetObjectItem(resParamObj, "value")->valuestring );
+                }
+                else if(0 == strcmp(cJSON_GetObjectItem(resParamObj, "name")->valuestring, WDMP_SYNC_PARAM_CMC))
+                {
+                        printf("CMC: %d\n", cJSON_GetObjectItem(resParamObj, "value")->valueint);
+                        CU_ASSERT_EQUAL( atoi(resObj->u.paramRes->syncCMC), cJSON_GetObjectItem(resParamObj, "value")->valueint );
+                }
+                
+	}
+	
+	printf("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
+	mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+        CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
+        
+        if(result)
+        {
+                free(result); 
+        }
+}
+
+void verify_table_response(cJSON *response, res_struct *resObj)
+{
+        WDMP_RESPONSE_STATUS_CODE statusCode;
+        char *result = NULL;
+        
+        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        
+        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        
+        if(resObj->reqType == ADD_ROWS)
+        {
+                CU_ASSERT_EQUAL(WDMP_ADDROW_STATUS_SUCCESS, cJSON_GetObjectItem(response, "statusCode")->valueint);
+                printf("New row: %s\n", cJSON_GetObjectItem(response, "row")->valuestring);
+                CU_ASSERT_STRING_EQUAL(resObj->u.tableRes->newObj, cJSON_GetObjectItem(response, "row")->valuestring);
+        }
+        else
+        {
+                getStatusCode(&statusCode, 1, resObj->retStatus);
+                CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
+        }
+        
+        printf("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
+        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+        CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
+}
+
+void verify_failure_response(cJSON *response, res_struct *resObj)
+{
+        WDMP_RESPONSE_STATUS_CODE statusCode;
+        char *result = NULL;
+        
+        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        getStatusCode(&statusCode, 1, resObj->retStatus);
+        CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
+        
+        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        
+        printf("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
+        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+        CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
+}
+
 void get_res_form()
 {
         res_struct *resObj = NULL;
@@ -672,7 +895,9 @@ void get_res_form()
         wdmp_form_get_response(resObj, response);
         
         CU_ASSERT( NULL != response);
-        
+	
+	verify_get_reponse(response, resObj);
+	
         printf("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
@@ -690,6 +915,7 @@ void get_wildcard_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON * response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -740,8 +966,24 @@ void get_wildcard_res_form()
         resObj->retStatus[1] = WDMP_SUCCESS;
         
         wdmp_form_response(resObj,&payload);
+        
         CU_ASSERT( NULL != payload);
+        
+        response = cJSON_Parse(payload);
+        
+        verify_get_reponse(response, resObj);
+        
         printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 }
 
 void get_attr_res_form()
@@ -779,6 +1021,8 @@ void get_attr_res_form()
         wdmp_form_get_attr_response(resObj,response);
         
         CU_ASSERT( NULL != response);
+        
+        verify_param_response(response,resObj);
         
         printf("Response Payload :\n%s\n",cJSON_Print(response));
         
@@ -827,6 +1071,8 @@ void set_res_form()
         
         CU_ASSERT( NULL != response);
         
+        verify_param_response(response,resObj);
+        
         printf("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
@@ -873,6 +1119,8 @@ void set_attr_res_form()
         
         CU_ASSERT( NULL != response);
         
+        verify_param_response(response,resObj);
+        
         printf("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
@@ -917,6 +1165,8 @@ void test_and_set_res_form()
         
         CU_ASSERT( NULL != response);
         
+        verify_testandset_response(response,resObj);
+
         printf("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
@@ -934,6 +1184,7 @@ void add_rows_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON *response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -955,13 +1206,28 @@ void add_rows_res_form()
         
         CU_ASSERT( NULL != payload);
         
+        response = cJSON_Parse(payload);
+        
+        verify_table_response(response,resObj);
+        
         printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 }
 
 void replace_rows_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON *response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -981,7 +1247,21 @@ void replace_rows_res_form()
         
         CU_ASSERT( NULL != payload);
         
+        response = cJSON_Parse(payload);
+        
+        verify_table_response(response,resObj);
+        
         printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 
 }
 
@@ -989,6 +1269,7 @@ void delete_row_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON *response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -1008,7 +1289,21 @@ void delete_row_res_form()
         
         CU_ASSERT( NULL != payload);
         
+        response = cJSON_Parse(payload);
+        
+        verify_table_response(response,resObj);
+        
         printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 
 }
 
@@ -1038,6 +1333,8 @@ void table_res_form()
         
         CU_ASSERT( NULL != response);
         
+        verify_table_response(response,resObj);
+        
         printf("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
@@ -1064,11 +1361,11 @@ void test_get_status_code()
         
         ret[0] = WDMP_SUCCESS;
         ret[1] = WDMP_SUCCESS;
-        ret[2] = WDMP_ERR_INVALID_PARAMETER_NAME;
+        ret[2] = WDMP_ERR_WIFI_BUSY;
         
         getStatusCode(&statusCode, paramCount, ret);
         
-        CU_ASSERT( statusCode );
+        CU_ASSERT_EQUAL( WDMP_STATUS_WIFI_BUSY, statusCode );
         
         printf("statusCode : %d\n",statusCode);
         
@@ -1092,6 +1389,8 @@ void test_map_wdmp_status()
         
         CU_ASSERT( NULL != result );
         
+        CU_ASSERT_STRING_EQUAL( "SET of CMC or CID is not supported", result );
+        
         printf("result : %s\n",result);
         
         if(result)
@@ -1104,6 +1403,7 @@ void neg_get_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON * response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -1132,14 +1432,31 @@ void neg_get_res_form()
         resObj->retStatus[1] = WDMP_ERR_UNSUPPORTED_NAMESPACE;
         
         wdmp_form_response(resObj,&payload);
+        
         CU_ASSERT( NULL != payload);
+        
+        response = cJSON_Parse(payload);
+        
+        verify_failure_response(response, resObj);
+        
         printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 }
 
 void get_wildcard_empty_value_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON *response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -1180,13 +1497,29 @@ void get_wildcard_empty_value_res_form()
         wdmp_form_response(resObj,&payload);
         
         CU_ASSERT( NULL != payload);
+        
+        response = cJSON_Parse(payload);
+        
+        verify_get_reponse(response, resObj);
+        
         printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 }
 
 void neg_get_attr_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON *response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -1211,13 +1544,28 @@ void neg_get_attr_res_form()
         
         CU_ASSERT( NULL != payload);
         
+        response = cJSON_Parse(payload);
+        
+        verify_failure_response(response, resObj);
+        
         printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 }
 
 void neg_set_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON *response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -1242,13 +1590,28 @@ void neg_set_res_form()
         
         CU_ASSERT( NULL != payload);
         
+        response = cJSON_Parse(payload);
+        
+        verify_failure_response(response, resObj);
+        
         printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 }
 
 void neg_set_attr_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON *response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -1279,13 +1642,28 @@ void neg_set_attr_res_form()
         
         CU_ASSERT( NULL != payload);
         
+        response = cJSON_Parse(payload);
+        
+        verify_param_response(response, resObj);
+        
         printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 }
 
 void neg_test_and_set_res_form()
 {
         res_struct *resObj = NULL;
         char *payload = NULL;
+        cJSON *response = NULL;
         
         printf("\n***************************************************** \n\n");
         
@@ -1293,7 +1671,7 @@ void neg_test_and_set_res_form()
         memset(resObj, 0, sizeof(res_struct));
         
         resObj->reqType = TEST_AND_SET;
-        resObj->paramCnt = 0;
+        resObj->paramCnt = 2;
         
         resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
         memset(resObj->u.paramRes, 0, sizeof(param_res_t));
@@ -1309,11 +1687,271 @@ void neg_test_and_set_res_form()
         resObj->retStatus[0] = WDMP_ERR_SETTING_CMC_OR_CID;
         
         wdmp_form_response(resObj, &payload);
+
+        CU_ASSERT( NULL != payload);
+        
+        response = cJSON_Parse(payload);
+        
+        verify_testandset_response(response, resObj);
+        
+        printf("Payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+}
+
+void test_cmc()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = TEST_AND_SET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = NULL;
+        
+        resObj->u.paramRes->syncCMC = "1234";
+        resObj->u.paramRes->syncCID = "abcd";
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_ERR_CMC_TEST_FAILED;
+        
+        wdmp_form_response(resObj, &payload);
+
+        CU_ASSERT( NULL != payload);
+        
+        response = cJSON_Parse(payload);
+        
+        verify_failure_response(response, resObj);
+        
+        printf("Payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+}
+
+void test_and_set_without_cid_res_form()
+{
+
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = TEST_AND_SET;
+        resObj->paramCnt = 2;
+        
+        resObj->u.paramRes = (param_res_t *) malloc(sizeof(param_res_t));
+        memset(resObj->u.paramRes, 0, sizeof(param_res_t));
+        
+        resObj->u.paramRes->params = NULL;
+        
+        resObj->u.paramRes->syncCMC = "128";
+        resObj->u.paramRes->syncCID = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_ERR_NEW_CID_IS_MISSING;
+        
+        wdmp_form_response(resObj, &payload);
+
+        CU_ASSERT( NULL != payload);
+        
+        response = cJSON_Parse(payload);
+        
+        verify_failure_response(response, resObj);
+        
+        printf("Payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+}
+
+void neg_add_rows_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = ADD_ROWS;
+        
+        resObj->u.tableRes = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_ERR_NOT_WRITABLE;
+        
+        wdmp_form_response(resObj,&payload);
         
         CU_ASSERT( NULL != payload);
         
-        printf("Payload :%s\n",payload);
+        response = cJSON_Parse(payload);
+        
+        verify_failure_response(response,resObj);
+        
+        printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
 }
+
+void neg_replace_rows_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = REPLACE_ROWS;
+        
+        resObj->u.tableRes = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_ERR_INVALID_PARAMETER_VALUE;
+        
+        wdmp_form_response(resObj,&payload);
+        
+        CU_ASSERT( NULL != payload);
+        
+        response = cJSON_Parse(payload);
+        
+        verify_failure_response(response,resObj);
+        
+        printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+
+}
+
+void neg_delete_row_res_form()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        cJSON *response = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = DELETE_ROW;
+        
+        resObj->u.tableRes = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_ERR_INVALID_PARAMETER_NAME;
+        
+        wdmp_form_response(resObj, &payload);
+        
+        CU_ASSERT( NULL != payload);
+        
+        response = cJSON_Parse(payload);
+        
+        verify_failure_response(response,resObj);
+        
+        printf("payload :%s\n",payload);
+        
+        if(NULL != resObj)
+        {
+                wdmp_free_res_struct(resObj);
+        }
+        
+        if(response != NULL)
+	{
+		cJSON_Delete(response);
+	}
+
+}
+
+void test_unknown_req_type()
+{
+        res_struct *resObj = NULL;
+        char *payload = NULL;
+        
+        printf("\n***************************************************** \n\n");
+        
+        resObj = (res_struct *) malloc(sizeof(res_struct));
+        memset(resObj, 0, sizeof(res_struct));
+        
+        resObj->reqType = 10;
+        resObj->u.tableRes = NULL;
+        
+        resObj->timeSpan = NULL;
+        
+        resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
+        resObj->retStatus[0] = WDMP_ERR_INVALID_PARAMETER_NAME;
+        
+        wdmp_form_response(resObj, &payload);
+        
+        CU_ASSERT( NULL == payload);
+}
+
 void add_request_parse_suites( CU_pSuite *suite )
 {
     *suite = CU_add_suite( "wdmp-c request parsing tests", NULL, NULL );
@@ -1362,7 +2000,13 @@ void add_response_form_suites ( CU_pSuite *suite )
     CU_add_test( *suite, "Negative Get attributes Response Form", neg_get_attr_res_form );
     CU_add_test( *suite, "Negative Set Response Form", neg_set_res_form );   
     CU_add_test( *suite, "Negative Set attributes Response Form", neg_set_attr_res_form );  
-    CU_add_test( *suite, "Negative test and set Response Form", neg_test_and_set_res_form);  
+    CU_add_test( *suite, "Negative test and set Response Form", neg_test_and_set_res_form);
+    CU_add_test( *suite, "Test CMC ", test_cmc);  
+    CU_add_test( *suite, "Test and set without CID Response Form", test_and_set_without_cid_res_form);  
+    CU_add_test( *suite, "Negative Add row Response Form", neg_add_rows_res_form );
+    CU_add_test( *suite, "Negative Replace rows Response Form", neg_replace_rows_res_form );
+    CU_add_test( *suite, "Negative Delete row Response Form", neg_delete_row_res_form );
+    CU_add_test( *suite, "Test unknown request type", test_unknown_req_type);
 }
 
 /*----------------------------------------------------------------------------*/

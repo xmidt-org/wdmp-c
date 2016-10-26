@@ -702,7 +702,8 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 	else if (status == WDMP_ERR_SETTING_CMC_OR_CID)
 	{
 	        strcpy(result,"Error setting CID/CMC");
-	}else if (status == WDMP_ERR_INVALID_INPUT_PARAMETER)
+	}
+	else if (status == WDMP_ERR_INVALID_INPUT_PARAMETER)
 	{
 	        strcpy(result,"Invalid Input parameter - CID/CMC value cannot be set");
 	}

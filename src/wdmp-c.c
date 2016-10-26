@@ -124,7 +124,8 @@ void wdmp_form_response(res_struct *resObj, char **payload)
 	        response = cJSON_CreateObject();
 	        printf("resObj->reqType: %d\n",resObj->reqType);
 	        
-                switch( resObj->reqType ) {
+                switch( resObj->reqType ) 
+                {
                 
                         case GET:
                         {
@@ -160,17 +161,21 @@ void wdmp_form_response(res_struct *resObj, char **payload)
                         break;
                         
                         default:
+                        {
                                 printf("Unknown request type\n");
+                                wdmp_free_res_struct(resObj );
+                                resObj = NULL;
+                                cJSON_Delete(response);
+                                response = NULL;
+                        }
+                        break;
                 }
 	}
 	
-	wdmp_free_res_struct(resObj);
-	
-	printf("Response Payload :\n%s\n",cJSON_Print(response));
-        *payload = cJSON_PrintUnformatted(response);
-        
         if(response != NULL)
 	{
+	        printf("Response Payload :\n%s\n",cJSON_Print(response));
+                *payload = cJSON_PrintUnformatted(response);
 		cJSON_Delete(response);
 	}
 
@@ -311,10 +316,6 @@ void wdmp_free_res_struct( res_struct *resObj )
                                 free(resObj->u.tableRes);
                         }
                 }
-                break;
-                
-                default:
-                        printf("Unknown response type\n");
                 break;
         }
         
