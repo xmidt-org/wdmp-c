@@ -27,9 +27,7 @@ set(INCLUDE_DIR ${INSTALL_DIR}/include)
 set(LIBRARY_DIR ${INSTALL_DIR}/lib${LIB_SUFFIX})
 include_directories(${INCLUDE_DIR}
                     ${INCLUDE_DIR}/cJSON
-                    ${INCLUDE_DIR}/wrp-c
-                    ${CURL_INCLUDE_DIRS}
-                    ${INCLUDE_DIR}/trower-base64)
+                    ${CURL_INCLUDE_DIRS})
 include_directories (SYSTEM /usr/include)
 
 # cJSON external dependency
@@ -41,41 +39,6 @@ ExternalProject_Add(cJSON
 )
 add_library(libcJSON STATIC IMPORTED)
 add_dependencies(libcJSON cJSON)
-
-# base64 external dependency
-ExternalProject_Add(trower-base64
-    PREFIX ${PREFIX_DIR}/trower-base64
-    GIT_REPOSITORY https://github.com/Comcast/trower-base64.git
-    GIT_TAG "master"
-    CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR})
-add_library(libtrower-base64 STATIC IMPORTED)
-add_dependencies(libtrower-base64 trower-base64)
-
-
-# wrp-c external dependency
-ExternalProject_Add(wrp-c
-    PREFIX ${PREFIX_DIR}/wrp-c
-    GIT_REPOSITORY https://github.com/Comcast/wrp-c.git
-    GIT_TAG "master"
-    CMAKE_ARGS += -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
-)
-add_library(libwrp-c STATIC IMPORTED)
-add_dependencies(libwrp-c wrp-c)
-
-
-
-# msgpack-c external dependency
-ExternalProject_Add(msgpack
-    PREFIX ${PREFIX_DIR}/msgpack
-    GIT_REPOSITORY https://github.com/msgpack/msgpack-c.git
-    GIT_TAG "master"
-    CMAKE_ARGS += -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
-    -DMSGPACK_ENABLE_CXX=OFF
-    -DMSGPACK_BUILD_EXAMPLES=OFF)
-add_library(libmsgpack STATIC IMPORTED)
-add_dependencies(libmsgpack msgpack)
-
-
 
 enable_testing()
 
