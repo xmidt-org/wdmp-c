@@ -26,7 +26,7 @@ set(PREFIX_DIR ${CMAKE_CURRENT_BINARY_DIR}/_prefix)
 set(INCLUDE_DIR ${INSTALL_DIR}/include)
 set(LIBRARY_DIR ${INSTALL_DIR}/lib${LIB_SUFFIX})
 include_directories(${INCLUDE_DIR}
-                    ${INCLUDE_DIR}/cJSON
+                    ${INCLUDE_DIR}/cjson
                     ${CURL_INCLUDE_DIRS})
 include_directories (SYSTEM /usr/include)
 
@@ -37,8 +37,8 @@ ExternalProject_Add(cJSON
     GIT_TAG "master"
     CMAKE_ARGS += -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR}
 )
-add_library(libcJSON STATIC IMPORTED)
-add_dependencies(libcJSON cJSON)
+add_library(libcjson STATIC IMPORTED)
+add_dependencies(libcjson cjson)
 
 enable_testing()
 
