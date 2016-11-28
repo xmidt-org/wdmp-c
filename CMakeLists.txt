@@ -30,6 +30,8 @@ include_directories(${INCLUDE_DIR}
                     ${CURL_INCLUDE_DIRS})
 include_directories (SYSTEM /usr/include)
 
+if (NOT BUILD_YOCTO)
+
 # cJSON external dependency
 ExternalProject_Add(cJSON
     PREFIX ${PREFIX_DIR}/cJSON
@@ -39,6 +41,8 @@ ExternalProject_Add(cJSON
 )
 add_library(libcjson STATIC IMPORTED)
 add_dependencies(libcjson cjson)
+
+endif ()
 
 enable_testing()
 
