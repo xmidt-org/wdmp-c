@@ -257,7 +257,7 @@ void wdmp_free_req_struct( req_struct *reqObj )
 
 void wdmp_free_res_struct( res_struct *resObj )
 {
-        size_t i;
+        size_t i, j;
         switch( resObj->reqType ) 
         {
                 case GET:
@@ -275,6 +275,11 @@ void wdmp_free_res_struct( res_struct *resObj )
                                         {
                                                 if(resObj->u.getRes->params[i])
                                                 {
+                                                        for (j = 0; j < resObj->u.getRes->retParamCnt[i]; j++)
+                                                        { 
+                                                                free(resObj->u.getRes->params[i][j].name);
+                                                                free(resObj->u.getRes->params[i][j].value);
+                                                        }
                                                         free(resObj->u.getRes->params[i]);
                                                 }
                                         }
@@ -300,7 +305,20 @@ void wdmp_free_res_struct( res_struct *resObj )
                         {
                                 if(resObj->u.paramRes->params)
                                 {
+                                        for (i = 0; i < resObj->paramCnt; i++)
+                                        { 
+                                                free(resObj->u.paramRes->params[i].name);
+                                                free(resObj->u.paramRes->params[i].value);
+                                        }
                                         free(resObj->u.paramRes->params);
+                                }
+                                if(resObj->u.paramRes->syncCMC)
+                                {
+                                        free(resObj->u.paramRes->syncCMC);
+                                }
+                                if(resObj->u.paramRes->syncCID)
+                                {
+                                        free(resObj->u.paramRes->syncCID);
                                 }
                                 free(resObj->u.paramRes);
                         }
@@ -313,6 +331,10 @@ void wdmp_free_res_struct( res_struct *resObj )
                 {
                         if(resObj->u.tableRes)
                         {
+                                if(resObj->u.tableRes->newObj)
+                                {
+                                        free(resObj->u.tableRes->newObj);
+                                }
                                 free(resObj->u.tableRes);
                         }
                 }

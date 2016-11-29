@@ -202,7 +202,7 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 		printf("(*reqObj)->u.testSetReq->paramCnt : %zu\n",(*reqObj)->u.testSetReq->paramCnt);
 	
 		(*reqObj)->u.testSetReq->param = (param_t *) malloc(sizeof(param_t) * paramCount);
-	
+	        memset((*reqObj)->u.testSetReq->param,0,(sizeof(param_t) * paramCount));
 		
 		for (i = 0; i < paramCount; i++) 
 		{
@@ -333,68 +333,64 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         printf("paramCount : %zu\n",paramCount);
         result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
                 
-        if(resObj->u.getRes)
+        getStatusCode(&statusCode, paramCount, resObj->retStatus);
+        printf("statusCode : %d\n",statusCode);
+        if(statusCode == WDMP_STATUS_SUCCESS)
         {
-                
-                getStatusCode(&statusCode, paramCount, resObj->retStatus);
-                printf("statusCode : %d\n",statusCode);
-                if(statusCode == WDMP_STATUS_SUCCESS)
+                cJSON_AddItemToObject(response, "parameters", parameters =cJSON_CreateArray());
+                printf("resObj->u.getRes->paramCnt : %zu\n",resObj->u.getRes->paramCnt);
+                for (i = 0; i < paramCount; i++) 
                 {
-                        cJSON_AddItemToObject(response, "parameters", parameters =cJSON_CreateArray());
-                        printf("resObj->u.getRes->paramCnt : %zu\n",resObj->u.getRes->paramCnt);
-                        for (i = 0; i < paramCount; i++) 
+                        cJSON_AddItemToArray(parameters, resParamObj = cJSON_CreateObject());
+                        printf("resObj->u.getRes->retParamCnt[%zu] : %zu\n",i,resObj->u.getRes->retParamCnt[i]);
+                        if(resObj->u.getRes->retParamCnt[i] >= 1)
                         {
-                                cJSON_AddItemToArray(parameters, resParamObj = cJSON_CreateObject());
-                                printf("resObj->u.getRes->retParamCnt[%zu] : %zu\n",i,resObj->u.getRes->retParamCnt[i]);
-                                if(resObj->u.getRes->retParamCnt[i] >= 1)
-                                {
-		                        if(resObj->u.getRes->retParamCnt[i] > 1)
-		                        {
-		                                printf("resObj->u.getRes->paramNames[%zu] : %s\n",i,resObj->u.getRes->paramNames[i]);
-                                                cJSON_AddStringToObject(resParamObj, "name", resObj->u.getRes->paramNames[i]);
-                                                cJSON_AddItemToObject(resParamObj, "value",value = cJSON_CreateArray());
-                                                for (j = 0; j < resObj->u.getRes->retParamCnt[i]; j++) 
-                                                {
-                                                        cJSON_AddItemToArray(value, valueObj = cJSON_CreateObject());
-                                                        printf("resObj->u.getRes->params[%zu][%zu].name :%s\n",i,j,resObj->u.getRes->params[i][j].name);
-                                                        cJSON_AddStringToObject(valueObj, "name", resObj->u.getRes->params[i][j].name);
-		                                        printf("resObj->u.getRes->params[%zu][%zu].value :%s\n",i,j,resObj->u.getRes->params[i][j].value);
-		                                        cJSON_AddStringToObject(valueObj, "value",resObj->u.getRes->params[i][0].value);
-		                                        printf("resObj->u.getRes->params[%zu][%zu].type :%d\n",i,j,resObj->u.getRes->params[i][j].type);
-		                                        cJSON_AddNumberToObject(valueObj, "dataType",resObj->u.getRes->params[i][j].type);
-                                                }
-                                                cJSON_AddNumberToObject(resParamObj, "dataType",WDMP_NONE);
-		                                cJSON_AddNumberToObject(resParamObj, "parameterCount", resObj->u.getRes->retParamCnt[i]);
-		                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
-		                                cJSON_AddStringToObject(resParamObj, "message", result);
-		                        }
-		                        else
-		                        {
-		                                printf("resObj->u.getRes->params[%zu][0].name :%s\n",i,resObj->u.getRes->params[i][0].name);
-                                                cJSON_AddStringToObject(resParamObj, "name", resObj->u.getRes->params[i][0].name);
-		                                printf("resObj->u.getRes->params[%zu][0].value :%s\n",i,resObj->u.getRes->params[i][0].value);
-		                                cJSON_AddStringToObject(resParamObj, "value",resObj->u.getRes->params[i][0].value);
-		                                printf("resObj->u.getRes->params[%zu][0].type :%d\n",i,resObj->u.getRes->params[i][0].type);
-		                                cJSON_AddNumberToObject(resParamObj, "dataType",resObj->u.getRes->params[i][0].type);
-		                                cJSON_AddNumberToObject(resParamObj, "parameterCount", resObj->u.getRes->retParamCnt[i]);
-		                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
-		                                cJSON_AddStringToObject(resParamObj, "message", result);
-		                        }
-                                }
-                                else
-                                {
-                                        printf("resObj->u.getRes->paramNames[%zu] : %s\n",i,resObj->u.getRes->paramNames[i]);
+	                        if(resObj->u.getRes->retParamCnt[i] > 1)
+	                        {
+	                                printf("resObj->u.getRes->paramNames[%zu] : %s\n",i,resObj->u.getRes->paramNames[i]);
                                         cJSON_AddStringToObject(resParamObj, "name", resObj->u.getRes->paramNames[i]);
-                                        cJSON_AddStringToObject(resParamObj, "value","EMPTY");
-                                        cJSON_AddNumberToObject(resParamObj, "parameterCount", resObj->u.getRes->retParamCnt[i]);
-                                }
+                                        cJSON_AddItemToObject(resParamObj, "value",value = cJSON_CreateArray());
+                                        for (j = 0; j < resObj->u.getRes->retParamCnt[i]; j++) 
+                                        {
+                                                cJSON_AddItemToArray(value, valueObj = cJSON_CreateObject());
+                                                printf("resObj->u.getRes->params[%zu][%zu].name :%s\n",i,j,resObj->u.getRes->params[i][j].name);
+                                                cJSON_AddStringToObject(valueObj, "name", resObj->u.getRes->params[i][j].name);
+	                                        printf("resObj->u.getRes->params[%zu][%zu].value :%s\n",i,j,resObj->u.getRes->params[i][j].value);
+	                                        cJSON_AddStringToObject(valueObj, "value",resObj->u.getRes->params[i][0].value);
+	                                        printf("resObj->u.getRes->params[%zu][%zu].type :%d\n",i,j,resObj->u.getRes->params[i][j].type);
+	                                        cJSON_AddNumberToObject(valueObj, "dataType",resObj->u.getRes->params[i][j].type);
+                                        }
+                                        cJSON_AddNumberToObject(resParamObj, "dataType",WDMP_NONE);
+	                                cJSON_AddNumberToObject(resParamObj, "parameterCount", resObj->u.getRes->retParamCnt[i]);
+	                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+	                                cJSON_AddStringToObject(resParamObj, "message", result);
+	                        }
+	                        else
+	                        {
+	                                printf("resObj->u.getRes->params[%zu][0].name :%s\n",i,resObj->u.getRes->params[i][0].name);
+                                        cJSON_AddStringToObject(resParamObj, "name", resObj->u.getRes->params[i][0].name);
+	                                printf("resObj->u.getRes->params[%zu][0].value :%s\n",i,resObj->u.getRes->params[i][0].value);
+	                                cJSON_AddStringToObject(resParamObj, "value",resObj->u.getRes->params[i][0].value);
+	                                printf("resObj->u.getRes->params[%zu][0].type :%d\n",i,resObj->u.getRes->params[i][0].type);
+	                                cJSON_AddNumberToObject(resParamObj, "dataType",resObj->u.getRes->params[i][0].type);
+	                                cJSON_AddNumberToObject(resParamObj, "parameterCount", resObj->u.getRes->retParamCnt[i]);
+	                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+	                                cJSON_AddStringToObject(resParamObj, "message", result);
+	                        }
+                        }
+                        else
+                        {
+                                printf("resObj->u.getRes->paramNames[%zu] : %s\n",i,resObj->u.getRes->paramNames[i]);
+                                cJSON_AddStringToObject(resParamObj, "name", resObj->u.getRes->paramNames[i]);
+                                cJSON_AddStringToObject(resParamObj, "value","EMPTY");
+                                cJSON_AddNumberToObject(resParamObj, "parameterCount", resObj->u.getRes->retParamCnt[i]);
                         }
                 }
-                else
-                {
-                        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
-		        cJSON_AddStringToObject(response, "message", result);
-                }
+        }
+        else
+        {
+                mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+	        cJSON_AddStringToObject(response, "message", result);
         }
         
         cJSON_AddNumberToObject(response, "statusCode", statusCode);
@@ -417,39 +413,35 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         paramCount = resObj->paramCnt;
         printf("paramCount : %zu\n",paramCount);
                 
-        if(resObj->u.paramRes)
+        getStatusCode(&statusCode, paramCount, resObj->retStatus);
+        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        if(statusCode == WDMP_STATUS_SUCCESS)
         {
-                
-                getStatusCode(&statusCode, paramCount, resObj->retStatus);
-                result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
-                if(statusCode == WDMP_STATUS_SUCCESS)
+                cJSON_AddItemToObject(response, "parameters", parameters =cJSON_CreateArray());
+                for (i = 0; i < paramCount; i++) 
                 {
-                        cJSON_AddItemToObject(response, "parameters", parameters =cJSON_CreateArray());
-                        for (i = 0; i < paramCount; i++) 
-                        {
-                                cJSON_AddItemToArray(parameters, resParamObj = cJSON_CreateObject());
-                                printf("resObj->u.paramRes->params[%zu].name :%s\n",i,resObj->u.paramRes->params[i].name);
-                                cJSON_AddStringToObject(resParamObj, "name", resObj->u.paramRes->params[i].name);
-                                cJSON_AddItemToObject(resParamObj, "attributes",attributes = cJSON_CreateObject());
-                                printf("resObj->u.paramRes->params[%zu].value :%s\n",i,resObj->u.paramRes->params[i].value);
-		                notification = atoi(resObj->u.paramRes->params[i].value);
-		                printf("notification : %d\n", notification);
-		                cJSON_AddNumberToObject(attributes, "notify", notification);
-		                printf("resObj->retStatus[i] :%d\n",resObj->retStatus[i]);
-                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
-                                cJSON_AddStringToObject(resParamObj, "message", result);
-                        }
+                        cJSON_AddItemToArray(parameters, resParamObj = cJSON_CreateObject());
+                        printf("resObj->u.paramRes->params[%zu].name :%s\n",i,resObj->u.paramRes->params[i].name);
+                        cJSON_AddStringToObject(resParamObj, "name", resObj->u.paramRes->params[i].name);
+                        cJSON_AddItemToObject(resParamObj, "attributes",attributes = cJSON_CreateObject());
+                        printf("resObj->u.paramRes->params[%zu].value :%s\n",i,resObj->u.paramRes->params[i].value);
+	                notification = atoi(resObj->u.paramRes->params[i].value);
+	                printf("notification : %d\n", notification);
+	                cJSON_AddNumberToObject(attributes, "notify", notification);
+	                printf("resObj->retStatus[i] :%d\n",resObj->retStatus[i]);
+                        mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                        cJSON_AddStringToObject(resParamObj, "message", result);
                 }
-                else
-                {
-                        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
-		        cJSON_AddStringToObject(response, "message", result);
-                }
-                
-                if(result)
-                {
-                        free(result); 
-                }
+        }
+        else
+        {
+                mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+	        cJSON_AddStringToObject(response, "message", result);
+        }
+        
+        if(result)
+        {
+                free(result); 
         }
         
         printf("statusCode : %d\n",statusCode);
@@ -514,14 +506,11 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
         printf("resObj->retStatus : %d\n",resObj->retStatus[0]);
         getStatusCode(&statusCode,1,resObj->retStatus);
         
-        if(resObj->u.tableRes)
+        if((resObj->u.tableRes != NULL) && (statusCode == WDMP_STATUS_SUCCESS))
         {
-                printf("resObj->u.tableRes->newObj : %s\n",resObj->u.tableRes->newObj);
-                cJSON_AddStringToObject(response, "row", resObj->u.tableRes->newObj);
-                if(statusCode == WDMP_STATUS_SUCCESS)
-                {
                        statusCode = WDMP_ADDROW_STATUS_SUCCESS; 
-                }
+                       printf("resObj->u.tableRes->newObj : %s\n",resObj->u.tableRes->newObj);
+                       cJSON_AddStringToObject(response, "row", resObj->u.tableRes->newObj);
         }
         
         mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
