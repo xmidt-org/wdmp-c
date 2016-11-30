@@ -24,6 +24,8 @@
 #include "../src/wdmp-c.h"
 #include "../src/wdmp_internal.h"
 
+#define MAX_PARAM_LEN 128
+
 void get_req_parse ()
 {
     int i,paramCount;
@@ -878,12 +880,18 @@ void get_res_form()
         resObj->u.getRes->params[0]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[0]);
         resObj->u.getRes->params[1]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[1]);
         
-        resObj->u.getRes->params[0][0].name = "Device.WIFi.SSID.1.SSID";
-        resObj->u.getRes->params[0][0].value = "ssid1";
+        resObj->u.getRes->params[0][0].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.getRes->params[0][0].value = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.getRes->params[0][0].name, "Device.WIFi.SSID.1.SSID");
+        strcpy(resObj->u.getRes->params[0][0].value, "ssid1");
         resObj->u.getRes->params[0][0].type = WDMP_STRING;
         
-        resObj->u.getRes->params[1][0].name = "Device.DeviceInfo.Webpa.Enable";
-        resObj->u.getRes->params[1][0].value = "true";
+        resObj->u.getRes->params[1][0].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.getRes->params[1][0].value = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.getRes->params[1][0].name, "Device.DeviceInfo.Webpa.Enable");
+        strcpy(resObj->u.getRes->params[1][0].value, "true");
         resObj->u.getRes->params[1][0].type = WDMP_BOOLEAN;
         
         resObj->timeSpan = NULL;
@@ -943,20 +951,32 @@ void get_wildcard_res_form()
         resObj->u.getRes->params[0]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[0]);
         resObj->u.getRes->params[1]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[1]);
         
-        resObj->u.getRes->params[0][0].name = "Device.WIFi.SSID.1.Enable";
-        resObj->u.getRes->params[0][0].value = "true";
+        resObj->u.getRes->params[0][0].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.getRes->params[0][0].value = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.getRes->params[0][0].name, "Device.WIFi.SSID.1.Enable");
+        strcpy(resObj->u.getRes->params[0][0].value, "true");
         resObj->u.getRes->params[0][0].type = WDMP_BOOLEAN;
         
-        resObj->u.getRes->params[1][0].name = "Device.Webpa.PostData";
-        resObj->u.getRes->params[1][0].value = "Not Supported";
+        resObj->u.getRes->params[1][0].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.getRes->params[1][0].value = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.getRes->params[1][0].name, "Device.Webpa.PostData");
+        strcpy(resObj->u.getRes->params[1][0].value, "Not Supported");
         resObj->u.getRes->params[1][0].type = WDMP_STRING;
         
-        resObj->u.getRes->params[1][1].name = "Device.Webpa.X_RDKCENTRAL-COM_WebPA_Notification";
-        resObj->u.getRes->params[1][1].value = "Not Supported";
+        resObj->u.getRes->params[1][1].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.getRes->params[1][1].value = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.getRes->params[1][1].name, "Device.Webpa.X_RDKCENTRAL-COM_WebPA_Notification");
+        strcpy(resObj->u.getRes->params[1][1].value, "Not Supported");
         resObj->u.getRes->params[1][1].type = WDMP_STRING;
         
-        resObj->u.getRes->params[1][2].name = "Device.Webpa.X_RDKCENTRAL-COM_Connected-Client";
-        resObj->u.getRes->params[1][2].value = "Not Supported";
+        resObj->u.getRes->params[1][2].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.getRes->params[1][2].value = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.getRes->params[1][2].name, "Device.Webpa.X_RDKCENTRAL-COM_Connected-Client");
+        strcpy(resObj->u.getRes->params[1][2].value,  "Not Supported");
         resObj->u.getRes->params[1][2].type = WDMP_STRING;
         
         resObj->timeSpan = NULL;
@@ -1006,11 +1026,17 @@ void get_attr_res_form()
         resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
         memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
         
-        resObj->u.paramRes->params[0].name = "Device.WIFi.SSID.1.Enable";
-        resObj->u.paramRes->params[0].value = "1";
+        resObj->u.paramRes->params[0].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.paramRes->params[0].value = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
         
-        resObj->u.paramRes->params[1].name = "Device.WIFi.SSID.1.SSID";
-        resObj->u.paramRes->params[1].value = "1";
+        strcpy(resObj->u.paramRes->params[0].name, "Device.WIFi.SSID.1.Enable");
+        strcpy(resObj->u.paramRes->params[0].value, "1");
+        
+        resObj->u.paramRes->params[1].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.paramRes->params[1].value = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.paramRes->params[1].name , "Device.WIFi.SSID.1.SSID");
+        strcpy(resObj->u.paramRes->params[1].value, "1");
         
         resObj->timeSpan = NULL;
         
@@ -1058,8 +1084,10 @@ void set_res_form()
         resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
         memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
         
-        resObj->u.paramRes->params[0].name = "Device.DeviceInfo.Webpa.Enable";
-        resObj->u.paramRes->params[1].name = "Device.WiFi.SSID.2.SSID";
+        resObj->u.paramRes->params[0].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        strcpy(resObj->u.paramRes->params[0].name, "Device.DeviceInfo.Webpa.Enable");
+        resObj->u.paramRes->params[1].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        strcpy(resObj->u.paramRes->params[1].name, "Device.WiFi.SSID.2.SSID");
         
         resObj->timeSpan = NULL;
         
@@ -1106,8 +1134,10 @@ void set_attr_res_form()
         resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
         memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
         
-        resObj->u.paramRes->params[0].name = "Device.WiFi.SSID.1.Enable";
-        resObj->u.paramRes->params[1].name = "Device.WiFi.SSID.1.SSID";
+        resObj->u.paramRes->params[0].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        strcpy(resObj->u.paramRes->params[0].name , "Device.WiFi.SSID.1.Enable");
+        resObj->u.paramRes->params[1].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        strcpy(resObj->u.paramRes->params[1].name , "Device.WiFi.SSID.1.SSID");
         
         resObj->timeSpan = NULL;
         
@@ -1154,8 +1184,10 @@ void test_and_set_res_form()
         
         resObj->u.paramRes->params = NULL;
         
-        resObj->u.paramRes->syncCMC = "512";
-        resObj->u.paramRes->syncCID = "1234";
+        resObj->u.paramRes->syncCMC = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.paramRes->syncCID = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        strcpy(resObj->u.paramRes->syncCMC , "512");
+        strcpy(resObj->u.paramRes->syncCID , "1234");
         
         resObj->timeSpan = NULL;
         resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS));
@@ -1195,7 +1227,8 @@ void add_rows_res_form()
         
         resObj->u.tableRes = (table_res_t *) malloc(sizeof(table_res_t));
         
-        resObj->u.tableRes->newObj = "Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.";
+        resObj->u.tableRes->newObj = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        strcpy(resObj->u.tableRes->newObj , "Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.");
         
         resObj->timeSpan = NULL;
         
@@ -1321,8 +1354,9 @@ void table_res_form()
         
         resObj->reqType = ADD_ROWS;
         resObj->u.tableRes = (table_res_t *) malloc(sizeof(table_res_t));
+        resObj->u.tableRes->newObj = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
         
-        resObj->u.tableRes->newObj = "Device.NAT.PortMapping.5.";
+        strcpy(resObj->u.tableRes->newObj , "Device.NAT.PortMapping.5.");
         
         resObj->timeSpan = NULL;
         
@@ -1484,8 +1518,11 @@ void get_wildcard_empty_value_res_form()
         resObj->u.getRes->params[0]= (param_t *) malloc(sizeof(param_t)*resObj->u.getRes->retParamCnt[0]);
         resObj->u.getRes->params[1]= NULL;
         
-        resObj->u.getRes->params[0][0].name = "Device.WIFi.SSID.2.Enable";
-        resObj->u.getRes->params[0][0].value = "true";
+        resObj->u.getRes->params[0][0].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.getRes->params[0][0].value = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.getRes->params[0][0].name , "Device.WIFi.SSID.2.Enable");
+        strcpy(resObj->u.getRes->params[0][0].value , "true");
         resObj->u.getRes->params[0][0].type = WDMP_BOOLEAN;
         
         resObj->timeSpan = NULL;
@@ -1627,8 +1664,11 @@ void neg_set_attr_res_form()
         resObj->u.paramRes->params = (param_t *) malloc(sizeof(param_t)*2);
         memset(resObj->u.paramRes->params, 0, sizeof(param_t)*2);
         
-        resObj->u.paramRes->params[0].name = "Device.WiFi.SSID.4.SSID";
-        resObj->u.paramRes->params[1].name = "Device.WiFi.Radio.2.Enable";
+        resObj->u.paramRes->params[0].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.paramRes->params[1].name = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.paramRes->params[0].name , "Device.WiFi.SSID.4.SSID");
+        strcpy(resObj->u.paramRes->params[1].name , "Device.WiFi.Radio.2.Enable");
         
         resObj->timeSpan = NULL;
         
@@ -1678,8 +1718,11 @@ void neg_test_and_set_res_form()
         
         resObj->u.paramRes->params = NULL;
         
-        resObj->u.paramRes->syncCMC = "128";
-        resObj->u.paramRes->syncCID = "abcd";
+        resObj->u.paramRes->syncCMC = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.paramRes->syncCID = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.paramRes->syncCMC , "128");
+        strcpy(resObj->u.paramRes->syncCID , "abcd");
         
         resObj->timeSpan = NULL;
         
@@ -1725,9 +1768,11 @@ void test_cmc()
         memset(resObj->u.paramRes, 0, sizeof(param_res_t));
         
         resObj->u.paramRes->params = NULL;
+        resObj->u.paramRes->syncCMC = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        resObj->u.paramRes->syncCID = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
         
-        resObj->u.paramRes->syncCMC = "1234";
-        resObj->u.paramRes->syncCID = "abcd";
+        strcpy(resObj->u.paramRes->syncCMC, "1234");
+        strcpy(resObj->u.paramRes->syncCID, "abcd");
         
         resObj->timeSpan = NULL;
         
@@ -1775,7 +1820,9 @@ void test_and_set_without_cid_res_form()
         
         resObj->u.paramRes->params = NULL;
         
-        resObj->u.paramRes->syncCMC = "128";
+        resObj->u.paramRes->syncCMC = (char *) malloc(sizeof(char) * MAX_PARAM_LEN);
+        
+        strcpy(resObj->u.paramRes->syncCMC, "128");
         resObj->u.paramRes->syncCID = NULL;
         
         resObj->timeSpan = NULL;
