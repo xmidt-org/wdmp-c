@@ -21,6 +21,7 @@
 #include <stdint.h>
 
 #include "wdmp-c.h"
+#include "wdmp_log.h"
 
 typedef enum
 {
