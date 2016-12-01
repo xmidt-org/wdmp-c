@@ -32,7 +32,7 @@ void get_req_parse ()
     char *request = NULL;
     req_struct *reqObj = NULL;
     
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     
     request = "{ \"names\":[\"Device.DeviceInfo.Webpa.Enable\",\"Device.DeviceInfo.Webpa.\"],\"command\": \"GET\"}";
     
@@ -40,17 +40,17 @@ void get_req_parse ()
     
     CU_ASSERT( NULL != reqObj);
     
-    printf("Request Type : %d\n",reqObj->reqType);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
     
     CU_ASSERT_EQUAL( GET, reqObj->reqType );
     
     if(reqObj->u.getReq)
     {
-        printf("ParamCount : %zu\n",reqObj->u.getReq->paramCnt);
+        WdmpPrint("ParamCount : %zu\n",reqObj->u.getReq->paramCnt);
         paramCount = (int)reqObj->u.getReq->paramCnt;
         for (i = 0; i < paramCount; i++) 
         {
-            printf("paramNames[%d] : %s\n",i,reqObj->u.getReq->paramNames[i]);
+            WdmpPrint("paramNames[%d] : %s\n",i,reqObj->u.getReq->paramNames[i]);
             
         }
     }
@@ -72,7 +72,7 @@ void get_attr_req_parse ()
     req_struct *reqObj = NULL;
     char * payload= NULL;
     
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     
     payload= "{ \"names\":[\"Device.WiFi.SSID.1.Enable\",\"Device.WiFi.SSID.1.SSID\"],\"attributes\":\"notify\",\"command\": \"GET_ATTRIBUTES\"}";
     
@@ -80,7 +80,7 @@ void get_attr_req_parse ()
     
     request = cJSON_Parse(payload);
     
-    printf("Request: \n%s\n",cJSON_Print(request));
+    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
     
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
@@ -90,12 +90,12 @@ void get_attr_req_parse ()
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( GET_ATTRIBUTES, reqObj->reqType );
     
-    printf("Request Type : %d\n",reqObj->reqType);
-    printf("ParamCount : %zu\n",reqObj->u.getReq->paramCnt);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
+    WdmpPrint("ParamCount : %zu\n",reqObj->u.getReq->paramCnt);
     paramCount = (int)reqObj->u.getReq->paramCnt;
     for (i = 0; i < paramCount; i++) 
     {
-        printf("paramNames[%d] : %s\n",i,reqObj->u.getReq->paramNames[i]);
+        WdmpPrint("paramNames[%d] : %s\n",i,reqObj->u.getReq->paramNames[i]);
     }
     
     CU_ASSERT_EQUAL( 2, paramCount );
@@ -114,7 +114,7 @@ void set_req_parse ()
     char *request = NULL;
     req_struct *reqObj = NULL;
     
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
       
     request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0}],\"command\":\"SET\"}";
  
@@ -123,14 +123,14 @@ void set_req_parse ()
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( SET, reqObj->reqType );
     
-    printf("Request Type : %d\n",reqObj->reqType);
-    printf("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
+    WdmpPrint("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
     paramCount = (int)reqObj->u.setReq->paramCnt;
     for (i = 0; i < paramCount; i++) 
 	{
-	    printf("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
-	    printf("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
-	    printf("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+	    WdmpPrint("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+	    WdmpPrint("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+	    WdmpPrint("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
 	}
 	
     CU_ASSERT_EQUAL( 2, paramCount );
@@ -155,7 +155,7 @@ void set_attr_req_parse ()
     req_struct *reqObj = NULL;
     char * payload= NULL;
     
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
       
     payload = "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"attributes\": { \"notify\": 1}},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"attributes\": { \"notify\": 0}}],\"command\":\"SET_ATTRIBUTES\"}";
  
@@ -163,7 +163,7 @@ void set_attr_req_parse ()
     
     request = cJSON_Parse(payload);
     
-    printf("Request: \n%s\n",cJSON_Print(request));
+    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
     
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
@@ -173,14 +173,14 @@ void set_attr_req_parse ()
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( SET_ATTRIBUTES, reqObj->reqType );
     
-    printf("Request Type : %d\n",reqObj->reqType);
-    printf("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
+    WdmpPrint("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
     paramCount = (int)reqObj->u.setReq->paramCnt;
     for (i = 0; i < paramCount; i++) 
     {
-        printf("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
-        printf("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
-        printf("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+        WdmpPrint("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+        WdmpPrint("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+        WdmpPrint("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
     }
 	
     CU_ASSERT_EQUAL( 2, paramCount );
@@ -204,7 +204,7 @@ void test_and_set_req_parse ()
     req_struct *reqObj = NULL;
     char * payload= NULL;
     
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
       
     payload = "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0}],\"new-cid\":\"1234\",\"old-cid\":\"aq12\",\"sync-cmc\":\"512\",\"command\":\"TEST_AND_SET\"}";
  
@@ -212,7 +212,7 @@ void test_and_set_req_parse ()
     
     request = cJSON_Parse(payload);
     
-    printf("Request: \n%s\n",cJSON_Print(request));
+    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
     
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
@@ -222,11 +222,11 @@ void test_and_set_req_parse ()
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( TEST_AND_SET, reqObj->reqType );
     
-    printf("Request Type : %d\n",reqObj->reqType);
-    printf("Param Count : %zu\n",reqObj->u.testSetReq->paramCnt);
-    printf("New Cid : %s\n",reqObj->u.testSetReq->newCid);
-    printf("Old Cid : %s\n",reqObj->u.testSetReq->oldCid);
-    printf("Sync Cmc : %s\n",reqObj->u.testSetReq->syncCmc);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
+    WdmpPrint("Param Count : %zu\n",reqObj->u.testSetReq->paramCnt);
+    WdmpInfo("New Cid : %s\n",reqObj->u.testSetReq->newCid);
+    WdmpInfo("Old Cid : %s\n",reqObj->u.testSetReq->oldCid);
+    WdmpInfo("Sync Cmc : %s\n",reqObj->u.testSetReq->syncCmc);
     
     CU_ASSERT_STRING_EQUAL( "1234", reqObj->u.testSetReq->newCid ); 
     CU_ASSERT_STRING_EQUAL( "aq12", reqObj->u.testSetReq->oldCid ); 
@@ -236,9 +236,9 @@ void test_and_set_req_parse ()
     
     for (i = 0; i < paramCount; i++) 
     {
-	    printf("param[%d].name : %s\n",i,reqObj->u.testSetReq->param[i].name);
-	    printf("param[%d].value : %s\n",i,reqObj->u.testSetReq->param[i].value);
-	    printf("param[%d].type : %d\n",i,reqObj->u.testSetReq->param[i].type);
+	    WdmpPrint("param[%d].name : %s\n",i,reqObj->u.testSetReq->param[i].name);
+	    WdmpPrint("param[%d].value : %s\n",i,reqObj->u.testSetReq->param[i].value);
+	    WdmpPrint("param[%d].type : %d\n",i,reqObj->u.testSetReq->param[i].type);
     }
     
     CU_ASSERT_EQUAL( 2, paramCount );
@@ -263,7 +263,7 @@ void replace_rows_req_parse ()
     req_struct *reqObj = NULL;
     char * payload= NULL;
     
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
        
     payload= "{\"rows\":{\"0\":{\"DeviceName\":\"Device1\",\"MacAddress\":\"12:2:3:5:11\"},\"1\":{\"DeviceName\":\"Device2\",\"MacAddress\":\"2:1:3:5:7\"} },\"table\" : \"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.\",\"command\":\"REPLACE_ROWS\"}";
  
@@ -271,7 +271,7 @@ void replace_rows_req_parse ()
     
     request = cJSON_Parse(payload);
     
-    printf("Request: \n%s\n",cJSON_Print(request));
+    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
     
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
@@ -281,22 +281,22 @@ void replace_rows_req_parse ()
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( REPLACE_ROWS, reqObj->reqType );
     
-    printf("Req Type : %d\n",reqObj->reqType);
-    printf("Object Name : %s\n",reqObj->u.tableReq->objectName);
-    printf("Row Count : %zu\n",reqObj->u.tableReq->rowCnt);
+    WdmpInfo("Req Type : %d\n",reqObj->reqType);
+    WdmpInfo("Object Name : %s\n",reqObj->u.tableReq->objectName);
+    WdmpInfo("Row Count : %zu\n",reqObj->u.tableReq->rowCnt);
     rowCnt = (int)reqObj->u.tableReq->rowCnt;
     CU_ASSERT_STRING_EQUAL( "Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.", reqObj->u.tableReq->objectName );
     CU_ASSERT_EQUAL( 2, rowCnt );
     
     for ( i = 0 ; i < rowCnt ; i++)
     {
-        printf("ParamCount: %zu\n",reqObj->u.tableReq->rows[i].paramCnt);
+        WdmpPrint("ParamCount: %zu\n",reqObj->u.tableReq->rows[i].paramCnt);
         paramCount = (int)reqObj->u.tableReq->rows[i].paramCnt;
         
         for( j = 0 ; j < paramCount ; j++)
         {
-	        printf("rows[%d].names[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].names[j]);				
-	        printf("rows[%d].values[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].values[j]);			
+	        WdmpPrint("rows[%d].names[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].names[j]);				
+	        WdmpPrint("rows[%d].values[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].values[j]);			
         }
     }
     
@@ -319,7 +319,7 @@ void add_row_req_parse ()
     req_struct *reqObj = NULL;
     char * payload= NULL;
     
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
 
     payload = "{\"row\":{\"DeviceName\":\"Device1\",\"MacAddress\":\"12:2:3:5:11\"},\"table\":\"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.\",\"command\":\"ADD_ROW\"}";
  
@@ -327,7 +327,7 @@ void add_row_req_parse ()
     
     request = cJSON_Parse(payload);
     
-    printf("Request: \n%s\n",cJSON_Print(request));
+    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
     
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
@@ -337,9 +337,9 @@ void add_row_req_parse ()
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( ADD_ROWS, reqObj->reqType );
     
-    printf("Req Type : %d\n",reqObj->reqType);
-    printf("Object Name : %s\n",reqObj->u.tableReq->objectName);
-    printf("Row Count : %zu\n",reqObj->u.tableReq->rowCnt);
+    WdmpInfo("Req Type : %d\n",reqObj->reqType);
+    WdmpInfo("Object Name : %s\n",reqObj->u.tableReq->objectName);
+    WdmpInfo("Row Count : %zu\n",reqObj->u.tableReq->rowCnt);
     
     CU_ASSERT_STRING_EQUAL( "Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.", reqObj->u.tableReq->objectName );
     CU_ASSERT_EQUAL( 1, reqObj->u.tableReq->rowCnt );
@@ -347,13 +347,13 @@ void add_row_req_parse ()
     
     for ( i = 0 ; i < rowCnt ; i++)
     {
-        printf("ParamCount: %zu\n",reqObj->u.tableReq->rows[i].paramCnt);
+        WdmpPrint("ParamCount: %zu\n",reqObj->u.tableReq->rows[i].paramCnt);
         paramCount = (int)reqObj->u.tableReq->rows[i].paramCnt;
         
         for( j = 0 ; j < paramCount ; j++)
         {
-	        printf("rows[%d].names[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].names[j]);				
-	        printf("rows[%d].values[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].values[j]);			
+	        WdmpPrint("rows[%d].names[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].names[j]);				
+	        WdmpPrint("rows[%d].values[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].values[j]);			
         }
     }
     
@@ -375,7 +375,7 @@ void delete_row_req_parse ()
     req_struct *reqObj = NULL;
     char * payload= NULL;
     
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     
     payload = "{\"row\":\"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.\",\"command\":\"DELETE_ROW\"}";
  
@@ -383,7 +383,7 @@ void delete_row_req_parse ()
     
     request = cJSON_Parse(payload);
     
-    printf("Request: \n%s\n",cJSON_Print(request));
+    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
     
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
@@ -393,9 +393,9 @@ void delete_row_req_parse ()
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( DELETE_ROW, reqObj->reqType );
     
-    printf("Req Type : %d\n",reqObj->reqType);
-    printf("Object Name : %s\n",reqObj->u.tableReq->objectName);
-    printf("Row Count : %zu\n",reqObj->u.tableReq->rowCnt);
+    WdmpInfo("Req Type : %d\n",reqObj->reqType);
+    WdmpInfo("Object Name : %s\n",reqObj->u.tableReq->objectName);
+    WdmpInfo("Row Count : %zu\n",reqObj->u.tableReq->rowCnt);
     CU_ASSERT_STRING_EQUAL( "Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.", reqObj->u.tableReq->objectName );
     CU_ASSERT_EQUAL( 0, reqObj->u.tableReq->rowCnt );
 
@@ -407,7 +407,7 @@ void delete_row_req_parse ()
 
 void test_unknown_command ()
 {
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     
     req_struct *reqObj = NULL;
     char * request= "{ \"names\":[\"Device.DeviceInfo.Webpa.Enable\",\"Device.WiFi.SSID.1.Enable\"],\"command\": \"UNKNOWN\"}";
@@ -422,7 +422,7 @@ void test_unknown_command ()
 
 void get_req_empty_names ()
 {
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     int paramCount;
     req_struct *reqObj = NULL;
     char * request= "{ \"names\":\" \",\"command\": \"GET\"}";
@@ -430,13 +430,13 @@ void get_req_empty_names ()
     
     CU_ASSERT( NULL != reqObj);
     
-    printf("Request Type : %d\n",reqObj->reqType);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
     
     CU_ASSERT_EQUAL( GET, reqObj->reqType );
     
     if(reqObj->u.getReq)
     {
-        printf("ParamCount : %zu\n",reqObj->u.getReq->paramCnt);
+        WdmpPrint("ParamCount : %zu\n",reqObj->u.getReq->paramCnt);
         paramCount = (int)reqObj->u.getReq->paramCnt;
         CU_ASSERT_EQUAL( 0, paramCount );
         
@@ -450,7 +450,7 @@ void get_req_empty_names ()
 
 void get_req_empty_notify ()
 {
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     req_struct *reqObj = NULL;
     
     char * request= "{ \"names\":[\"Device.WiFi.SSID.1.Enable\",\"Device.WiFi.SSID.1.SSID\"],\"attributes\":\"\",\"command\": \"GET_ATTRIBUTES\"}";
@@ -465,7 +465,7 @@ void get_req_empty_notify ()
 
 void set_req_empty_notify ()
 {
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     
     int i,paramCount;
     req_struct *reqObj = NULL;
@@ -477,14 +477,14 @@ void set_req_empty_notify ()
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( SET_ATTRIBUTES, reqObj->reqType );
     
-    printf("Request Type : %d\n",reqObj->reqType);
-    printf("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
+    WdmpPrint("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
     paramCount = (int)reqObj->u.setReq->paramCnt;
     for (i = 0; i < paramCount; i++) 
 	{
-	    printf("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
-	    printf("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
-	    printf("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+	    WdmpPrint("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+	    WdmpPrint("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+	    WdmpPrint("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
 	}	
     CU_ASSERT( NULL == reqObj->u.setReq->param[0].value );
    
@@ -495,7 +495,7 @@ void set_req_empty_notify ()
 
 void test_and_set_without_cid ()
 {
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     int i,paramCount;
     req_struct *reqObj = NULL;
       
@@ -503,9 +503,9 @@ void test_and_set_without_cid ()
  
     wdmp_parse_request(request,&reqObj);
 
-    printf("Request Type : %d\n",reqObj->reqType);    
-    printf("New Cid : %s\n",reqObj->u.testSetReq->newCid); 
-    printf("Old Cid : %s\n",reqObj->u.testSetReq->oldCid);    
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);    
+    WdmpInfo("New Cid : %s\n",reqObj->u.testSetReq->newCid); 
+    WdmpInfo("Old Cid : %s\n",reqObj->u.testSetReq->oldCid);    
     
     CU_ASSERT( NULL != reqObj);    
     CU_ASSERT ( NULL == reqObj->u.testSetReq->newCid ); 
@@ -517,9 +517,9 @@ void test_and_set_without_cid ()
     
     for (i = 0; i < paramCount; i++) 
     {
-	    printf("param[%d].name : %s\n",i,reqObj->u.testSetReq->param[i].name);
-	    printf("param[%d].value : %s\n",i,reqObj->u.testSetReq->param[i].value);
-	    printf("param[%d].type : %d\n",i,reqObj->u.testSetReq->param[i].type);
+	    WdmpPrint("param[%d].name : %s\n",i,reqObj->u.testSetReq->param[i].name);
+	    WdmpPrint("param[%d].value : %s\n",i,reqObj->u.testSetReq->param[i].value);
+	    WdmpPrint("param[%d].type : %d\n",i,reqObj->u.testSetReq->param[i].type);
     }
     
     CU_ASSERT_EQUAL( 1, paramCount );
@@ -536,7 +536,7 @@ void test_and_set_without_cid ()
 
 void empty_test_and_set ()
 {
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     
     req_struct *reqObj = NULL;
       
@@ -544,9 +544,9 @@ void empty_test_and_set ()
 
     wdmp_parse_request(request,&reqObj);
 
-    printf("Request Type : %d\n",reqObj->reqType);    
-    printf("New Cid : %s\n",reqObj->u.testSetReq->newCid);    
-    printf("param struct is %s\n", (char*)reqObj->u.testSetReq->param);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);    
+    WdmpInfo("New Cid : %s\n",reqObj->u.testSetReq->newCid);    
+    WdmpPrint("param struct is %s\n", (char*)reqObj->u.testSetReq->param);
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( TEST_AND_SET, reqObj->reqType );
     CU_ASSERT(NULL == reqObj->u.testSetReq->param);   
@@ -559,7 +559,7 @@ void empty_test_and_set ()
 
 void set_req_null_param_value ()
 {
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     
     int i,paramCount;
     req_struct *reqObj = NULL;
@@ -571,14 +571,14 @@ void set_req_null_param_value ()
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( SET, reqObj->reqType );
     
-    printf("Request Type : %d\n",reqObj->reqType);
-    printf("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
+    WdmpInfo("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
     paramCount = (int)reqObj->u.setReq->paramCnt;
     for (i = 0; i < paramCount; i++) 
 	{
-	    printf("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
-	    printf("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
-	    printf("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+	    WdmpPrint("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+	    WdmpPrint("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+	    WdmpPrint("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
 	}
 	
     CU_ASSERT_EQUAL( 2, paramCount );
@@ -597,7 +597,7 @@ void set_req_null_param_value ()
 
 void set_req_value_field_empty ()
 {
-    printf("\n***************************************************** \n\n");
+    WdmpInfo("\n***************************************************** \n\n");
     
     int paramCount;
     req_struct *reqObj = NULL;
@@ -607,12 +607,12 @@ void set_req_value_field_empty ()
     wdmp_parse_request(request,&reqObj);
     
     CU_ASSERT( NULL != reqObj);
-    printf("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
+    WdmpPrint("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
     paramCount = (int)reqObj->u.setReq->paramCnt;
     
-    printf("param.name : %s\n",reqObj->u.setReq->param[0].name);
-    printf("param.value : %s\n",reqObj->u.setReq->param[0].value);
-    printf("param.type : %d\n",reqObj->u.setReq->param[0].type);
+    WdmpPrint("param.name : %s\n",reqObj->u.setReq->param[0].name);
+    WdmpPrint("param.value : %s\n",reqObj->u.setReq->param[0].value);
+    WdmpPrint("param.type : %d\n",reqObj->u.setReq->param[0].type);
 	
     CU_ASSERT_EQUAL( 1, paramCount );
     CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.HardwareVersion", reqObj->u.setReq->param[0].name );
@@ -632,7 +632,7 @@ void verify_get_reponse(cJSON *response, res_struct *resObj)
         WDMP_RESPONSE_STATUS_CODE statusCode;
         char *result = NULL;
         
-        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        WdmpInfo("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
         getStatusCode(&statusCode, resObj->paramCnt, resObj->retStatus);
         CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
         
@@ -640,7 +640,7 @@ void verify_get_reponse(cJSON *response, res_struct *resObj)
         
         CU_ASSERT( NULL != paramArray );
         
-        printf("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
+        WdmpPrint("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
         CU_ASSERT_EQUAL( (int)resObj->paramCnt, cJSON_GetArraySize(paramArray) );
         
         result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
@@ -649,12 +649,12 @@ void verify_get_reponse(cJSON *response, res_struct *resObj)
 	{
 		resParamObj = cJSON_GetArrayItem(paramArray, i);
 		
-		printf("Returnparamcount[%zu]: %d\n",i, cJSON_GetObjectItem(resParamObj, "parameterCount")->valueint); 
+		WdmpPrint("Returnparamcount[%zu]: %d\n",i, cJSON_GetObjectItem(resParamObj, "parameterCount")->valueint); 
 		CU_ASSERT_EQUAL((int)resObj->u.getRes->retParamCnt[i],cJSON_GetObjectItem(resParamObj, "parameterCount")->valueint);
 		
 		if( resObj->u.getRes->retParamCnt[i] > 1)
 		{
-		        printf("ParamName[%zu] : %s\n",i, cJSON_GetObjectItem(resParamObj, "name")->valuestring);
+		        WdmpPrint("ParamName[%zu] : %s\n",i, cJSON_GetObjectItem(resParamObj, "name")->valuestring);
 		        CU_ASSERT_STRING_EQUAL( resObj->u.getRes->paramNames[i], cJSON_GetObjectItem(resParamObj, "name")->valuestring );
 		        
 		        value = cJSON_GetObjectItem(resParamObj, "value");
@@ -665,18 +665,18 @@ void verify_get_reponse(cJSON *response, res_struct *resObj)
 		        {
 		                valueObj = cJSON_GetArrayItem(value, j);
 		                
-		                printf("Name[%zu][%zu] : %s\n", i,j,cJSON_GetObjectItem(valueObj, "name")->valuestring );
+		                WdmpPrint("Name[%zu][%zu] : %s\n", i,j,cJSON_GetObjectItem(valueObj, "name")->valuestring );
 		                CU_ASSERT_STRING_EQUAL( resObj->u.getRes->params[i][j].name, cJSON_GetObjectItem(valueObj, "name")->valuestring );
-		                printf("Value[%zu][%zu] : %s\n", i,j,cJSON_GetObjectItem(valueObj, "value")->valuestring );
+		                WdmpPrint("Value[%zu][%zu] : %s\n", i,j,cJSON_GetObjectItem(valueObj, "value")->valuestring );
 		                CU_ASSERT_STRING_EQUAL( resObj->u.getRes->params[i][j].value, cJSON_GetObjectItem(valueObj, "value")->valuestring );
-		                printf("Type[%zu][%zu] : %d\n", i,j,cJSON_GetObjectItem(valueObj, "dataType")->valueint);
+		                WdmpPrint("Type[%zu][%zu] : %d\n", i,j,cJSON_GetObjectItem(valueObj, "dataType")->valueint);
 	                        CU_ASSERT_EQUAL((int)resObj->u.getRes->params[i][j].type,cJSON_GetObjectItem(valueObj, "dataType")->valueint);
 		        }
 		        
-		        printf("DataType[%zu] : %d\n",i, cJSON_GetObjectItem(resParamObj, "dataType")->valueint);
+		        WdmpPrint("DataType[%zu] : %d\n",i, cJSON_GetObjectItem(resParamObj, "dataType")->valueint);
 		        CU_ASSERT_EQUAL( WDMP_NONE, cJSON_GetObjectItem(resParamObj, "dataType")->valueint );
 		        
-		        printf("Message[%zu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
+		        WdmpPrint("Message[%zu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
 		        mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
                         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(resParamObj, "message")->valuestring);
 		        
@@ -684,25 +684,25 @@ void verify_get_reponse(cJSON *response, res_struct *resObj)
 		else if( resObj->u.getRes->retParamCnt[i] == 1)
 		{
 		        j = 0;
-		        printf("ParamName[%zu] : %s\n",i, cJSON_GetObjectItem(resParamObj, "name")->valuestring);
+		        WdmpPrint("ParamName[%zu] : %s\n",i, cJSON_GetObjectItem(resParamObj, "name")->valuestring);
 		        CU_ASSERT_STRING_EQUAL( resObj->u.getRes->paramNames[i], cJSON_GetObjectItem(resParamObj, "name")->valuestring );
-		        printf("Name[%zu][%zu] : %s\n", i,j,cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+		        WdmpPrint("Name[%zu][%zu] : %s\n", i,j,cJSON_GetObjectItem(resParamObj, "name")->valuestring );
 	                CU_ASSERT_STRING_EQUAL( resObj->u.getRes->params[i][j].name, cJSON_GetObjectItem(resParamObj, "name")->valuestring );
-	                printf("Value[%zu][%zu] : %s\n", i,j,cJSON_GetObjectItem(resParamObj, "value")->valuestring );
+	                WdmpPrint("Value[%zu][%zu] : %s\n", i,j,cJSON_GetObjectItem(resParamObj, "value")->valuestring );
 	                CU_ASSERT_STRING_EQUAL( resObj->u.getRes->params[i][j].value, cJSON_GetObjectItem(resParamObj, "value")->valuestring );
-	                printf("Type[%zu][%zu] : %d\n", i,j,cJSON_GetObjectItem(resParamObj, "dataType")->valueint);
+	                WdmpPrint("Type[%zu][%zu] : %d\n", i,j,cJSON_GetObjectItem(resParamObj, "dataType")->valueint);
                         CU_ASSERT_EQUAL((int)resObj->u.getRes->params[i][j].type,cJSON_GetObjectItem(resParamObj, "dataType")->valueint);
                         
-                        printf("Message[%zu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
+                        WdmpPrint("Message[%zu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
                         mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
                         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(resParamObj, "message")->valuestring);
 		}
 		else
 		{
-                        printf("ParamName[%zu] : %s\n",i, cJSON_GetObjectItem(resParamObj, "name")->valuestring);
+                        WdmpPrint("ParamName[%zu] : %s\n",i, cJSON_GetObjectItem(resParamObj, "name")->valuestring);
                         CU_ASSERT_STRING_EQUAL( resObj->u.getRes->paramNames[i], cJSON_GetObjectItem(resParamObj, "name")->valuestring );
                          
-                        printf("Value[%zu] : %s\n", i,cJSON_GetObjectItem(resParamObj, "value")->valuestring );
+                        WdmpPrint("Value[%zu] : %s\n", i,cJSON_GetObjectItem(resParamObj, "value")->valuestring );
 	                CU_ASSERT_STRING_EQUAL( "EMPTY", cJSON_GetObjectItem(resParamObj, "value")->valuestring );   
 		}
 	}
@@ -721,7 +721,7 @@ void verify_param_response(cJSON *response, res_struct *resObj)
         WDMP_RESPONSE_STATUS_CODE statusCode;
         char *result = NULL;
         
-        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        WdmpInfo("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
         getStatusCode(&statusCode, resObj->paramCnt, resObj->retStatus);
         CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
         
@@ -729,7 +729,7 @@ void verify_param_response(cJSON *response, res_struct *resObj)
         
         CU_ASSERT( NULL != paramArray );
         
-        printf("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
+        WdmpPrint("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
         CU_ASSERT_EQUAL( (int)resObj->paramCnt, cJSON_GetArraySize(paramArray) );
         
         result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
@@ -737,17 +737,17 @@ void verify_param_response(cJSON *response, res_struct *resObj)
         for (i = 0; i < resObj->paramCnt; i++) 
 	{
 		resParamObj = cJSON_GetArrayItem(paramArray, i);
-		printf("Name[%zu] : %s\n", i,cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+		WdmpPrint("Name[%zu] : %s\n", i,cJSON_GetObjectItem(resParamObj, "name")->valuestring );
                 CU_ASSERT_STRING_EQUAL( resObj->u.paramRes->params[i].name, cJSON_GetObjectItem(resParamObj, "name")->valuestring );
                 
                 if(resObj->reqType == GET_ATTRIBUTES)
                 {
                         attributes = cJSON_GetObjectItem(resParamObj, "attributes");
                         CU_ASSERT( NULL != attributes );
-                        printf("Value[%zu] : %d\n", i,cJSON_GetObjectItem(attributes, "notify")->valueint );
+                        WdmpPrint("Value[%zu] : %d\n", i,cJSON_GetObjectItem(attributes, "notify")->valueint );
                         CU_ASSERT_EQUAL( atoi(resObj->u.paramRes->params[i].value), cJSON_GetObjectItem(attributes, "notify")->valueint );
                 }
-                printf("Message[%zu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
+                WdmpPrint("Message[%zu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
                 mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
                 CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(resParamObj, "message")->valuestring);
 	}
@@ -766,7 +766,7 @@ void verify_testandset_response(cJSON *response, res_struct *resObj)
         WDMP_RESPONSE_STATUS_CODE statusCode;
         char *result = NULL;
         
-        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        WdmpInfo("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
         getStatusCode(&statusCode, 1, resObj->retStatus);
         CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
         
@@ -774,7 +774,7 @@ void verify_testandset_response(cJSON *response, res_struct *resObj)
         
         CU_ASSERT( NULL != paramArray );
         
-        printf("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
+        WdmpPrint("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
         CU_ASSERT_EQUAL( (int)resObj->paramCnt, cJSON_GetArraySize(paramArray) );
         
         result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
@@ -782,21 +782,21 @@ void verify_testandset_response(cJSON *response, res_struct *resObj)
         for (i = 0; i < resObj->paramCnt; i++) 
 	{
 		resParamObj = cJSON_GetArrayItem(paramArray, i);
-		printf("Name[%zu] : %s\n", i,cJSON_GetObjectItem(resParamObj, "name")->valuestring );
+		WdmpPrint("Name[%zu] : %s\n", i,cJSON_GetObjectItem(resParamObj, "name")->valuestring );
 		if(0 == strcmp(cJSON_GetObjectItem(resParamObj, "name")->valuestring, WDMP_SYNC_PARAM_CID))
 		{
-		        printf("CID: %s\n", cJSON_GetObjectItem(resParamObj, "value")->valuestring);
+		        WdmpPrint("CID: %s\n", cJSON_GetObjectItem(resParamObj, "value")->valuestring);
                         CU_ASSERT_STRING_EQUAL( resObj->u.paramRes->syncCID, cJSON_GetObjectItem(resParamObj, "value")->valuestring );
                 }
                 else if(0 == strcmp(cJSON_GetObjectItem(resParamObj, "name")->valuestring, WDMP_SYNC_PARAM_CMC))
                 {
-                        printf("CMC: %d\n", cJSON_GetObjectItem(resParamObj, "value")->valueint);
+                        WdmpPrint("CMC: %d\n", cJSON_GetObjectItem(resParamObj, "value")->valueint);
                         CU_ASSERT_EQUAL( atoi(resObj->u.paramRes->syncCMC), cJSON_GetObjectItem(resParamObj, "value")->valueint );
                 }
                 
 	}
 	
-	printf("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
+	WdmpInfo("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
 	mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
         
@@ -811,14 +811,14 @@ void verify_table_response(cJSON *response, res_struct *resObj)
         WDMP_RESPONSE_STATUS_CODE statusCode;
         char *result = NULL;
         
-        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        WdmpInfo("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
         
         result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
         
         if(resObj->reqType == ADD_ROWS)
         {
                 CU_ASSERT_EQUAL(WDMP_ADDROW_STATUS_SUCCESS, cJSON_GetObjectItem(response, "statusCode")->valueint);
-                printf("New row: %s\n", cJSON_GetObjectItem(response, "row")->valuestring);
+                WdmpPrint("New row: %s\n", cJSON_GetObjectItem(response, "row")->valuestring);
                 CU_ASSERT_STRING_EQUAL(resObj->u.tableRes->newObj, cJSON_GetObjectItem(response, "row")->valuestring);
         }
         else
@@ -827,7 +827,7 @@ void verify_table_response(cJSON *response, res_struct *resObj)
                 CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
         }
         
-        printf("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
+        WdmpInfo("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
         mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
 }
@@ -837,13 +837,13 @@ void verify_failure_response(cJSON *response, res_struct *resObj)
         WDMP_RESPONSE_STATUS_CODE statusCode;
         char *result = NULL;
         
-        printf("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
+        WdmpInfo("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
         getStatusCode(&statusCode, 1, resObj->retStatus);
         CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
         
         result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
         
-        printf("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
+        WdmpInfo("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
         mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
 }
@@ -852,7 +852,7 @@ void get_res_form()
 {
         res_struct *resObj = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         cJSON *response = cJSON_CreateObject();
         
@@ -906,7 +906,7 @@ void get_res_form()
 	
 	verify_get_reponse(response, resObj);
 	
-        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
         {
@@ -925,7 +925,7 @@ void get_wildcard_res_form()
         char *payload = NULL;
         cJSON * response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -993,7 +993,7 @@ void get_wildcard_res_form()
         
         verify_get_reponse(response, resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1011,7 +1011,7 @@ void get_attr_res_form()
         res_struct *resObj = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         response = cJSON_CreateObject();
         resObj = (res_struct *) malloc(sizeof(res_struct));
@@ -1050,7 +1050,7 @@ void get_attr_res_form()
         
         verify_param_response(response,resObj);
         
-        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
         {
@@ -1068,7 +1068,7 @@ void set_res_form()
         res_struct *resObj = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         response = cJSON_CreateObject();
         
@@ -1101,7 +1101,7 @@ void set_res_form()
         
         verify_param_response(response,resObj);
         
-        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
         {
@@ -1119,7 +1119,7 @@ void set_attr_res_form()
         res_struct *resObj = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         response = cJSON_CreateObject();
         resObj = (res_struct *) malloc(sizeof(res_struct));
@@ -1151,7 +1151,7 @@ void set_attr_res_form()
         
         verify_param_response(response,resObj);
         
-        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
         {
@@ -1169,7 +1169,7 @@ void test_and_set_res_form()
         res_struct *resObj = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         response = cJSON_CreateObject();
         
@@ -1199,7 +1199,7 @@ void test_and_set_res_form()
         
         verify_testandset_response(response,resObj);
 
-        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
         {
@@ -1218,7 +1218,7 @@ void add_rows_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1243,7 +1243,7 @@ void add_rows_res_form()
         
         verify_table_response(response,resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1262,7 +1262,7 @@ void replace_rows_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1284,7 +1284,7 @@ void replace_rows_res_form()
         
         verify_table_response(response,resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1304,7 +1304,7 @@ void delete_row_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1326,7 +1326,7 @@ void delete_row_res_form()
         
         verify_table_response(response,resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1345,7 +1345,7 @@ void table_res_form()
         res_struct *resObj = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         response = cJSON_CreateObject();
         
@@ -1369,7 +1369,7 @@ void table_res_form()
         
         verify_table_response(response,resObj);
         
-        printf("Response Payload :\n%s\n",cJSON_Print(response));
+        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
         {
@@ -1389,7 +1389,7 @@ void test_get_status_code()
         WDMP_STATUS * ret = NULL;
         int paramCount = 3;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         ret = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS)*paramCount);
         
@@ -1401,7 +1401,7 @@ void test_get_status_code()
         
         CU_ASSERT_EQUAL( WDMP_STATUS_WIFI_BUSY, statusCode );
         
-        printf("statusCode : %d\n",statusCode);
+        WdmpInfo("statusCode : %d\n",statusCode);
         
         if(ret)
         {
@@ -1414,7 +1414,7 @@ void test_map_wdmp_status()
         WDMP_STATUS status;
         char *result = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         result = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
         status = WDMP_ERR_SET_OF_CMC_OR_CID_NOT_SUPPORTED;
@@ -1425,7 +1425,7 @@ void test_map_wdmp_status()
         
         CU_ASSERT_STRING_EQUAL( "SET of CMC or CID is not supported", result );
         
-        printf("result : %s\n",result);
+        WdmpInfo("result : %s\n",result);
         
         if(result)
         {
@@ -1439,7 +1439,7 @@ void neg_get_res_form()
         char *payload = NULL;
         cJSON * response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1473,7 +1473,7 @@ void neg_get_res_form()
         
         verify_failure_response(response, resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1492,7 +1492,7 @@ void get_wildcard_empty_value_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1539,7 +1539,7 @@ void get_wildcard_empty_value_res_form()
         
         verify_get_reponse(response, resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1558,7 +1558,7 @@ void neg_get_attr_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1585,7 +1585,7 @@ void neg_get_attr_res_form()
         
         verify_failure_response(response, resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1604,7 +1604,7 @@ void neg_set_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1631,7 +1631,7 @@ void neg_set_res_form()
         
         verify_failure_response(response, resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1650,7 +1650,7 @@ void neg_set_attr_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1686,7 +1686,7 @@ void neg_set_attr_res_form()
         
         verify_param_response(response, resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1705,7 +1705,7 @@ void neg_test_and_set_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1737,7 +1737,7 @@ void neg_test_and_set_res_form()
         
         verify_testandset_response(response, resObj);
         
-        printf("Payload :%s\n",payload);
+        WdmpInfo("Payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1756,7 +1756,7 @@ void test_cmc()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1787,7 +1787,7 @@ void test_cmc()
         
         verify_failure_response(response, resObj);
         
-        printf("Payload :%s\n",payload);
+        WdmpInfo("Payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1807,7 +1807,7 @@ void test_and_set_without_cid_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1838,7 +1838,7 @@ void test_and_set_without_cid_res_form()
         
         verify_failure_response(response, resObj);
         
-        printf("Payload :%s\n",payload);
+        WdmpInfo("Payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1857,7 +1857,7 @@ void neg_add_rows_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1879,7 +1879,7 @@ void neg_add_rows_res_form()
         
         verify_failure_response(response,resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1898,7 +1898,7 @@ void neg_replace_rows_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1920,7 +1920,7 @@ void neg_replace_rows_res_form()
         
         verify_failure_response(response,resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1940,7 +1940,7 @@ void neg_delete_row_res_form()
         char *payload = NULL;
         cJSON *response = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -1962,7 +1962,7 @@ void neg_delete_row_res_form()
         
         verify_failure_response(response,resObj);
         
-        printf("payload :%s\n",payload);
+        WdmpInfo("payload :%s\n",payload);
         
         if(NULL != resObj)
         {
@@ -1981,7 +1981,7 @@ void test_unknown_req_type()
         res_struct *resObj = NULL;
         char *payload = NULL;
         
-        printf("\n***************************************************** \n\n");
+        WdmpInfo("\n***************************************************** \n\n");
         
         resObj = (res_struct *) malloc(sizeof(res_struct));
         memset(resObj, 0, sizeof(res_struct));
@@ -2073,9 +2073,9 @@ int main( void )
         {
             CU_basic_set_mode( CU_BRM_VERBOSE );
             CU_basic_run_tests();
-            printf( "\n" );
+        
             CU_basic_show_failures( CU_get_failure_list() );
-            printf( "\n\n" );
+           
             rv = CU_get_number_of_tests_failed();
         }
 
