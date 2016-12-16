@@ -1,28 +1,33 @@
+dist: trusty
+sudo: required
+
 language: c
 compiler:
     - gcc
+
 env:
   global:
    # The next declaration is the encrypted COVERITY_SCAN_TOKEN, created
    #   via the "travis encrypt" command using the project repo's public key
-   - secure: ""
+   - secure: "fy/hd0AkxDtfzzxgWXVF286pwcZ8WGRJoeR1k7Ji6HPbj0CIVo9EeomNMyKZ8rmKWpVxwpTWZXZkeBsxPa/gRK/AsBCyXtklYMovIRRR9opWb5rAFn0Cnw6jyo0BSBuJC5WWMUuTSUAaZ+oZA1SdIsXifrNgfNsBufgeCWXFkazOH8oVCosR3XKFfiv5sft8oXJBHN0QLe06cHe4FBDwpjaA24PDff/TV0SdDChBy/WYAm4/7kbVjgX9gm9tRk6adRKCibsNFpjiGiSEqsQ48CtiGATzSd2Png4ghXwcb+0MkF4byP66/sYHKis8rnWbZsdfyOGcSW+G4N70gdv91AZQjTJPKvJN8D7G3WTo6qxo//eVaVDPDGidFoVr/tD6mor1UORHKVsPzmBMlQVJHlWUnnFZcr1RwaTCYMm6rkrOSNSkeQi1vNi5CjlbX7WV3hFBo6XfsB+M25/LtOiFJefpJ90Y55YCSDlE9KLNmAkUfswPUz/jdJVC3hlt20r1CnyNuVqB41ay5CUrGf1bGxxEPAxUE3Os8JnLqaGu7EhR01VrbMOz91nQGgTQN56Tp3F3+KKy97vY7V7qxWHWDaMRbOncu23zrBOtcBcxyWQXqBzDM+uZOIl2oCSCtxDqReUf8uAXe3ntt+0mK1JrQZ0MScfPLe/T7SnZxU8TO/Y="
 
 addons:
   coverity_scan:
     project:
-      name: "Comcast/ccsplite"
-      description: " Simple interface into the CCSP via the WebPA local interface. "
+      name: "Comcast/wdmp-c"
+      description: "C implementation of the WebPA Data Model Parser"
     notification_email: weston_schmidt@alumni.purdue.edu
     build_command_prepend: "mkdir coverity_build && cd coverity_build && cmake .."
     build_command:   "make"
-    branch_pattern: coverity_scan
+    branch_pattern: master
 
 before_install:
     - sudo pip install codecov
+    - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 install:
     - sudo apt-get update -qq
-    - sudo apt-get install -y -qq libcunit1 libcunit1-dev lcov libcurl4-openssl-dev
+    - sudo apt-get install -y -qq libcunit1 libcunit1-dev libcurl4-openssl-dev
 
 script:
     - mkdir build
@@ -30,7 +35,6 @@ script:
     - cmake ..
     - make
     - make test
-    - make coverage
 
 after_success:
     - codecov
