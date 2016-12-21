@@ -101,11 +101,11 @@ void parse_set_request(cJSON *request, req_struct **reqObj)
 	size_t paramCount, i;
 	int notification;
 	char notif[20] = "";
+	char *command = NULL;
 	
 	WdmpPrint("parsing Set Request\n");
 	
-	(*reqObj)->reqType = SET_ATTRIBUTES;
-	WdmpPrint("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
+	command = cJSON_GetObjectItem(request, "command")->valuestring;
 	paramArray = cJSON_GetObjectItem(request, "parameters");
 	paramCount = cJSON_GetArraySize(paramArray);
 
@@ -123,9 +123,28 @@ void parse_set_request(cJSON *request, req_struct **reqObj)
 		(*reqObj)->u.setReq->param[i].name = cJSON_GetObjectItem(reqParamObj, "name")->valuestring;
 		WdmpPrint("(*reqObj)->u.setReq->param[%zu].name : %s\n",i,(*reqObj)->u.setReq->param[i].name);
 		
-		if (cJSON_GetObjectItem(reqParamObj, "value") != NULL )
+		if ((cJSON_GetObjectItem(reqParamObj, "attributes") != NULL ) && (strcmp(command, "SET_ATTRIBUTES") == 0))
+		{
+		        (*reqObj)->reqType = SET_ATTRIBUTES;
+	                WdmpPrint("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
+	                
+			attributes = cJSON_GetObjectItem(reqParamObj, "attributes");
+			if(cJSON_GetObjectItem(attributes, "notify") != NULL) 
+			{
+				notification = cJSON_GetObjectItem(attributes, "notify")->valueint;
+				WdmpPrint("notification :%d\n",notification);
+				snprintf(notif, sizeof(notif), "%d", notification);
+				(*reqObj)->u.setReq->param[i].value = (char *) malloc(sizeof(char) * 20);
+				strcpy((*reqObj)->u.setReq->param[i].value, notif);
+				WdmpPrint("(*reqObj)->u.setReq->param[%zu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
+			}
+		}
+		
+		if ((cJSON_GetObjectItem(reqParamObj, "value") != NULL ) && (strcmp(command, "SET") == 0))
 		{
 			(*reqObj)->reqType = SET;
+			WdmpPrint("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
+			
 			if(cJSON_GetObjectItem(reqParamObj, "value")->valuestring != NULL && strlen(cJSON_GetObjectItem(reqParamObj, "value")->valuestring) == 0)
 			{
 				WdmpError("Parameter value is null\n");
@@ -141,20 +160,6 @@ void parse_set_request(cJSON *request, req_struct **reqObj)
 			}
 		}
 	
-		if (cJSON_GetObjectItem(reqParamObj, "attributes") != NULL )
-		{
-			attributes = cJSON_GetObjectItem(reqParamObj, "attributes");
-			if(cJSON_GetObjectItem(attributes, "notify") != NULL) 
-			{
-				notification = cJSON_GetObjectItem(attributes, "notify")->valueint;
-				WdmpPrint("notification :%d\n",notification);
-				snprintf(notif, sizeof(notif), "%d", notification);
-				(*reqObj)->u.setReq->param[i].value = (char *) malloc(sizeof(char) * 20);
-				strcpy((*reqObj)->u.setReq->param[i].value, notif);
-				WdmpPrint("(*reqObj)->u.setReq->param[%zu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
-			}
-		}
-			
 		if (cJSON_GetObjectItem(reqParamObj, "dataType") != NULL)
 		{
 			(*reqObj)->u.setReq->param[i].type = cJSON_GetObjectItem(reqParamObj, "dataType")->valueint;

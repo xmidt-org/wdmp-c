@@ -147,6 +147,46 @@ void set_req_parse ()
 		
 }
 
+void set_req_parse_with_attributes ()
+{
+    
+    int i,paramCount;
+    char *request = NULL;
+    req_struct *reqObj = NULL;
+    
+    WdmpInfo("\n***************************************************** \n\n");
+      
+    request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0,\"attributes\": { \"notify\": 1}},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0,\"attributes\": { \"notify\": 1}}],\"command\":\"SET\"}";
+ 
+    wdmp_parse_request(request,&reqObj);
+    
+    CU_ASSERT( NULL != reqObj);
+    CU_ASSERT_EQUAL( SET, reqObj->reqType );
+    
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
+    WdmpPrint("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
+    paramCount = (int)reqObj->u.setReq->paramCnt;
+    for (i = 0; i < paramCount; i++) 
+	{
+	    WdmpPrint("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+	    WdmpPrint("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+	    WdmpPrint("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+	}
+	
+    CU_ASSERT_EQUAL( 2, paramCount );
+    CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.ProductClass", reqObj->u.setReq->param[0].name );
+    CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.SerialNumber", reqObj->u.setReq->param[1].name );
+    CU_ASSERT_STRING_EQUAL( "XB3", reqObj->u.setReq->param[0].value );
+    CU_ASSERT_STRING_EQUAL( "14cfe2142142", reqObj->u.setReq->param[1].value );  
+    CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.setReq->param[0].type );
+    CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.setReq->param[1].type );  
+    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+		
+}
+
 void set_attr_req_parse ()
 {
     
@@ -2007,6 +2047,7 @@ void add_request_parse_suites( CU_pSuite *suite )
     CU_add_test( *suite, "Test Get Request Parse", get_req_parse );
     CU_add_test( *suite, "Test Get attr Request Parse", get_attr_req_parse );
     CU_add_test( *suite, "Test Set Request Parse", set_req_parse );
+    CU_add_test( *suite, "Test Set Request Parse with both value and attributes field", set_req_parse_with_attributes );
     CU_add_test( *suite, "Test Set attr Request Parse", set_attr_req_parse );
     CU_add_test( *suite, "Test Test and set Request Parse", test_and_set_req_parse );
     CU_add_test( *suite, "Test Replace row Request Parse", replace_rows_req_parse );
