@@ -361,7 +361,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
                                                 WdmpPrint("resObj->u.getRes->params[%zu][%zu].name :%s\n",i,j,resObj->u.getRes->params[i][j].name);
                                                 cJSON_AddStringToObject(valueObj, "name", resObj->u.getRes->params[i][j].name);
 	                                        WdmpPrint("resObj->u.getRes->params[%zu][%zu].value :%s\n",i,j,resObj->u.getRes->params[i][j].value);
-	                                        cJSON_AddStringToObject(valueObj, "value",resObj->u.getRes->params[i][0].value);
+	                                        cJSON_AddStringToObject(valueObj, "value",resObj->u.getRes->params[i][j].value);
 	                                        WdmpPrint("resObj->u.getRes->params[%zu][%zu].type :%d\n",i,j,resObj->u.getRes->params[i][j].type);
 	                                        cJSON_AddNumberToObject(valueObj, "dataType",resObj->u.getRes->params[i][j].type);
                                         }
