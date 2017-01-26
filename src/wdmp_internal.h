@@ -57,6 +57,7 @@ typedef enum
 /*----------------------------------------------------------------------------*/
 void parse_get_request(cJSON *request, req_struct **reqObj);
 void parse_set_request(cJSON *request, req_struct **reqObj);
+void parse_set_attr_request(cJSON *request, req_struct **reqObj);
 void parse_test_and_set_request(cJSON *request, req_struct **reqObj);
 void parse_replace_rows_request(cJSON *request, req_struct **reqObj);
 void parse_add_row_request(cJSON *request, req_struct **reqObj);

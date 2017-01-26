@@ -57,7 +57,7 @@ void wdmp_parse_request(char * payload, req_struct **reqObj)
 	if(request != NULL)
 	{
 		command = cJSON_GetObjectItem(request, "command")->valuestring;
-		WdmpPrint("command %s\n",(command == NULL) ? "NULL" : command);
+		WdmpPrint("WDMP-C: command %s\n",(command == NULL) ? "NULL" : command);
 			
 		if( command != NULL) 
 		{
@@ -67,42 +67,48 @@ void wdmp_parse_request(char * payload, req_struct **reqObj)
 			
 			if ((strcmp(command, "GET") == 0)|| (strcmp(command, "GET_ATTRIBUTES") == 0))
 			{
-				WdmpInfo("Request %s\n", out);
+				WdmpInfo("WDMP-C: Request %s\n", out);
 				parse_get_request(request, reqObj);
 			
 			}		
-			else if ((strcmp(command, "SET") == 0) || (strcmp(command, "SET_ATTRIBUTES") == 0))
+			else if ((strcmp(command, "SET") == 0))
 			{
-				WdmpInfo("SET Request: %s\n", out);
+				WdmpInfo("WDMP-C: SET Request: %s\n", out);
 				parse_set_request(request, reqObj);
+						
+			}
+			else if ((strcmp(command, "SET_ATTRIBUTES") == 0))
+			{
+				WdmpInfo("WDMP-C: SET ATTRIBUTES Request: %s\n", out);
+				parse_set_attr_request(request, reqObj);
 						
 			}			
 			else if (strcmp(command, "TEST_AND_SET") == 0)
 			{
-				WdmpInfo("Test and Set Request: %s\n", out);
+				WdmpInfo("WDMP-C: Test and Set Request: %s\n", out);
 				parse_test_and_set_request(request, reqObj);
 
 			}			
 			else if (strcmp(command, "REPLACE_ROWS") == 0)
 			{
-				WdmpInfo("REPLACE_ROWS Request: %s\n", out);
+				WdmpInfo("WDMP-C: REPLACE_ROWS Request: %s\n", out);
 				parse_replace_rows_request(request, reqObj);				
 			
 			}
 			else if (strcmp(command, "ADD_ROW") == 0)
 			{
-				WdmpInfo("ADD_ROW Request: %s\n", out);
+				WdmpInfo("WDMP-C: ADD_ROW Request: %s\n", out);
 				parse_add_row_request(request, reqObj);
 						
 			}			
 			else if (strcmp(command, "DELETE_ROW") == 0)
 			{
-				WdmpInfo("DELETE_ROW Request: %s\n", out);
+				WdmpInfo("WDMP-C: DELETE_ROW Request: %s\n", out);
 				parse_delete_row_request(request, reqObj);
 			}			
 			else
 			{
-				WdmpError("Unknown Command \n");
+				WdmpError("WDMP-C: Unknown Command \n");
 				wdmp_free_req_struct(*reqObj );
 				(*reqObj) = NULL;
 			}
@@ -110,7 +116,7 @@ void wdmp_parse_request(char * payload, req_struct **reqObj)
     	}
     	else
 	{
-		WdmpInfo("Empty payload\n");
+		WdmpInfo("WDMP-C: Empty payload\n");
 	}
  	
 }
@@ -122,7 +128,7 @@ void wdmp_form_response(res_struct *resObj, char **payload)
         if(resObj != NULL)
 	{
 	        response = cJSON_CreateObject();
-	        WdmpPrint("resObj->reqType: %d\n",resObj->reqType);
+	        WdmpPrint("WDMP-C: resObj->reqType: %d\n",resObj->reqType);
 	        
                 switch( resObj->reqType ) 
                 {
@@ -162,7 +168,7 @@ void wdmp_form_response(res_struct *resObj, char **payload)
                         
                         default:
                         {
-                                WdmpError("Unknown request type\n");
+                                WdmpError("WDMP-C: Unknown request type\n");
                                 wdmp_free_res_struct(resObj );
                                 resObj = NULL;
                                 cJSON_Delete(response);
@@ -174,7 +180,7 @@ void wdmp_form_response(res_struct *resObj, char **payload)
 	
         if(response != NULL)
 	{
-	        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
+	        WdmpInfo("WDMP-C: Response Payload :\n%s\n",cJSON_Print(response));
                 *payload = cJSON_PrintUnformatted(response);
 		cJSON_Delete(response);
 	}
@@ -249,7 +255,7 @@ void wdmp_free_req_struct( req_struct *reqObj )
                 break;
 
                 default:
-                WdmpError("Unknown request type\n");
+                WdmpError("WDMP-C: Unknown request type\n");
         }
         
         free(reqObj);
