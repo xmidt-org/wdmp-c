@@ -61,7 +61,7 @@ void wdmp_parse_request(char * payload, req_struct **reqObj)
 			
 		if( command != NULL) 
 		{
-			out = cJSON_Print(request);
+			out = cJSON_PrintUnformatted(request);
 			(*reqObj) = (req_struct *) malloc(sizeof(req_struct));
 			memset( (*reqObj), 0, sizeof( req_struct ) );
 			
@@ -180,7 +180,7 @@ void wdmp_form_response(res_struct *resObj, char **payload)
 	
         if(response != NULL)
 	{
-	        WdmpInfo("WDMP-C: Response Payload :\n%s\n",cJSON_Print(response));
+	        WdmpInfo("WDMP-C: Response Payload :%s\n",cJSON_PrintUnformatted(response));
                 *payload = cJSON_PrintUnformatted(response);
 		cJSON_Delete(response);
 	}
