@@ -25,4 +25,6 @@ add_executable(simple simple.c ../src/wdmp-c.c ../src/wdmp_internal.c ../src/wdm
 target_link_libraries (simple  gcov
                                cunit
                               -lcjson 
-                              -lm)
+                              -lm
+							  -lcimplog
+							  rt)
