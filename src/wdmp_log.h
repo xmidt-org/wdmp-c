@@ -20,33 +20,4 @@
 #define WdmpPrint(...)	wdmp_log (LEVEL_DEBUG, __VA_ARGS__)
 
 #endif
-/**
- * @brief Handler used by wdmp_log_set_handler to receive all log
- * notifications produced by the library on this function.
- *
- * @param level The log level
- *
- * @param log_msg The actual log message reported.
- *
- */
-typedef void (*wdmpLogHandler) (int level, const char * log_msg);
 
-/**
-* @brief Allows to define a log handler that will receive all logs
-* produced under the provided content.
-* 
-* @param handler The handler to be called for each log to be
-* notified. Passing in NULL is allowed to remove any previously
-* configured handler.
-*/
-
-void wdmp_log_set_handler(wdmpLogHandler handler);
-
-/**
-* @brief handle log message based on log level
-* 
-* @param level of log info,debug,error
-* @param logging message
-*/
-
-void wdmp_log (  int level, const char *fmt, ...);
