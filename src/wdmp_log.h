@@ -1,5 +1,5 @@
 #include <stdarg.h>
-#include <cimplog.h>
+#include <cimplog/cimplog.h>
 
 #define LEVEL_ERROR 0
 #define LEVEL_INFO  1
