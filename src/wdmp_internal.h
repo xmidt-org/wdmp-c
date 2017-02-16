@@ -19,9 +19,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <cimplog/cimplog.h>
 
 #include "wdmp-c.h"
-#include "wdmp_log.h"
 
 typedef enum
 {
@@ -38,11 +38,16 @@ typedef enum
 /*                                   Macros                                   */
 /*----------------------------------------------------------------------------*/
 
-#define MAX_PARAMETER_LEN			128
+#define MAX_PARAMETER_LEN                   128
 
 #define WDMP_SYNC_PARAM_CID                 "Device.DeviceInfo.Webpa.X_COMCAST-COM_CID"
 #define WDMP_SYNC_PARAM_CMC                 "Device.DeviceInfo.Webpa.X_COMCAST-COM_CMC"
 
+#define LOGGING_MODULE                      "WDMP-C"
+
+#define WdmpError(...)                      cimplog_error(LOGGING_MODULE, __VA_ARGS__)
+#define WdmpInfo(...)                       cimplog_info(LOGGING_MODULE, __VA_ARGS__)
+#define WdmpPrint(...)                      cimplog_debug(LOGGING_MODULE, __VA_ARGS__)
 /*----------------------------------------------------------------------------*/
 /*                               Data Structures                              */
 /*----------------------------------------------------------------------------*/
