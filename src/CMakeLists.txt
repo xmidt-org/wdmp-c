@@ -14,7 +14,7 @@
 
 set(PROJ_WDMP wdmp-c)
 
-file(GLOB HEADERS wdmp-c.h wdmp_internal.h wdmp_log.h)
+file(GLOB HEADERS wdmp-c.h wdmp_internal.h)
 set(SOURCES wdmp-c.c wdmp_internal.c)
 
 add_library(${PROJ_WDMP} STATIC ${HEADERS} ${SOURCES})
