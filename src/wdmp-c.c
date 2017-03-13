@@ -314,7 +314,10 @@ void wdmp_free_res_struct( res_struct *resObj )
                                         for (i = 0; i < resObj->paramCnt; i++)
                                         { 
                                                 free(resObj->u.paramRes->params[i].name);
-                                                free(resObj->u.paramRes->params[i].value);
+                                                if(resObj->u.paramRes->params[i].value)
+                                                {
+                                                	free(resObj->u.paramRes->params[i].value);
+                                                }
                                         }
                                         free(resObj->u.paramRes->params);
                                 }
