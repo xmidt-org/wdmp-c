@@ -80,8 +80,6 @@ void get_attr_req_parse ()
     
     request = cJSON_Parse(payload);
     
-    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
-    
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
     
@@ -104,6 +102,11 @@ void get_attr_req_parse ()
     
     if (NULL != reqObj) {
         wdmp_free_req_struct(reqObj );
+    }
+
+    if(NULL != request)
+    {
+        cJSON_Delete(request);
     }
 }
 
@@ -203,8 +206,6 @@ void set_attr_req_parse ()
     
     request = cJSON_Parse(payload);
     
-    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
-    
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
     
@@ -234,7 +235,11 @@ void set_attr_req_parse ()
     if (NULL != reqObj) {
         wdmp_free_req_struct(reqObj );
     }
-		
+
+    if(NULL != request)
+    {
+        cJSON_Delete(request);
+    }
 }
 
 void test_and_set_req_parse ()
@@ -251,8 +256,6 @@ void test_and_set_req_parse ()
     CU_ASSERT( NULL != payload);
     
     request = cJSON_Parse(payload);
-    
-    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
     
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
@@ -292,7 +295,10 @@ void test_and_set_req_parse ()
     if (NULL != reqObj) {
         wdmp_free_req_struct(reqObj );
     }
-		
+    if(NULL != request)
+    {
+        cJSON_Delete(request);
+    }
 }
 
 void replace_rows_req_parse ()
@@ -310,8 +316,6 @@ void replace_rows_req_parse ()
     CU_ASSERT( NULL != payload);
     
     request = cJSON_Parse(payload);
-    
-    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
     
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
@@ -348,7 +352,11 @@ void replace_rows_req_parse ()
     
     if (NULL != reqObj) {
         wdmp_free_req_struct(reqObj );
-    }		
+    }
+    if(NULL != request)
+    {
+        cJSON_Delete(request);
+    }
 }
 
 void add_row_req_parse ()
@@ -366,8 +374,6 @@ void add_row_req_parse ()
     CU_ASSERT( NULL != payload);
     
     request = cJSON_Parse(payload);
-    
-    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
     
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
@@ -405,6 +411,10 @@ void add_row_req_parse ()
     
     if (NULL != reqObj) {
         wdmp_free_req_struct(reqObj );
+    }
+    if(NULL != request)
+    {
+        cJSON_Delete(request);
     }		
 }
 
@@ -423,8 +433,6 @@ void delete_row_req_parse ()
     
     request = cJSON_Parse(payload);
     
-    WdmpInfo("Request: \n%s\n",cJSON_Print(request));
-    
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
     
@@ -441,7 +449,12 @@ void delete_row_req_parse ()
 
     if (NULL != reqObj) {
         wdmp_free_req_struct(reqObj );
-    }		
+    }
+
+    if(NULL != request)
+    {
+        cJSON_Delete(request);
+    }
 }
 
 
@@ -870,6 +883,11 @@ void verify_table_response(cJSON *response, res_struct *resObj)
         WdmpInfo("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
         mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
+
+        if(result)
+        {
+                free(result);
+        }
 }
 
 void verify_failure_response(cJSON *response, res_struct *resObj)
@@ -886,6 +904,11 @@ void verify_failure_response(cJSON *response, res_struct *resObj)
         WdmpInfo("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
         mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
+
+        if(result)
+        {
+                free(result);
+        }
 }
 
 void get_res_form()
@@ -944,19 +967,17 @@ void get_res_form()
         
         CU_ASSERT( NULL != response);
 	
-	verify_get_reponse(response, resObj);
-	
-        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
-        
+	    verify_get_reponse(response, resObj);
+
         if(NULL != resObj)
         {
                 wdmp_free_res_struct(resObj);
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+            cJSON_Delete(response);
+        }
 }
 
 void get_wildcard_res_form()
@@ -1041,9 +1062,10 @@ void get_wildcard_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void get_attr_res_form()
@@ -1089,8 +1111,6 @@ void get_attr_res_form()
         CU_ASSERT( NULL != response);
         
         verify_param_response(response,resObj);
-        
-        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
         
         if(NULL != resObj)
         {
@@ -1141,8 +1161,6 @@ void set_res_form()
         
         verify_param_response(response,resObj);
         
-        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
-        
         if(NULL != resObj)
         {
                 wdmp_free_res_struct(resObj);
@@ -1191,8 +1209,6 @@ void set_attr_res_form()
         
         verify_param_response(response,resObj);
         
-        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
-        
         if(NULL != resObj)
         {
                 wdmp_free_res_struct(resObj);
@@ -1239,8 +1255,6 @@ void test_and_set_res_form()
         
         verify_testandset_response(response,resObj);
 
-        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
-        
         if(NULL != resObj)
         {
                 wdmp_free_res_struct(resObj);
@@ -1291,9 +1305,10 @@ void add_rows_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void replace_rows_res_form()
@@ -1332,9 +1347,10 @@ void replace_rows_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 
 }
 
@@ -1374,10 +1390,10 @@ void delete_row_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
-
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void table_res_form()
@@ -1408,9 +1424,7 @@ void table_res_form()
         CU_ASSERT( NULL != response);
         
         verify_table_response(response,resObj);
-        
-        WdmpInfo("Response Payload :\n%s\n",cJSON_Print(response));
-        
+
         if(NULL != resObj)
         {
                 wdmp_free_res_struct(resObj);
@@ -1521,9 +1535,10 @@ void neg_get_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void get_wildcard_empty_value_res_form()
@@ -1587,9 +1602,10 @@ void get_wildcard_empty_value_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void neg_get_attr_res_form()
@@ -1633,9 +1649,10 @@ void neg_get_attr_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void neg_set_res_form()
@@ -1679,9 +1696,10 @@ void neg_set_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void neg_set_attr_res_form()
@@ -1734,9 +1752,10 @@ void neg_set_attr_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void neg_test_and_set_res_form()
@@ -1785,9 +1804,10 @@ void neg_test_and_set_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void test_cmc()
@@ -1835,9 +1855,10 @@ void test_cmc()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void test_and_set_without_cid_res_form()
@@ -1886,9 +1907,10 @@ void test_and_set_without_cid_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void neg_add_rows_res_form()
@@ -1927,9 +1949,10 @@ void neg_add_rows_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 }
 
 void neg_replace_rows_res_form()
@@ -1968,9 +1991,10 @@ void neg_replace_rows_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 
 }
 
@@ -2010,9 +2034,10 @@ void neg_delete_row_res_form()
         }
         
         if(response != NULL)
-	{
-		cJSON_Delete(response);
-	}
+        {
+                cJSON_Delete(response);
+        }
+        free(payload);
 
 }
 

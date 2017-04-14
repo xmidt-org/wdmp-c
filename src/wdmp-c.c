@@ -112,6 +112,10 @@ void wdmp_parse_request(char * payload, req_struct **reqObj)
 				wdmp_free_req_struct(*reqObj );
 				(*reqObj) = NULL;
 			}
+			if(out != NULL)
+			{
+			        free(out);
+		    }
 		}
     	}
     	else
@@ -180,8 +184,8 @@ void wdmp_form_response(res_struct *resObj, char **payload)
 	
         if(response != NULL)
 	{
-	        WdmpInfo("Response Payload :%s\n",cJSON_PrintUnformatted(response));
                 *payload = cJSON_PrintUnformatted(response);
+                WdmpInfo("Response Payload :%s\n", *payload);
 		cJSON_Delete(response);
 	}
 

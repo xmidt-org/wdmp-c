@@ -27,12 +27,12 @@ before_install:
 
 install:
     - sudo apt-get update -qq
-    - sudo apt-get install -y -qq libcunit1 libcunit1-dev libcurl4-openssl-dev
+    - sudo apt-get install -y -qq libcunit1 libcunit1-dev libcurl4-openssl-dev valgrind
 
 script:
     - mkdir build
     - cd build
-    - cmake ..
+    - cmake .. -DDISABLE_VALGRIND:BOOL=true
     - make
     - make test
 
