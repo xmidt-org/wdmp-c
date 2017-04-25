@@ -63,7 +63,8 @@ void parse_get_request(cJSON *request, req_struct **reqObj)
 	
 	for (i = 0; i < paramCount; i++) 
 	{
-		(*reqObj)->u.getReq->paramNames[i] = cJSON_GetArrayItem(paramArray, i)->valuestring;
+		(*reqObj)->u.getReq->paramNames[i] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+		strcpy((*reqObj)->u.getReq->paramNames[i], cJSON_GetArrayItem(paramArray, i)->valuestring);
 		WdmpPrint("(*reqObj)->u.getReq->paramNames[%zu] : %s\n",i,(*reqObj)->u.getReq->paramNames[i]);
 	}
 
@@ -79,7 +80,7 @@ void parse_get_request(cJSON *request, req_struct **reqObj)
 				{
 					param = (cJSON_GetArrayItem(paramArray, i)->valuestring);
 					WdmpPrint("param : %s\n",param);
-					(*reqObj)->u.getReq->paramNames[i] = param;
+					strcpy((*reqObj)->u.getReq->paramNames[i], param);
 					WdmpPrint("(*reqObj)->u.getReq->paramNames[%zu] : %s\n",i,(*reqObj)->u.getReq->paramNames[i]);			
 				}
 			}
@@ -119,7 +120,8 @@ void parse_set_request(cJSON *request, req_struct **reqObj)
 	for (i = 0; i < paramCount; i++) 
 	{
 		reqParamObj = cJSON_GetArrayItem(paramArray, i);
-		(*reqObj)->u.setReq->param[i].name = cJSON_GetObjectItem(reqParamObj, "name")->valuestring;
+		(*reqObj)->u.setReq->param[i].name = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+		strcpy((*reqObj)->u.setReq->param[i].name,cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
 		WdmpPrint("(*reqObj)->u.setReq->param[%zu].name : %s\n",i,(*reqObj)->u.setReq->param[i].name);
 		
 		if (cJSON_GetObjectItem(reqParamObj, "value") != NULL )
@@ -134,7 +136,8 @@ void parse_set_request(cJSON *request, req_struct **reqObj)
 			}
 			else
 			{
-				(*reqObj)->u.setReq->param[i].value = cJSON_GetObjectItem(reqParamObj, "value")->valuestring;
+				(*reqObj)->u.setReq->param[i].value = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+				strcpy((*reqObj)->u.setReq->param[i].value, cJSON_GetObjectItem(reqParamObj, "value")->valuestring);
 				WdmpPrint("(*reqObj)->u.setReq->param[%zu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
 			}
 		}
@@ -175,7 +178,8 @@ void parse_set_attr_request(cJSON *request, req_struct **reqObj)
 	for (i = 0; i < paramCount; i++) 
 	{
 		reqParamObj = cJSON_GetArrayItem(paramArray, i);
-		(*reqObj)->u.setReq->param[i].name = cJSON_GetObjectItem(reqParamObj, "name")->valuestring;
+		(*reqObj)->u.setReq->param[i].name = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+		strcpy((*reqObj)->u.setReq->param[i].name, cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
 		WdmpPrint("(*reqObj)->u.setReq->param[%zu].name : %s\n",i,(*reqObj)->u.setReq->param[i].name);
 		
 		if (cJSON_GetObjectItem(reqParamObj, "attributes") != NULL )
@@ -213,17 +217,20 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 		
 	if(cJSON_GetObjectItem(request, "old-cid") != NULL)
 	{
-	        (*reqObj)->u.testSetReq->oldCid = cJSON_GetObjectItem(request, "old-cid")->valuestring;
+	        (*reqObj)->u.testSetReq->oldCid = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+	        strcpy((*reqObj)->u.testSetReq->oldCid, cJSON_GetObjectItem(request, "old-cid")->valuestring);
 	        WdmpPrint("(*reqObj)->u.testSetReq->oldCid : %s\n",(*reqObj)->u.testSetReq->oldCid);
 	}
 	if(cJSON_GetObjectItem(request, "new-cid") != NULL)
 	{
-	        (*reqObj)->u.testSetReq->newCid = cJSON_GetObjectItem(request, "new-cid")->valuestring;
+	        (*reqObj)->u.testSetReq->newCid = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+	        strcpy((*reqObj)->u.testSetReq->newCid, cJSON_GetObjectItem(request, "new-cid")->valuestring);
 	        WdmpPrint("(*reqObj)->u.testSetReq->newCid : %s\n",(*reqObj)->u.testSetReq->newCid);
 	}
 	if(cJSON_GetObjectItem(request, "sync-cmc") != NULL)
 	{
-		(*reqObj)->u.testSetReq->syncCmc = cJSON_GetObjectItem(request, "sync-cmc")->valuestring;
+		(*reqObj)->u.testSetReq->syncCmc = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+		strcpy((*reqObj)->u.testSetReq->syncCmc, cJSON_GetObjectItem(request, "sync-cmc")->valuestring);
 		WdmpPrint("(*reqObj)->u.testSetReq->syncCmc : %s\n",(*reqObj)->u.testSetReq->syncCmc);
 	}
 		
@@ -241,14 +248,15 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 		for (i = 0; i < paramCount; i++) 
 		{
 			reqParamObj = cJSON_GetArrayItem(paramArray, i);
-			(*reqObj)->u.testSetReq->param[i].name = cJSON_GetObjectItem(reqParamObj, "name")->valuestring;
+			(*reqObj)->u.testSetReq->param[i].name = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+			strcpy((*reqObj)->u.testSetReq->param[i].name, cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
 			WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].name : %s\n",i,(*reqObj)->u.testSetReq->param[i].name);
 		
 			if (cJSON_GetObjectItem(reqParamObj, "value") != NULL)
 			{
-				(*reqObj)->u.testSetReq->param[i].value = cJSON_GetObjectItem(reqParamObj, "value")->valuestring;
+				(*reqObj)->u.testSetReq->param[i].value = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+				strcpy((*reqObj)->u.testSetReq->param[i].value, cJSON_GetObjectItem(reqParamObj, "value")->valuestring);
 				WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].value : %s\n",i,(*reqObj)->u.testSetReq->param[i].value);
-			
 			}
 		
 			if (cJSON_GetObjectItem(reqParamObj, "dataType") != NULL)
@@ -279,7 +287,8 @@ void parse_replace_rows_request(cJSON *request, req_struct **reqObj)
 	
 	(*reqObj)->u.tableReq->rowCnt = rowCnt;
 	WdmpPrint("(*reqObj)->u.tableReq->rowCnt : %zu\n",(*reqObj)->u.tableReq->rowCnt);
-	(*reqObj)->u.tableReq->objectName = cJSON_GetObjectItem(request,"table")->valuestring;
+	(*reqObj)->u.tableReq->objectName = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+	strcpy((*reqObj)->u.tableReq->objectName, cJSON_GetObjectItem(request,"table")->valuestring);
 	(*reqObj)->u.tableReq->rows = (TableData *) malloc(sizeof(TableData) * rowCnt);
 	memset((*reqObj)->u.tableReq->rows,0,(sizeof(TableData) * rowCnt));
 	
@@ -295,12 +304,13 @@ void parse_replace_rows_request(cJSON *request, req_struct **reqObj)
 	        (*reqObj)->u.tableReq->rows[i].values = (char **) malloc(sizeof(char *) * paramCount);
 	        for( j = 0 ; j < paramCount ; j++)
 	        {
-		        (*reqObj)->u.tableReq->rows[i].names[j] = cJSON_GetArrayItem(subitem, j)->string;
+                        (*reqObj)->u.tableReq->rows[i].names[j] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+		        strcpy((*reqObj)->u.tableReq->rows[i].names[j], cJSON_GetArrayItem(subitem, j)->string);
 		        WdmpPrint("(*reqObj)->u.tableReq->rows[%zu].names[%zu] : %s\n",i,j,(*reqObj)->u.tableReq->rows[i].names[j]);		
 		        		
-		        (*reqObj)->u.tableReq->rows[i].values[j] = cJSON_GetArrayItem(subitem, j)->valuestring;
+		        (*reqObj)->u.tableReq->rows[i].values[j] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+		        strcpy((*reqObj)->u.tableReq->rows[i].values[j], cJSON_GetArrayItem(subitem, j)->valuestring);
 		        WdmpPrint("(*reqObj)->u.tableReq->rows[%zu].values[%zu] : %s\n",i,j,(*reqObj)->u.tableReq->rows[i].values[j]);	
-		        	
 	        }
 	}
 }
@@ -324,7 +334,8 @@ void parse_add_row_request(cJSON *request, req_struct **reqObj)
 	
 	(*reqObj)->u.tableReq->rowCnt = 1;
 	WdmpPrint("(*reqObj)->u.tableReq->rowCnt : %zu\n",(*reqObj)->u.tableReq->rowCnt);
-	(*reqObj)->u.tableReq->objectName = cJSON_GetObjectItem(request,"table")->valuestring;
+	(*reqObj)->u.tableReq->objectName = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+	strcpy((*reqObj)->u.tableReq->objectName, cJSON_GetObjectItem(request,"table")->valuestring);
 	(*reqObj)->u.tableReq->rows = (TableData *) malloc(sizeof(TableData));
 	memset((*reqObj)->u.tableReq->rows,0,(sizeof(TableData)));
 	
@@ -335,9 +346,11 @@ void parse_add_row_request(cJSON *request, req_struct **reqObj)
         
         for ( i = 0 ; i < paramCount ; i++)
         {
-	        (*reqObj)->u.tableReq->rows->names[i] = cJSON_GetArrayItem(paramArray, i)->string;
+	        (*reqObj)->u.tableReq->rows->names[i] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+	        strcpy((*reqObj)->u.tableReq->rows->names[i], cJSON_GetArrayItem(paramArray, i)->string);
 	         WdmpPrint("(*reqObj)->u.tableReq->rows->names[%zu] : %s\n",i,(*reqObj)->u.tableReq->rows->names[i]);				
-	        (*reqObj)->u.tableReq->rows->values[i] = cJSON_GetArrayItem(paramArray, i)->valuestring;
+	        (*reqObj)->u.tableReq->rows->values[i] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+	        strcpy((*reqObj)->u.tableReq->rows->values[i], cJSON_GetArrayItem(paramArray, i)->valuestring);
 	        WdmpPrint("(*reqObj)->u.tableReq->rows->values[%zu] : %s\n",i,(*reqObj)->u.tableReq->rows->values[i]);		
 	        	
 	}
@@ -352,7 +365,8 @@ void parse_delete_row_request(cJSON *request, req_struct **reqObj)
 	
 	(*reqObj)->u.tableReq = (table_req_t *) malloc(sizeof(table_req_t));
 	memset((*reqObj)->u.tableReq,0,(sizeof(table_req_t)));
-	(*reqObj)->u.tableReq->objectName = cJSON_GetObjectItem(request,"row")->valuestring;
+	(*reqObj)->u.tableReq->objectName = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+	strcpy((*reqObj)->u.tableReq->objectName, cJSON_GetObjectItem(request,"row")->valuestring);
 }
 
 void wdmp_form_get_response(res_struct *resObj, cJSON *response)
@@ -365,7 +379,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         WdmpPrint("resObj->paramCnt : %zu\n",resObj->paramCnt);
         paramCount = resObj->paramCnt;
         WdmpPrint("paramCount : %zu\n",paramCount);
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
                 
         getStatusCode(&statusCode, paramCount, resObj->retStatus);
         WdmpPrint("statusCode : %d\n",statusCode);
@@ -448,7 +462,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         WdmpPrint("paramCount : %zu\n",paramCount);
                 
         getStatusCode(&statusCode, paramCount, resObj->retStatus);
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
         if(statusCode == WDMP_STATUS_SUCCESS)
         {
                 cJSON_AddItemToObject(response, "parameters", parameters =cJSON_CreateArray());
@@ -497,7 +511,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         WdmpPrint("resObj->retStatus : %d\n",resObj->retStatus[0]);
         getStatusCode(&statusCode, paramCount, resObj->retStatus);
         
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
         
         if(resObj->u.paramRes->params)
         {
@@ -535,7 +549,7 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
         char *result = NULL;
         WDMP_RESPONSE_STATUS_CODE statusCode = WDMP_STATUS_GENERAL_FALURE;
         
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
         
         WdmpPrint("resObj->retStatus : %d\n",resObj->retStatus[0]);
         getStatusCode(&statusCode,1,resObj->retStatus);
@@ -574,7 +588,7 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
         WdmpPrint("resObj->retStatus : %d\n",resObj->retStatus[0]);
         getStatusCode(&statusCode, 1, resObj->retStatus);
                 
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
+        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
                         
         if(resObj->u.paramRes)
         {
