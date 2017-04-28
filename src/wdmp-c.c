@@ -49,79 +49,75 @@
 
 void wdmp_parse_request(char * payload, req_struct **reqObj)
 {
-	cJSON *request = NULL;
-	char *out = NULL, *command = NULL;
-	
-	request=cJSON_Parse(payload);
-		
-	if(request != NULL)
-	{
-		command = cJSON_GetObjectItem(request, "command")->valuestring;
-		WdmpPrint("command %s\n",(command == NULL) ? "NULL" : command);
-			
-		if( command != NULL) 
-		{
-			out = cJSON_PrintUnformatted(request);
-			(*reqObj) = (req_struct *) malloc(sizeof(req_struct));
-			memset( (*reqObj), 0, sizeof( req_struct ) );
-			
-			if ((strcmp(command, "GET") == 0)|| (strcmp(command, "GET_ATTRIBUTES") == 0))
-			{
-				WdmpInfo("Request %s\n", out);
-				parse_get_request(request, reqObj);
-			
-			}		
-			else if ((strcmp(command, "SET") == 0))
-			{
-				WdmpInfo("SET Request: %s\n", out);
-				parse_set_request(request, reqObj);
-						
-			}
-			else if ((strcmp(command, "SET_ATTRIBUTES") == 0))
-			{
-				WdmpInfo("SET ATTRIBUTES Request: %s\n", out);
-				parse_set_attr_request(request, reqObj);
-						
-			}			
-			else if (strcmp(command, "TEST_AND_SET") == 0)
-			{
-				WdmpInfo("Test and Set Request: %s\n", out);
-				parse_test_and_set_request(request, reqObj);
+    cJSON *request = NULL;
+    char *out = NULL, *command = NULL;
 
-			}			
-			else if (strcmp(command, "REPLACE_ROWS") == 0)
-			{
-				WdmpInfo("REPLACE_ROWS Request: %s\n", out);
-				parse_replace_rows_request(request, reqObj);				
-			
-			}
-			else if (strcmp(command, "ADD_ROW") == 0)
-			{
-				WdmpInfo("ADD_ROW Request: %s\n", out);
-				parse_add_row_request(request, reqObj);
-						
-			}			
-			else if (strcmp(command, "DELETE_ROW") == 0)
-			{
-				WdmpInfo("DELETE_ROW Request: %s\n", out);
-				parse_delete_row_request(request, reqObj);
-			}			
-			else
-			{
-				WdmpError("Unknown Command \n");
-				wdmp_free_req_struct(*reqObj );
-				(*reqObj) = NULL;
-			}
-			if(out != NULL)
-			{
-			        free(out);
-		    }
-		}
-    	}
-    	else
-	{
-		WdmpInfo("Empty payload\n");
-	}
+    request=cJSON_Parse(payload);
+
+    if(request != NULL)
+    {
+        command = cJSON_GetObjectItem(request, "command")->valuestring;
+        WdmpPrint("command %s\n",(command == NULL) ? "NULL" : command);
+
+        if( command != NULL) 
+        {
+            out = cJSON_PrintUnformatted(request);
+            (*reqObj) = (req_struct *) malloc(sizeof(req_struct));
+            memset( (*reqObj), 0, sizeof( req_struct ) );
+
+            if ((strcmp(command, "GET") == 0)|| (strcmp(command, "GET_ATTRIBUTES") == 0))
+            {
+                WdmpInfo("Request %s\n", out);
+                parse_get_request(request, reqObj);
+            }		
+            else if ((strcmp(command, "SET") == 0))
+            {
+                WdmpInfo("SET Request: %s\n", out);
+                parse_set_request(request, reqObj);
+            }
+            else if ((strcmp(command, "SET_ATTRIBUTES") == 0))
+            {
+                WdmpInfo("SET ATTRIBUTES Request: %s\n", out);
+                parse_set_attr_request(request, reqObj);
+            }			
+            else if (strcmp(command, "TEST_AND_SET") == 0)
+            {
+                WdmpInfo("Test and Set Request: %s\n", out);
+                parse_test_and_set_request(request, reqObj);
+            }			
+            else if (strcmp(command, "REPLACE_ROWS") == 0)
+            {
+                WdmpInfo("REPLACE_ROWS Request: %s\n", out);
+                parse_replace_rows_request(request, reqObj);				
+            }
+            else if (strcmp(command, "ADD_ROW") == 0)
+            {
+                WdmpInfo("ADD_ROW Request: %s\n", out);
+                parse_add_row_request(request, reqObj);
+            }			
+            else if (strcmp(command, "DELETE_ROW") == 0)
+            {
+                WdmpInfo("DELETE_ROW Request: %s\n", out);
+                parse_delete_row_request(request, reqObj);
+            }			
+            else
+            {
+                WdmpError("Unknown Command \n");
+                wdmp_free_req_struct(*reqObj );
+                (*reqObj) = NULL;
+            }
+            
+            if(out != NULL)
+            {
+                free(out);
+            }
+            cJSON_Delete(request);
+        }
+    }
+    else
+    {
+    WdmpInfo("Empty payload\n");
+    }
  	
 }
 
@@ -193,76 +189,109 @@ void wdmp_form_response(res_struct *resObj, char **payload)
 
 void wdmp_free_req_struct( req_struct *reqObj )
 {
-        size_t i;
+    size_t i, j;
 
-        switch( reqObj->reqType ) 
+    switch( reqObj->reqType ) 
+    {
+        case GET:
+        case GET_ATTRIBUTES:
         {
-                case GET:
-                case GET_ATTRIBUTES:
+            if(reqObj->u.getReq)
+            {
+                for(i = 0; i < reqObj->u.getReq->paramCnt; i++)
                 {
-                        if(reqObj->u.getReq)
-                        {
-                                free(reqObj->u.getReq);
-                        }     
+                    free(reqObj->u.getReq->paramNames[i]);
                 }
-                break;
-
-                case SET:
-                case SET_ATTRIBUTES:
-                {
-                        if(reqObj->u.setReq)
-                        {
-                                if(reqObj->u.setReq->param)
-                                {
-                                        for (i = 0; i < reqObj->u.setReq->paramCnt; i++)
-                                        { 
-                                                free(reqObj->u.setReq->param[i].value);
-                                        }
-                                        free(reqObj->u.setReq->param);
-                                }
-                                free(reqObj->u.setReq);
-                        }
-                }
-                break;
-
-                case TEST_AND_SET:
-                {
-                        if(reqObj->u.testSetReq)
-                        {
-                                if(reqObj->u.testSetReq->param)
-                                {
-                                        free(reqObj->u.testSetReq->param);
-                                }
-                                free(reqObj->u.testSetReq);
-                        }
-                }
-                break;
-
-                case REPLACE_ROWS:
-                case ADD_ROWS:
-                case DELETE_ROW:
-                {
-                        if(reqObj->u.tableReq)
-                        {
-                                if(reqObj->u.tableReq->rows)
-                                {
-                                        for (i = 0; i < reqObj->u.tableReq->rowCnt; i++)
-                                        { 
-                                                free(reqObj->u.tableReq->rows[i].names);
-                                                free(reqObj->u.tableReq->rows[i].values);
-                                        }
-                                        free(reqObj->u.tableReq->rows);
-                                }
-                                free(reqObj->u.tableReq);
-                        }
-                }
-                break;
-
-                default:
-                WdmpError("Unknown request type\n");
+                free(reqObj->u.getReq);
+            }     
         }
-        
-        free(reqObj);
+        break;
+
+        case SET:
+        case SET_ATTRIBUTES:
+        {
+            if(reqObj->u.setReq)
+            {
+                if(reqObj->u.setReq->param)
+                {
+                    for (i = 0; i < reqObj->u.setReq->paramCnt; i++)
+                    {
+                        free(reqObj->u.setReq->param[i].name); 
+                        free(reqObj->u.setReq->param[i].value);
+                    }
+                    free(reqObj->u.setReq->param);
+                }
+                free(reqObj->u.setReq);
+            }
+        }
+        break;
+
+        case TEST_AND_SET:
+        {
+            if(reqObj->u.testSetReq)
+            {
+                if(reqObj->u.testSetReq->newCid)
+                {
+                    free(reqObj->u.testSetReq->newCid);
+                }
+
+                if(reqObj->u.testSetReq->oldCid)
+                {
+                    free(reqObj->u.testSetReq->oldCid);
+                }
+
+                if(reqObj->u.testSetReq->syncCmc)
+                {
+                    free(reqObj->u.testSetReq->syncCmc);
+                }
+
+                if(reqObj->u.testSetReq->param)
+                {
+                    for(i=0; i< reqObj->u.testSetReq->paramCnt; i++)
+                    {
+                        free(reqObj->u.testSetReq->param[i].name);
+                        free(reqObj->u.testSetReq->param[i].value);
+                    }
+                    free(reqObj->u.testSetReq->param);
+                }
+                free(reqObj->u.testSetReq);
+            }
+        }
+        break;
+
+        case REPLACE_ROWS:
+        case ADD_ROWS:
+        case DELETE_ROW:
+        {
+            if(reqObj->u.tableReq)
+            {
+                if(reqObj->u.tableReq->objectName)
+                {
+                    free(reqObj->u.tableReq->objectName);
+                }
+                if(reqObj->u.tableReq->rows)
+                {
+                    for (i = 0; i < reqObj->u.tableReq->rowCnt; i++)
+                    {
+                        for(j=0; j<reqObj->u.tableReq->rows[i].paramCnt; j++)
+                        {
+                            free(reqObj->u.tableReq->rows[i].names[j]);
+                            free(reqObj->u.tableReq->rows[i].values[j]);
+                        } 
+                        free(reqObj->u.tableReq->rows[i].names);
+                        free(reqObj->u.tableReq->rows[i].values);
+                    }
+                    free(reqObj->u.tableReq->rows);
+                }
+                free(reqObj->u.tableReq);
+            }
+        }
+        break;
+
+        default:
+        WdmpError("Unknown request type\n");
+    }
+    free(reqObj);
 }
 
 void wdmp_free_res_struct( res_struct *resObj )

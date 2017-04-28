@@ -38,7 +38,8 @@ typedef enum
 /*                                   Macros                                   */
 /*----------------------------------------------------------------------------*/
 
-#define MAX_PARAMETER_LEN                   128
+#define MAX_RESULT_LEN                   128
+#define MAX_PARAMETER_LEN                   512
 
 #define WDMP_SYNC_PARAM_CID                 "Device.DeviceInfo.Webpa.X_COMCAST-COM_CID"
 #define WDMP_SYNC_PARAM_CMC                 "Device.DeviceInfo.Webpa.X_COMCAST-COM_CMC"
