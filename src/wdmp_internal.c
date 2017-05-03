@@ -437,8 +437,15 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         }
         else
         {
-                mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
-	        cJSON_AddStringToObject(response, "message", result);
+                for (i = 0; i < paramCount; i++)
+                {
+                        if(resObj->retStatus[i] != WDMP_SUCCESS)
+                        {
+                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                                break;
+                        }
+                }
+                cJSON_AddStringToObject(response, "message", result);
         }
         
         cJSON_AddNumberToObject(response, "statusCode", statusCode);
@@ -483,7 +490,14 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         }
         else
         {
-                mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+                for (i = 0; i < paramCount; i++)
+                {
+                        if(resObj->retStatus[i] != WDMP_SUCCESS)
+                        {
+                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                                break;
+                        }
+                }
 	        cJSON_AddStringToObject(response, "message", result);
         }
         
