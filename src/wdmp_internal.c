@@ -141,6 +141,10 @@ void parse_set_request(cJSON *request, req_struct **reqObj)
 				WdmpPrint("(*reqObj)->u.setReq->param[%zu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
 			}
 		}
+		else
+		{
+			WdmpError("Parameter value field is not available\n");
+		}
 	
 		if (cJSON_GetObjectItem(reqParamObj, "dataType") != NULL)
 		{
