@@ -63,8 +63,7 @@ void parse_get_request(cJSON *request, req_struct **reqObj)
 	
 	for (i = 0; i < paramCount; i++) 
 	{
-		(*reqObj)->u.getReq->paramNames[i] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-		strcpy((*reqObj)->u.getReq->paramNames[i], cJSON_GetArrayItem(paramArray, i)->valuestring);
+		(*reqObj)->u.getReq->paramNames[i] = strndup((cJSON_GetArrayItem(paramArray, i)->valuestring), sizeof(char)*MAX_PARAMETER_LEN);
 		WdmpPrint("(*reqObj)->u.getReq->paramNames[%zu] : %s\n",i,(*reqObj)->u.getReq->paramNames[i]);
 	}
 
