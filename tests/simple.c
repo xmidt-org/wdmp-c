@@ -83,7 +83,7 @@ void get_attr_req_parse ()
     (reqObj) = (req_struct *) malloc(sizeof(req_struct));
     memset( (reqObj), 0, sizeof( req_struct ) );
     
-    parse_get_request(request,&reqObj);
+    parse_get_request(request,&reqObj,WDMP_TR181);
     
     CU_ASSERT( NULL != reqObj);
     CU_ASSERT_EQUAL( GET_ATTRIBUTES, reqObj->reqType );

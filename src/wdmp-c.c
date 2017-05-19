@@ -47,67 +47,82 @@
 /*                             External Functions                             */
 /*----------------------------------------------------------------------------*/
 
-void wdmp_parse_request(char * payload, req_struct **reqObj)
+void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, void **reqObj)
 {
     cJSON *request = NULL;
     char *out = NULL, *command = NULL;
 
-    request=cJSON_Parse(payload);
+    if (!payload || !reqObj)
+    {
+        printf("wdmp_parse_generic_request - invalid param!\n");
+        return;
+    }
 
-    if(request != NULL)
+    request = cJSON_Parse(payload);
+    if (request != NULL)
     {
         command = cJSON_GetObjectItem(request, "command")->valuestring;
-        WdmpPrint("command %s\n",(command == NULL) ? "NULL" : command);
+        WdmpPrint("command %s\n", (command == NULL) ? "NULL" : command);
 
-        if( command != NULL) 
+        if (command != NULL)
         {
             out = cJSON_PrintUnformatted(request);
-            (*reqObj) = (req_struct *) malloc(sizeof(req_struct));
-            memset( (*reqObj), 0, sizeof( req_struct ) );
 
-            if ((strcmp(command, "GET") == 0)|| (strcmp(command, "GET_ATTRIBUTES") == 0))
+            //allocate structure according to payload type
+            if (payload_type == WDMP_TR181 || payload_type == WDMP_SNMP)
+            {
+                (*reqObj) = (req_struct *) malloc(sizeof(req_struct));
+                memset((*reqObj), 0, sizeof(req_struct));
+            }
+            else
+            {
+                // allocate according to payload type.
+                // - currently no other data types supported
+            }
+
+            if ((strcmp(command, "GET") == 0) || (strcmp(command, "GET_ATTRIBUTES") == 0))
             {
                 WdmpInfo("Request %s\n", out);
-                parse_get_request(request, reqObj);
-            }		
+                parse_get_request(request, (req_struct**) reqObj, payload_type);
+            }
             else if ((strcmp(command, "SET") == 0))
             {
                 WdmpInfo("SET Request: %s\n", out);
-                parse_set_request(request, reqObj);
+                parse_set_request(request, (req_struct**) reqObj, payload_type);
             }
             else if ((strcmp(command, "SET_ATTRIBUTES") == 0))
             {
                 WdmpInfo("SET ATTRIBUTES Request: %s\n", out);
-                parse_set_attr_request(request, reqObj);
-            }			
+                parse_set_attr_request(request, (req_struct**) reqObj);
+            }
             else if (strcmp(command, "TEST_AND_SET") == 0)
             {
                 WdmpInfo("Test and Set Request: %s\n", out);
-                parse_test_and_set_request(request, reqObj);
-            }			
+                parse_test_and_set_request(request, (req_struct**) reqObj);
+            }
             else if (strcmp(command, "REPLACE_ROWS") == 0)
             {
                 WdmpInfo("REPLACE_ROWS Request: %s\n", out);
-                parse_replace_rows_request(request, reqObj);				
+                parse_replace_rows_request(request, (req_struct**) reqObj);
             }
             else if (strcmp(command, "ADD_ROW") == 0)
             {
                 WdmpInfo("ADD_ROW Request: %s\n", out);
-                parse_add_row_request(request, reqObj);
-            }			
+                parse_add_row_request(request, (req_struct**) reqObj);
+            }
             else if (strcmp(command, "DELETE_ROW") == 0)
             {
                 WdmpInfo("DELETE_ROW Request: %s\n", out);
-                parse_delete_row_request(request, reqObj);
-            }			
+                parse_delete_row_request(request, (req_struct**) reqObj);
+            }
             else
             {
                 WdmpError("Unknown Command \n");
-                wdmp_free_req_struct(*reqObj );
+                wdmp_free_req_struct(*reqObj);
                 (*reqObj) = NULL;
             }
-            
-            if(out != NULL)
+
+            if (out != NULL)
             {
                 free(out);
             }
@@ -116,9 +131,16 @@ void wdmp_parse_request(char * payload, req_struct **reqObj)
     }
     else
     {
-    WdmpInfo("Empty payload\n");
+        WdmpInfo("Empty payload\n");
     }
- 	
+
+    return;
+}
+
+void wdmp_parse_request(char * payload, req_struct **reqObj)
+{
+	wdmp_parse_generic_request(payload, WDMP_TR181, (void**)reqObj);
+	return;
 }
 
 void wdmp_form_response(res_struct *resObj, char **payload)

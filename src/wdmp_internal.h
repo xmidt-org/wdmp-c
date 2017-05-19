@@ -61,8 +61,8 @@ typedef enum
 /*----------------------------------------------------------------------------*/
 /*                             Function Prototypes                            */
 /*----------------------------------------------------------------------------*/
-void parse_get_request(cJSON *request, req_struct **reqObj);
-void parse_set_request(cJSON *request, req_struct **reqObj);
+void parse_get_request(cJSON *request, req_struct **reqObj, PAYLOAD_TYPE type);
+void parse_set_request(cJSON *request, req_struct **reqObj, PAYLOAD_TYPE type);
 void parse_set_attr_request(cJSON *request, req_struct **reqObj);
 void parse_test_and_set_request(cJSON *request, req_struct **reqObj);
 void parse_replace_rows_request(cJSON *request, req_struct **reqObj);

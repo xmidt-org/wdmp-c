@@ -39,6 +39,12 @@ typedef enum
 
 typedef enum
 {
+    WDMP_TR181 = 0,
+    WDMP_SNMP
+} PAYLOAD_TYPE;
+
+typedef enum
+{
     WDMP_SUCCESS = 0,                    /**< Success. */
     WDMP_FAILURE,                        /**< General Failure */
     WDMP_ERR_TIMEOUT,
@@ -221,6 +227,18 @@ typedef struct
  */
 
 void wdmp_parse_request(char * payload, req_struct **reqObj);
+
+/**
+ *  To convert json string of a given payload_type to struct
+ *
+ *  @note If the reqObj returned is not NULL, the value pointed at by
+ *      bytes must be freed using wdmp_free_req_struct() by the caller.
+ *
+ *  @param payload    [in]  payload JSON string to be converted
+ *  @param payload_type    [in] type of JSON payload - TR181 / SNMP /or any TBD type
+ *  @param reqObj    [out] the resulting structure if successful. structure depends on the payload_type
+ */
+void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, void **reqObj);
 
 
 /**
