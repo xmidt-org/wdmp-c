@@ -238,7 +238,7 @@ void wdmp_parse_request(char * payload, req_struct **reqObj);
  *  @param payload_type    [in] type of JSON payload - TR181 / SNMP /or any TBD type
  *  @param reqObj    [out] the resulting structure if successful. structure depends on the payload_type
  */
-void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, void **reqObj);
+void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, req_struct **reqObj);
 
 
 /**

@@ -47,14 +47,14 @@
 /*                             External Functions                             */
 /*----------------------------------------------------------------------------*/
 
-void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, void **reqObj)
+void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, req_struct **reqObj)
 {
     cJSON *request = NULL;
     char *out = NULL, *command = NULL;
 
     if (!payload || !reqObj)
     {
-        printf("wdmp_parse_generic_request - invalid param!\n");
+        WdmpPrint("wdmp_parse_generic_request - invalid param!\n");
         return;
     }
 
@@ -78,42 +78,45 @@ void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, void 
             {
                 // allocate according to payload type.
                 // - currently no other data types supported
+                WdmpPrint("wdmp_parse_generic_request - invalid payload_type : %d\n", payload_type);
+                cJSON_Delete(request);
+                return;
             }
 
             if ((strcmp(command, "GET") == 0) || (strcmp(command, "GET_ATTRIBUTES") == 0))
             {
                 WdmpInfo("Request %s\n", out);
-                parse_get_request(request, (req_struct**) reqObj, payload_type);
+                parse_get_request(request, reqObj, payload_type);
             }
             else if ((strcmp(command, "SET") == 0))
             {
                 WdmpInfo("SET Request: %s\n", out);
-                parse_set_request(request, (req_struct**) reqObj, payload_type);
+                parse_set_request(request, reqObj, payload_type);
             }
             else if ((strcmp(command, "SET_ATTRIBUTES") == 0))
             {
                 WdmpInfo("SET ATTRIBUTES Request: %s\n", out);
-                parse_set_attr_request(request, (req_struct**) reqObj);
+                parse_set_attr_request(request, reqObj);
             }
             else if (strcmp(command, "TEST_AND_SET") == 0)
             {
                 WdmpInfo("Test and Set Request: %s\n", out);
-                parse_test_and_set_request(request, (req_struct**) reqObj);
+                parse_test_and_set_request(request, reqObj);
             }
             else if (strcmp(command, "REPLACE_ROWS") == 0)
             {
                 WdmpInfo("REPLACE_ROWS Request: %s\n", out);
-                parse_replace_rows_request(request, (req_struct**) reqObj);
+                parse_replace_rows_request(request, reqObj);
             }
             else if (strcmp(command, "ADD_ROW") == 0)
             {
                 WdmpInfo("ADD_ROW Request: %s\n", out);
-                parse_add_row_request(request, (req_struct**) reqObj);
+                parse_add_row_request(request, reqObj);
             }
             else if (strcmp(command, "DELETE_ROW") == 0)
             {
                 WdmpInfo("DELETE_ROW Request: %s\n", out);
-                parse_delete_row_request(request, (req_struct**) reqObj);
+                parse_delete_row_request(request, reqObj);
             }
             else
             {
@@ -126,8 +129,9 @@ void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, void 
             {
                 free(out);
             }
-            cJSON_Delete(request);
         }
+
+        cJSON_Delete(request);
     }
     else
     {
@@ -139,7 +143,7 @@ void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, void 
 
 void wdmp_parse_request(char * payload, req_struct **reqObj)
 {
-	wdmp_parse_generic_request(payload, WDMP_TR181, (void**)reqObj);
+	wdmp_parse_generic_request(payload, WDMP_TR181, reqObj);
 	return;
 }
 
