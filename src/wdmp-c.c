@@ -56,8 +56,11 @@ void wdmp_parse_request(char * payload, req_struct **reqObj)
 
     if(request != NULL)
     {
-        command = cJSON_GetObjectItem(request, "command")->valuestring;
-        WdmpPrint("command %s\n",(command == NULL) ? "NULL" : command);
+		if(cJSON_GetObjectItem(request, "command") != NULL)
+		{
+        	command = cJSON_GetObjectItem(request, "command")->valuestring;
+        	WdmpPrint("command %s\n",(command == NULL) ? "NULL" : command);
+		}
 
         if( command != NULL) 
         {
@@ -177,6 +180,14 @@ void wdmp_form_response(res_struct *resObj, char **payload)
                         break;
                 }
 	}
+	else
+	{		
+		response = cJSON_CreateObject();
+		cJSON_AddStringToObject(response, "message", "Invalid Input Command");	
+		cJSON_AddNumberToObject(response, "statusCode", WDMP_STATUS_GENERAL_FALURE);	
+	
+	}
+	
 	
         if(response != NULL)
 	{
