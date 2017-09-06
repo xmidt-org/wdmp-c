@@ -2064,6 +2064,142 @@ void test_unknown_req_type()
         CU_ASSERT( NULL == payload);
 }
 
+void get_large_parameter_req_parse()
+{
+        int i,paramCount;
+        char *request = NULL;
+        req_struct *reqObj = NULL;
+
+        WdmpInfo("\n***************************************************** \n\n");
+
+        request = "{ \"names\":[\"Device.DeviceInfo.Webpa.sfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR\",\"Device.DeviceInfo.Webpa.\"],\"command\": \"GET\"}";
+
+        wdmp_parse_request(request,&reqObj);
+
+        CU_ASSERT( NULL != reqObj);
+
+        WdmpInfo("Request Type : %d\n",reqObj->reqType);
+
+        CU_ASSERT_EQUAL( GET, reqObj->reqType );
+
+        if(reqObj->u.getReq)
+        {
+                WdmpPrint("ParamCount : %zu\n",reqObj->u.getReq->paramCnt);
+                paramCount = (int)reqObj->u.getReq->paramCnt;
+                for (i = 0; i < paramCount; i++) 
+                {
+                    WdmpPrint("paramNames[%d] : %s\n",i,reqObj->u.getReq->paramNames[i]);
+                    
+                }
+        }
+
+        CU_ASSERT_EQUAL( 2, paramCount );
+        CU_ASSERT_STRING_NOT_EQUAL( "Device.DeviceInfo.Webpa.sfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR", reqObj->u.getReq->paramNames[0] );
+        CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.Webpa.", reqObj->u.getReq->paramNames[1] );
+
+        if (NULL != reqObj) {
+                wdmp_free_req_struct(reqObj );
+        }  
+}
+
+void set_large_parameter_req_parse()
+{
+    int i,paramCount;
+    char *request = NULL;
+    req_struct *reqObj = NULL;
+    
+    WdmpInfo("\n***************************************************** \n\n");
+      
+    request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass.sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR\",\"dataType\":0}],\"command\":\"SET\"}";
+ 
+    wdmp_parse_request(request,&reqObj);
+    
+    CU_ASSERT( NULL != reqObj);
+    CU_ASSERT_EQUAL( SET, reqObj->reqType );
+    
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
+    WdmpPrint("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
+    paramCount = (int)reqObj->u.setReq->paramCnt;
+    for (i = 0; i < paramCount; i++) 
+	{
+	    WdmpPrint("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+	    WdmpPrint("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+	    WdmpPrint("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+	}
+	
+    CU_ASSERT_EQUAL( 2, paramCount );
+    CU_ASSERT_STRING_NOT_EQUAL( "Device.DeviceInfo.ProductClass.sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR", reqObj->u.setReq->param[0].name );
+    CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.SerialNumber", reqObj->u.setReq->param[1].name );
+    CU_ASSERT_STRING_EQUAL( "XB3", reqObj->u.setReq->param[0].value );
+    CU_ASSERT_STRING_NOT_EQUAL( "sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR", reqObj->u.setReq->param[1].value );  
+    CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.setReq->param[0].type );
+    CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.setReq->param[1].type );  
+    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+}
+
+void test_large_parameter_table_request()
+{
+    int i,paramCount,j,rowCnt;
+    cJSON *request = NULL;
+    req_struct *reqObj = NULL;
+    char * payload= NULL;
+    
+    WdmpInfo("\n***************************************************** \n\n");
+       
+    payload= "{\"rows\":{\"0\":{\"DeviceName\":\"Device1\",\"sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR\":\"12:2:3:5:11\"},\"1\":{\"DeviceName\":\"sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR\",\"MacAddress\":\"2:1:3:5:7\"} },\"table\" : \"Device.WiFi.AccessPoint.10001.X_CISCO_COM_sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR.\",\"command\":\"REPLACE_ROWS\"}";
+ 
+    CU_ASSERT( NULL != payload);
+    
+    request = cJSON_Parse(payload);
+    
+    (reqObj) = (req_struct *) malloc(sizeof(req_struct));
+    memset( (reqObj), 0, sizeof( req_struct ) );
+    
+    parse_replace_rows_request(request,&reqObj);
+    
+    CU_ASSERT( NULL != reqObj);
+    CU_ASSERT_EQUAL( REPLACE_ROWS, reqObj->reqType );
+    
+    WdmpInfo("Req Type : %d\n",reqObj->reqType);
+    WdmpInfo("Object Name : %s\n",reqObj->u.tableReq->objectName);
+    WdmpInfo("Row Count : %zu\n",reqObj->u.tableReq->rowCnt);
+    rowCnt = (int)reqObj->u.tableReq->rowCnt;
+    CU_ASSERT_STRING_NOT_EQUAL( "Device.WiFi.AccessPoint.10001.X_CISCO_COM_sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR.", reqObj->u.tableReq->objectName );
+    CU_ASSERT_EQUAL( 2, rowCnt );
+    
+    for ( i = 0 ; i < rowCnt ; i++)
+    {
+        WdmpPrint("ParamCount: %zu\n",reqObj->u.tableReq->rows[i].paramCnt);
+        paramCount = (int)reqObj->u.tableReq->rows[i].paramCnt;
+        
+        for( j = 0 ; j < paramCount ; j++)
+        {
+	        WdmpPrint("rows[%d].names[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].names[j]);				
+	        WdmpPrint("rows[%d].values[%d] : %s\n",i,j,reqObj->u.tableReq->rows[i].values[j]);			
+        }
+    }
+    
+    CU_ASSERT_EQUAL( 2, paramCount );
+    CU_ASSERT_STRING_EQUAL( "DeviceName", reqObj->u.tableReq->rows[0].names[0] );
+    CU_ASSERT_STRING_EQUAL( "Device1", reqObj->u.tableReq->rows[0].values[0] );
+    CU_ASSERT_STRING_NOT_EQUAL( "sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR", reqObj->u.tableReq->rows[0].names[1] );
+    CU_ASSERT_STRING_EQUAL( "12:2:3:5:11", reqObj->u.tableReq->rows[0].values[1] );
+    CU_ASSERT_STRING_EQUAL( "DeviceName", reqObj->u.tableReq->rows[1].names[0] );
+    CU_ASSERT_STRING_NOT_EQUAL( "sfdgfgherejfjfjkksfhjgkeraskkkkkkkkkkdweqlfdrkfhgsrsjljrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGsfdgfgherejrehigeiruwegwegwiegfuwgfegfwegfwefegaugdfosFYQWPIYRSDAWIEUFTGJVHEDFKWJESDFWEGFWEGFGAQWWEGYTEHERHAEGTWERHTBQR4WYTR", reqObj->u.tableReq->rows[1].values[0] );
+    CU_ASSERT_STRING_EQUAL( "MacAddress", reqObj->u.tableReq->rows[1].names[1] );
+    CU_ASSERT_STRING_EQUAL( "2:1:3:5:7", reqObj->u.tableReq->rows[1].values[1] );  
+    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+    if(NULL != request)
+    {
+        cJSON_Delete(request);
+    }
+}
 void add_request_parse_suites( CU_pSuite *suite )
 {
     *suite = CU_add_suite( "wdmp-c request parsing tests", NULL, NULL );
@@ -2088,6 +2224,9 @@ void add_request_parse_suites( CU_pSuite *suite )
     CU_add_test( *suite, "Test Empty Test and Set Request", empty_test_and_set );
     CU_add_test( *suite, "Test Set Req NULL Param value", set_req_null_param_value );
     CU_add_test( *suite, "Test Set Req empty value field", set_req_value_field_empty );
+    CU_add_test( *suite, "Test Get large parameter name Request", get_large_parameter_req_parse );
+    CU_add_test( *suite, "Test Set large parameter name and value Request", set_large_parameter_req_parse );
+    CU_add_test( *suite, "Test large parameter table Request", test_large_parameter_table_request );
  
 }
 
