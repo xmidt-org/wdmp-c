@@ -136,14 +136,14 @@ void parse_set_request(cJSON *request, req_struct **reqObj, PAYLOAD_TYPE type)
 	for (i = 0; i < paramCount; i++) 
 	{
 		reqParamObj = cJSON_GetArrayItem(paramArray, i);
-		(*reqObj)->u.setReq->param[i].name = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
+
 		if(type == WDMP_SNMP)
 		{
-			strcpy((*reqObj)->u.setReq->param[i].name,cJSON_GetObjectItem(reqParamObj, "oid")->valuestring);
+		        (*reqObj)->u.setReq->param[i].name = strndup((cJSON_GetObjectItem(reqParamObj, "oid")->valuestring), sizeof(char)*MAX_PARAMETER_LEN);
 		}
 		else
 		{
-			strcpy((*reqObj)->u.setReq->param[i].name,cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
+		        (*reqObj)->u.setReq->param[i].name = strndup((cJSON_GetObjectItem(reqParamObj, "name")->valuestring), sizeof(char)*MAX_PARAMETER_LEN);
 		}
 
 		WdmpPrint("(*reqObj)->u.setReq->param[%zu].name : %s\n",i,(*reqObj)->u.setReq->param[i].name);
@@ -160,8 +160,7 @@ void parse_set_request(cJSON *request, req_struct **reqObj, PAYLOAD_TYPE type)
 			}
 			else
 			{
-				(*reqObj)->u.setReq->param[i].value = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-				strcpy((*reqObj)->u.setReq->param[i].value, cJSON_GetObjectItem(reqParamObj, "value")->valuestring);
+				(*reqObj)->u.setReq->param[i].value = strndup((cJSON_GetObjectItem(reqParamObj, "value")->valuestring),sizeof(char)*MAX_PARAMETER_LEN);
 				WdmpPrint("(*reqObj)->u.setReq->param[%zu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
 			}
 		}
@@ -206,8 +205,7 @@ void parse_set_attr_request(cJSON *request, req_struct **reqObj)
 	for (i = 0; i < paramCount; i++) 
 	{
 		reqParamObj = cJSON_GetArrayItem(paramArray, i);
-		(*reqObj)->u.setReq->param[i].name = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-		strcpy((*reqObj)->u.setReq->param[i].name, cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
+		(*reqObj)->u.setReq->param[i].name = strndup((cJSON_GetObjectItem(reqParamObj, "name")->valuestring),sizeof(char)*MAX_PARAMETER_LEN);
 		WdmpPrint("(*reqObj)->u.setReq->param[%zu].name : %s\n",i,(*reqObj)->u.setReq->param[i].name);
 		
 		if (cJSON_GetObjectItem(reqParamObj, "attributes") != NULL )
@@ -276,14 +274,12 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 		for (i = 0; i < paramCount; i++) 
 		{
 			reqParamObj = cJSON_GetArrayItem(paramArray, i);
-			(*reqObj)->u.testSetReq->param[i].name = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-			strcpy((*reqObj)->u.testSetReq->param[i].name, cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
+			(*reqObj)->u.testSetReq->param[i].name = strndup(cJSON_GetObjectItem(reqParamObj, "name")->valuestring, sizeof(char)*MAX_PARAMETER_LEN);
 			WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].name : %s\n",i,(*reqObj)->u.testSetReq->param[i].name);
 		
 			if (cJSON_GetObjectItem(reqParamObj, "value") != NULL)
 			{
-				(*reqObj)->u.testSetReq->param[i].value = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-				strcpy((*reqObj)->u.testSetReq->param[i].value, cJSON_GetObjectItem(reqParamObj, "value")->valuestring);
+				(*reqObj)->u.testSetReq->param[i].value = strndup(cJSON_GetObjectItem(reqParamObj, "value")->valuestring, sizeof(char)*MAX_PARAMETER_LEN);
 				WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].value : %s\n",i,(*reqObj)->u.testSetReq->param[i].value);
 			}
 		
@@ -315,8 +311,7 @@ void parse_replace_rows_request(cJSON *request, req_struct **reqObj)
 	
 	(*reqObj)->u.tableReq->rowCnt = rowCnt;
 	WdmpPrint("(*reqObj)->u.tableReq->rowCnt : %zu\n",(*reqObj)->u.tableReq->rowCnt);
-	(*reqObj)->u.tableReq->objectName = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-	strcpy((*reqObj)->u.tableReq->objectName, cJSON_GetObjectItem(request,"table")->valuestring);
+	(*reqObj)->u.tableReq->objectName = strndup(cJSON_GetObjectItem(request,"table")->valuestring, sizeof(char)*MAX_PARAMETER_LEN);
 	(*reqObj)->u.tableReq->rows = (TableData *) malloc(sizeof(TableData) * rowCnt);
 	memset((*reqObj)->u.tableReq->rows,0,(sizeof(TableData) * rowCnt));
 	
@@ -332,12 +327,10 @@ void parse_replace_rows_request(cJSON *request, req_struct **reqObj)
 	        (*reqObj)->u.tableReq->rows[i].values = (char **) malloc(sizeof(char *) * paramCount);
 	        for( j = 0 ; j < paramCount ; j++)
 	        {
-                        (*reqObj)->u.tableReq->rows[i].names[j] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-		        strcpy((*reqObj)->u.tableReq->rows[i].names[j], cJSON_GetArrayItem(subitem, j)->string);
+                        (*reqObj)->u.tableReq->rows[i].names[j] = strndup(cJSON_GetArrayItem(subitem, j)->string, sizeof(char)*MAX_PARAMETER_LEN);
 		        WdmpPrint("(*reqObj)->u.tableReq->rows[%zu].names[%zu] : %s\n",i,j,(*reqObj)->u.tableReq->rows[i].names[j]);		
 		        		
-		        (*reqObj)->u.tableReq->rows[i].values[j] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-		        strcpy((*reqObj)->u.tableReq->rows[i].values[j], cJSON_GetArrayItem(subitem, j)->valuestring);
+		        (*reqObj)->u.tableReq->rows[i].values[j] = strndup(cJSON_GetArrayItem(subitem, j)->valuestring, sizeof(char)*MAX_PARAMETER_LEN);
 		        WdmpPrint("(*reqObj)->u.tableReq->rows[%zu].values[%zu] : %s\n",i,j,(*reqObj)->u.tableReq->rows[i].values[j]);	
 	        }
 	}
@@ -362,8 +355,7 @@ void parse_add_row_request(cJSON *request, req_struct **reqObj)
 	
 	(*reqObj)->u.tableReq->rowCnt = 1;
 	WdmpPrint("(*reqObj)->u.tableReq->rowCnt : %zu\n",(*reqObj)->u.tableReq->rowCnt);
-	(*reqObj)->u.tableReq->objectName = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-	strcpy((*reqObj)->u.tableReq->objectName, cJSON_GetObjectItem(request,"table")->valuestring);
+	(*reqObj)->u.tableReq->objectName = strndup(cJSON_GetObjectItem(request,"table")->valuestring, sizeof(char)*MAX_PARAMETER_LEN);
 	(*reqObj)->u.tableReq->rows = (TableData *) malloc(sizeof(TableData));
 	memset((*reqObj)->u.tableReq->rows,0,(sizeof(TableData)));
 	
@@ -374,11 +366,9 @@ void parse_add_row_request(cJSON *request, req_struct **reqObj)
         
         for ( i = 0 ; i < paramCount ; i++)
         {
-	        (*reqObj)->u.tableReq->rows->names[i] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-	        strcpy((*reqObj)->u.tableReq->rows->names[i], cJSON_GetArrayItem(paramArray, i)->string);
+	        (*reqObj)->u.tableReq->rows->names[i] = strndup(cJSON_GetArrayItem(paramArray, i)->string, sizeof(char)*MAX_PARAMETER_LEN);
 	         WdmpPrint("(*reqObj)->u.tableReq->rows->names[%zu] : %s\n",i,(*reqObj)->u.tableReq->rows->names[i]);				
-	        (*reqObj)->u.tableReq->rows->values[i] = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-	        strcpy((*reqObj)->u.tableReq->rows->values[i], cJSON_GetArrayItem(paramArray, i)->valuestring);
+	        (*reqObj)->u.tableReq->rows->values[i] = strndup(cJSON_GetArrayItem(paramArray, i)->valuestring, sizeof(char)*MAX_PARAMETER_LEN);
 	        WdmpPrint("(*reqObj)->u.tableReq->rows->values[%zu] : %s\n",i,(*reqObj)->u.tableReq->rows->values[i]);		
 	        	
 	}
@@ -393,8 +383,7 @@ void parse_delete_row_request(cJSON *request, req_struct **reqObj)
 	
 	(*reqObj)->u.tableReq = (table_req_t *) malloc(sizeof(table_req_t));
 	memset((*reqObj)->u.tableReq,0,(sizeof(table_req_t)));
-	(*reqObj)->u.tableReq->objectName = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-	strcpy((*reqObj)->u.tableReq->objectName, cJSON_GetObjectItem(request,"row")->valuestring);
+	(*reqObj)->u.tableReq->objectName = strndup(cJSON_GetObjectItem(request,"row")->valuestring, sizeof(char)*MAX_PARAMETER_LEN);
 }
 
 void wdmp_form_get_response(res_struct *resObj, cJSON *response)
