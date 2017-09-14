@@ -783,6 +783,11 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 	{
 	        strcpy(result,"Invalid Input parameter - CID/CMC value cannot be set");
 	}
+	else if (status == WDMP_ERR_MESH_IS_ENABLED)
+    {
+    	strcpy(result,"Mesh is enabled");
+    }
+
 	else 
 	{
 		strcpy(result,"Unknown Error");
@@ -819,6 +824,12 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 			*statusCode = WDMP_STATUS_ATOMIC_GET_SET_FAILED;
 			break;
 		}
+		else if (ret[i] == WDMP_ERR_MESH_IS_ENABLED)
+        {
+            *statusCode = WDMP_STATUS_ATOMIC_GET_SET_FAILED;
+         	break;
+        }
+
 		else 
 		{
 			*statusCode = WDMP_STATUS_GENERAL_FALURE;
