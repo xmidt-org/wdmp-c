@@ -94,27 +94,27 @@ void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, req_s
             }
             else if ((strcmp(command, "SET") == 0))
             {
-                WdmpInfo("SET Request: %s\n", out);
+                WdmpInfo("SET Request\n");
                 parse_set_request(request, reqObj, payload_type);
             }
             else if ((strcmp(command, "SET_ATTRIBUTES") == 0))
             {
-                WdmpInfo("SET ATTRIBUTES Request: %s\n", out);
+                WdmpInfo("SET ATTRIBUTES Request\n");
                 parse_set_attr_request(request, reqObj);
             }
             else if (strcmp(command, "TEST_AND_SET") == 0)
             {
-                WdmpInfo("Test and Set Request: %s\n", out);
+                WdmpInfo("Test and Set Request\n");
                 parse_test_and_set_request(request, reqObj);
             }
             else if (strcmp(command, "REPLACE_ROWS") == 0)
             {
-                WdmpInfo("REPLACE_ROWS Request: %s\n", out);
+                WdmpInfo("REPLACE_ROWS Request\n");
                 parse_replace_rows_request(request, reqObj);
             }
             else if (strcmp(command, "ADD_ROW") == 0)
             {
-                WdmpInfo("ADD_ROW Request: %s\n", out);
+                WdmpInfo("ADD_ROW Request\n");
                 parse_add_row_request(request, reqObj);
             }
             else if (strcmp(command, "DELETE_ROW") == 0)
@@ -219,7 +219,7 @@ void wdmp_form_response(res_struct *resObj, char **payload)
         if(response != NULL)
 	{
                 *payload = cJSON_PrintUnformatted(response);
-                WdmpInfo("Response Payload :%s\n", *payload);
+                WdmpPrint("Response Payload :%s\n", *payload);
 		cJSON_Delete(response);
 	}
 
