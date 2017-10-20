@@ -775,6 +775,10 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 	{
 	        strcpy(result,"Invalid Input parameter - CID/CMC value cannot be set");
 	}
+	else if (status == WDMP_ERR_METHOD_NOT_SUPPORTED)
+	{
+		strcpy(result,"Method is not supported");
+	}
 	else 
 	{
 		strcpy(result,"Unknown Error");
