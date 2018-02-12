@@ -20,7 +20,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-
+/**
+ * @brief wdmp data types
+ */
 typedef enum
 {
     WDMP_STRING = 0,
@@ -37,12 +39,18 @@ typedef enum
     WDMP_NONE
 } DATA_TYPE;
 
+/**
+ * @brief wdmp payload types
+ */
 typedef enum
 {
     WDMP_TR181 = 0,
     WDMP_SNMP
 } PAYLOAD_TYPE;
 
+/**
+ * @brief wdmp status codes
+ */
 typedef enum
 {
     WDMP_SUCCESS = 0,                    /**< Success. */
@@ -82,6 +90,12 @@ typedef enum
     WDMP_ERR_METHOD_NOT_SUPPORTED
 } WDMP_STATUS;
 
+/**
+ * @brief wdmp basic parameter stucture
+ * @param name of parameter
+ * @param value of parameter
+ * @param type of parameter
+ */
 typedef struct
 {
     char *name;
@@ -89,6 +103,9 @@ typedef struct
     DATA_TYPE type;
 } param_t;
 
+/**
+ * @brief wdmp request types
+ */
 typedef enum
 {
     GET = 0,
@@ -101,18 +118,36 @@ typedef enum
     DELETE_ROW
 } REQ_TYPE;
 
+/**
+ * @brief wdmp structure of get request
+ * @param array of parameter names
+ * @param count of parameters
+ */
 typedef struct
 {
     char *paramNames[512];
     size_t paramCnt;
 } get_req_t;
 
+/**
+ * @brief wdmp structure of set request
+ * @param array of parameters
+ * @param count of parameters
+ */
 typedef struct
 {	
     param_t *param;
     size_t paramCnt;
 } set_req_t;
 
+/**
+ * @brief wdmp structure of test-and-set request
+ * @param array of parameters
+ * @param value of new cid
+ * @param value of old cid
+ * @param value of sync cmc
+ * @param count of parameters
+ */
 typedef struct
 {	
     param_t *param;
@@ -122,7 +157,12 @@ typedef struct
     size_t paramCnt;
 } test_set_req_t;
 
-
+/**
+ * @brief wdmp structure of basic table data
+ * @param count of parameters in a table
+ * @param array of parameter names in a table
+ * @param array of parameter values in a table
+ */
 typedef struct 
 {
     size_t paramCnt;   
@@ -130,6 +170,13 @@ typedef struct
     char **values;
 } TableData;
 
+/**
+ * @brief wdmp structure of table requests such as ADD_ROWS, REPLACE_ROWS and DELETE_ROW
+ * @param table name
+ * @param list of rows to add/replace
+ * @param no.of rows to add/replace
+ * @note rowCnt is 0 and rows will be NULL for DELETE_ROW
+ */
 typedef struct
 {
     char *objectName;
@@ -137,6 +184,11 @@ typedef struct
     size_t rowCnt;
 } table_req_t;
 
+/**
+ * @brief wdmp structure of request
+ * @param type of request
+ * @param request data
+ */
 typedef struct {
     REQ_TYPE reqType;
     union {
@@ -147,6 +199,12 @@ typedef struct {
     } u;
 } req_struct;
 
+/**
+ * @brief wdmp structure of component time span
+ * @param component name
+ * @param component start time
+ * @param total time taken by component
+ */
 typedef struct  
 {
     char *name;
@@ -154,12 +212,24 @@ typedef struct
     uint32_t duration;  
 } money_trace_span;
 
+/**
+ * @brief wdmp structure of component timings
+ * @param list of component spans
+ * @param no.of components
+ */
 typedef struct  
 {
     money_trace_span *spans;
     size_t count;
 } money_trace_spans;
 
+/**
+ * @brief wdmp structure of get response
+ * @param array of parameter names from request
+ * @param count of parameters from request
+ * @param list of parameters
+ * @param total paramcount for each parameter in paramNames array
+ */
 typedef struct
 {
     char **paramNames;
@@ -168,6 +238,12 @@ typedef struct
     size_t *retParamCnt;
 } get_res_t;
 
+/**
+ * @brief wdmp basic parameter response structure
+ * @param value of sync cmc
+ * @param value of sync cid
+ * @param list of parameters
+ */
 typedef struct
 {
     char *syncCMC;
@@ -175,11 +251,23 @@ typedef struct
     param_t *params;
 } param_res_t;
 
+/**
+ * @brief wdmp response structure for table request (ADD_ROW)
+ * @param newly added row
+ */
 typedef struct
 {
     char *newObj;
 } table_res_t;
 
+/**
+ * @brief wdmp response structure
+ * @param request type
+ * @param response data
+ * @param array of time span
+ * @param array of status
+ * @param total count of rows/parameters
+ */
 typedef struct
 {
     REQ_TYPE reqType;
