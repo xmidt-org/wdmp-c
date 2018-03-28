@@ -76,7 +76,7 @@ void wdmp_form_test_and_set_response(res_struct *resObj, cJSON *response);
 void wdmp_form_table_response(res_struct *resObj, cJSON *response);
 
 void getStatusCode(WDMP_RESPONSE_STATUS_CODE *statusCode, int paramCount, WDMP_STATUS * ret);
-void mapWdmpStatusToStatusMessage(WDMP_STATUS status, char *result);
+void mapWdmpStatusToStatusMessage(WDMP_STATUS status, char **result);
 
 /*----------------------------------------------------------------------------*/
 /*                             External Functions                             */
