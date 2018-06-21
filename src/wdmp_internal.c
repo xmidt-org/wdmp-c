@@ -262,14 +262,31 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 		for (i = 0; i < paramCount; i++) 
 		{
 			reqParamObj = cJSON_GetArrayItem(paramArray, i);
+		        if (cJSON_GetObjectItem(reqParamObj, "name") && cJSON_GetObjectItem(reqParamObj, "name")->valuestring) {
 			(*reqObj)->u.testSetReq->param[i].name = strdup(cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
+			} else {
+				printf("Error In string name!\n");
+				(*reqObj)->u.testSetReq->param[i].name = strdup("-fed-up");
+			}
 			WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].name : %s\n",i,(*reqObj)->u.testSetReq->param[i].name);
 		
 			if (cJSON_GetObjectItem(reqParamObj, "value") != NULL)
 			{
+				if (cJSON_GetObjectItem(reqParamObj, "value")->valuestring) {
 				(*reqObj)->u.testSetReq->param[i].value = strdup(cJSON_GetObjectItem(reqParamObj, "value")->valuestring);
-				WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].value : %s\n",i,(*reqObj)->u.testSetReq->param[i].value);
-			}
+				} else {
+					(*reqObj)->u.testSetReq->param[i].value = strdup ("-nil-");
+					printf("Error in string value!\n");
+				}
+			} else {
+				printf("Error value is NULL\n");
+				(*reqObj)->u.testSetReq->param[i].value = strdup ("-value-nil-");
+			}	
+				
+			WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].value : %s\n",i,(*reqObj)->u.testSetReq->param[i].value);
+
+
+			WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].value : %s\n",i,(*reqObj)->u.testSetReq->param[i].value);
 		
 			if (cJSON_GetObjectItem(reqParamObj, "dataType") != NULL)
 			{

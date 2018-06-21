@@ -18,7 +18,7 @@ project(wdmp-c)
 include(ExternalProject)
 
 add_definitions(-std=c99)
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE -Werror -Wall")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_GNU_SOURCE -g3 -O0 -Werror -Wall")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GNU_SOURCE -Werror -Wall")
 
 set(INSTALL_DIR ${CMAKE_CURRENT_BINARY_DIR}/_install)
