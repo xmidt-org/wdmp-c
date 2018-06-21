@@ -695,9 +695,7 @@ void verify_get_reponse(cJSON *response, res_struct *resObj)
         
         WdmpPrint("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
         CU_ASSERT_EQUAL( (int)resObj->paramCnt, cJSON_GetArraySize(paramArray) );
-        
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
-        
+                
         for (i = 0; i < resObj->paramCnt; i++) 
 	{
 		resParamObj = cJSON_GetArrayItem(paramArray, i);
@@ -730,7 +728,7 @@ void verify_get_reponse(cJSON *response, res_struct *resObj)
 		        CU_ASSERT_EQUAL( WDMP_NONE, cJSON_GetObjectItem(resParamObj, "dataType")->valueint );
 		        
 		        WdmpPrint("Message[%zu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
-		        mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+		        mapWdmpStatusToStatusMessage(resObj->retStatus[i], &result);
                         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(resParamObj, "message")->valuestring);
 		        
 		}
@@ -747,7 +745,7 @@ void verify_get_reponse(cJSON *response, res_struct *resObj)
                         CU_ASSERT_EQUAL((int)resObj->u.getRes->params[i][j].type,cJSON_GetObjectItem(resParamObj, "dataType")->valueint);
                         
                         WdmpPrint("Message[%zu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
-                        mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                        mapWdmpStatusToStatusMessage(resObj->retStatus[i], &result);
                         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(resParamObj, "message")->valuestring);
 		}
 		else
@@ -784,9 +782,7 @@ void verify_param_response(cJSON *response, res_struct *resObj)
         
         WdmpPrint("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
         CU_ASSERT_EQUAL( (int)resObj->paramCnt, cJSON_GetArraySize(paramArray) );
-        
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
-        
+                
         for (i = 0; i < resObj->paramCnt; i++) 
 	{
 		resParamObj = cJSON_GetArrayItem(paramArray, i);
@@ -801,7 +797,7 @@ void verify_param_response(cJSON *response, res_struct *resObj)
                         CU_ASSERT_EQUAL( atoi(resObj->u.paramRes->params[i].value), cJSON_GetObjectItem(attributes, "notify")->valueint );
                 }
                 WdmpPrint("Message[%zu] : %s\n",i,cJSON_GetObjectItem(resParamObj, "message")->valuestring);
-                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                mapWdmpStatusToStatusMessage(resObj->retStatus[i], &result);
                 CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(resParamObj, "message")->valuestring);
 	}
 	
@@ -829,9 +825,7 @@ void verify_testandset_response(cJSON *response, res_struct *resObj)
         
         WdmpPrint("Parameter count: %d\n",cJSON_GetArraySize(paramArray));
         CU_ASSERT_EQUAL( (int)resObj->paramCnt, cJSON_GetArraySize(paramArray) );
-        
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
-        
+                
         for (i = 0; i < resObj->paramCnt; i++) 
 	{
 		resParamObj = cJSON_GetArrayItem(paramArray, i);
@@ -850,7 +844,7 @@ void verify_testandset_response(cJSON *response, res_struct *resObj)
 	}
 	
 	WdmpInfo("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
-	mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+	mapWdmpStatusToStatusMessage(resObj->retStatus[0], &result);
         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
         
         if(result)
@@ -865,9 +859,7 @@ void verify_table_response(cJSON *response, res_struct *resObj)
         char *result = NULL;
         
         WdmpInfo("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
-        
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
-        
+                
         if(resObj->reqType == ADD_ROWS)
         {
                 CU_ASSERT_EQUAL(WDMP_ADDROW_STATUS_SUCCESS, cJSON_GetObjectItem(response, "statusCode")->valueint);
@@ -881,7 +873,7 @@ void verify_table_response(cJSON *response, res_struct *resObj)
         }
         
         WdmpInfo("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
-        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+        mapWdmpStatusToStatusMessage(resObj->retStatus[0], &result);
         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
 
         if(result)
@@ -898,11 +890,9 @@ void verify_failure_response(cJSON *response, res_struct *resObj)
         WdmpInfo("Status code: %d\n", cJSON_GetObjectItem(response, "statusCode")->valueint);
         getStatusCode(&statusCode, 1, resObj->retStatus);
         CU_ASSERT_EQUAL((int)statusCode, cJSON_GetObjectItem(response, "statusCode")->valueint);
-        
-        result = (char *) malloc(sizeof(char) * MAX_PARAMETER_LEN);
-        
+                
         WdmpInfo("Message : %s\n",cJSON_GetObjectItem(response, "message")->valuestring);
-        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+        mapWdmpStatusToStatusMessage(resObj->retStatus[0], &result);
         CU_ASSERT_STRING_EQUAL(result, cJSON_GetObjectItem(response, "message")->valuestring);
 
         if(result)
@@ -1470,10 +1460,9 @@ void test_map_wdmp_status()
         
         WdmpInfo("\n***************************************************** \n\n");
         
-        result = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
         status = WDMP_ERR_SET_OF_CMC_OR_CID_NOT_SUPPORTED;
                 
-        mapWdmpStatusToStatusMessage(status, result);
+        mapWdmpStatusToStatusMessage(status, &result);
         
         CU_ASSERT( NULL != result );
         

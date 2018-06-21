@@ -208,8 +208,7 @@ void parse_set_attr_request(cJSON *request, req_struct **reqObj)
 				notification = cJSON_GetObjectItem(attributes, "notify")->valueint;
 				WdmpPrint("notification :%d\n",notification);
 				snprintf(notif, sizeof(notif), "%d", notification);
-				(*reqObj)->u.setReq->param[i].value = (char *) malloc(sizeof(char) * 20);
-				strcpy((*reqObj)->u.setReq->param[i].value, notif);
+				(*reqObj)->u.setReq->param[i].value = strdup(notif);
 				WdmpPrint("(*reqObj)->u.setReq->param[%zu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
 			}
 		}
@@ -235,20 +234,22 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 		
 	if(cJSON_GetObjectItem(request, "old-cid") != NULL)
 	{
-	        (*reqObj)->u.testSetReq->oldCid = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-	        strcpy((*reqObj)->u.testSetReq->oldCid, cJSON_GetObjectItem(request, "old-cid")->valuestring);
+	        (*reqObj)->u.testSetReq->oldCid = strdup(cJSON_GetObjectItem(request, "old-cid")->valuestring);
 	        WdmpPrint("(*reqObj)->u.testSetReq->oldCid : %s\n",(*reqObj)->u.testSetReq->oldCid);
 	}
 	if(cJSON_GetObjectItem(request, "new-cid") != NULL)
 	{
-	        (*reqObj)->u.testSetReq->newCid = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-	        strcpy((*reqObj)->u.testSetReq->newCid, cJSON_GetObjectItem(request, "new-cid")->valuestring);
+	        (*reqObj)->u.testSetReq->newCid = strdup(cJSON_GetObjectItem(request, "new-cid")->valuestring);
 	        WdmpPrint("(*reqObj)->u.testSetReq->newCid : %s\n",(*reqObj)->u.testSetReq->newCid);
 	}
 	if(cJSON_GetObjectItem(request, "sync-cmc") != NULL)
 	{
-		(*reqObj)->u.testSetReq->syncCmc = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-		strcpy((*reqObj)->u.testSetReq->syncCmc, cJSON_GetObjectItem(request, "sync-cmc")->valuestring);
+		if (cJSON_GetObjectItem(request, "sync-cmc")->type == cJSON_String) 
+			(*reqObj)->u.testSetReq->syncCmc = strdup(cJSON_GetObjectItem(request, "sync-cmc")->valuestring);
+		else {
+			printf("ZZZZZZZZZZZZZZZZZZ Error sync-cmc is not a string\n");
+			(*reqObj)->u.testSetReq->syncCmc = strdup("Error sync-cmc is not a string\n");
+		}
 		WdmpPrint("(*reqObj)->u.testSetReq->syncCmc : %s\n",(*reqObj)->u.testSetReq->syncCmc);
 	}
 		
@@ -266,14 +267,31 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 		for (i = 0; i < paramCount; i++) 
 		{
 			reqParamObj = cJSON_GetArrayItem(paramArray, i);
+		        if (cJSON_GetObjectItem(reqParamObj, "name") && cJSON_GetObjectItem(reqParamObj, "name")->valuestring) {
 			(*reqObj)->u.testSetReq->param[i].name = strdup(cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
+			} else {
+				printf("Error In string name!\n");
+				(*reqObj)->u.testSetReq->param[i].name = strdup("-fed-up");
+			}
 			WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].name : %s\n",i,(*reqObj)->u.testSetReq->param[i].name);
 		
 			if (cJSON_GetObjectItem(reqParamObj, "value") != NULL)
 			{
+				if (cJSON_GetObjectItem(reqParamObj, "value")->valuestring) {
 				(*reqObj)->u.testSetReq->param[i].value = strdup(cJSON_GetObjectItem(reqParamObj, "value")->valuestring);
-				WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].value : %s\n",i,(*reqObj)->u.testSetReq->param[i].value);
-			}
+				} else {
+					(*reqObj)->u.testSetReq->param[i].value = strdup ("-nil-");
+					printf("Error in string value!\n");
+				}
+			} else {
+				printf("Error value is NULL\n");
+				(*reqObj)->u.testSetReq->param[i].value = strdup ("-value-nil-");
+			}	
+				
+			WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].value : %s\n",i,(*reqObj)->u.testSetReq->param[i].value);
+
+
+			WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].value : %s\n",i,(*reqObj)->u.testSetReq->param[i].value);
 		
 			if (cJSON_GetObjectItem(reqParamObj, "dataType") != NULL)
 			{
@@ -388,7 +406,6 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         WdmpPrint("resObj->paramCnt : %zu\n",resObj->paramCnt);
         paramCount = resObj->paramCnt;
         WdmpPrint("paramCount : %zu\n",paramCount);
-        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
                 
         getStatusCode(&statusCode, paramCount, resObj->retStatus);
         WdmpPrint("statusCode : %d\n",statusCode);
@@ -419,7 +436,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
                                         }
                                         cJSON_AddNumberToObject(resParamObj, "dataType",WDMP_NONE);
 	                                cJSON_AddNumberToObject(resParamObj, "parameterCount", resObj->u.getRes->retParamCnt[i]);
-	                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+	                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], &result);
 	                                cJSON_AddStringToObject(resParamObj, "message", result);
 	                        }
 	                        else
@@ -431,7 +448,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
 	                                WdmpPrint("resObj->u.getRes->params[%zu][0].type :%d\n",i,resObj->u.getRes->params[i][0].type);
 	                                cJSON_AddNumberToObject(resParamObj, "dataType",resObj->u.getRes->params[i][0].type);
 	                                cJSON_AddNumberToObject(resParamObj, "parameterCount", resObj->u.getRes->retParamCnt[i]);
-	                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+	                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], &result);
 	                                cJSON_AddStringToObject(resParamObj, "message", result);
 	                        }
                         }
@@ -450,7 +467,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
                 {
                         if(resObj->retStatus[i] != WDMP_SUCCESS)
                         {
-                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], &result);
                                 break;
                         }
                 }
@@ -478,7 +495,6 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         WdmpPrint("paramCount : %zu\n",paramCount);
                 
         getStatusCode(&statusCode, paramCount, resObj->retStatus);
-        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
         if(statusCode == WDMP_STATUS_SUCCESS)
         {
                 cJSON_AddItemToObject(response, "parameters", parameters =cJSON_CreateArray());
@@ -493,7 +509,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
 	                WdmpPrint("notification : %d\n", notification);
 	                cJSON_AddNumberToObject(attributes, "notify", notification);
 	                WdmpPrint("resObj->retStatus[i] :%d\n",resObj->retStatus[i]);
-                        mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                        mapWdmpStatusToStatusMessage(resObj->retStatus[i], &result);
                         cJSON_AddStringToObject(resParamObj, "message", result);
                 }
         }
@@ -503,7 +519,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
                 {
                         if(resObj->retStatus[i] != WDMP_SUCCESS)
                         {
-                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                                mapWdmpStatusToStatusMessage(resObj->retStatus[i], &result);
                                 break;
                         }
                 }
@@ -533,9 +549,7 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         
         WdmpPrint("resObj->retStatus : %d\n",resObj->retStatus[0]);
         getStatusCode(&statusCode, paramCount, resObj->retStatus);
-        
-        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
-        
+                
         if(resObj->u.paramRes->params)
         {
                 cJSON_AddItemToObject(response, "parameters", parameters =cJSON_CreateArray());
@@ -548,14 +562,14 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
                         cJSON_AddStringToObject(resParamObj, "name", resObj->u.paramRes->params[i].name);
                         
                         WdmpPrint("resObj->retStatus[%zu] : %d\n",i,resObj->retStatus[i]);
-                        mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                        mapWdmpStatusToStatusMessage(resObj->retStatus[i], &result);
                         cJSON_AddStringToObject(resParamObj, "message", result);
                 }
                 
         }
         else
         {
-                mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+            mapWdmpStatusToStatusMessage(resObj->retStatus[0], &result);
 	        cJSON_AddStringToObject(response, "message", result);
         }
         
@@ -571,9 +585,7 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 {
         char *result = NULL;
         WDMP_RESPONSE_STATUS_CODE statusCode = WDMP_STATUS_GENERAL_FALURE;
-        
-        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
-        
+                
         WdmpPrint("resObj->retStatus : %d\n",resObj->retStatus[0]);
         getStatusCode(&statusCode,1,resObj->retStatus);
         
@@ -584,7 +596,7 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
                        cJSON_AddStringToObject(response, "row", resObj->u.tableRes->newObj);
         }
         
-        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+        mapWdmpStatusToStatusMessage(resObj->retStatus[0], &result);
         WdmpPrint("result : %s\n",result);
         cJSON_AddStringToObject(response, "message", result);
         
@@ -610,9 +622,7 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
         
         WdmpPrint("resObj->retStatus : %d\n",resObj->retStatus[0]);
         getStatusCode(&statusCode, 1, resObj->retStatus);
-                
-        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
-                        
+                                        
         if(resObj->u.paramRes)
         {
                 
@@ -628,7 +638,7 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
                 }
         }
         
-        mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+        mapWdmpStatusToStatusMessage(resObj->retStatus[0], &result);
         cJSON_AddStringToObject(response, "message", result);
         
         if(result)
@@ -641,147 +651,147 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
         
 }
 
- void mapWdmpStatusToStatusMessage(WDMP_STATUS status, char *result) 
+ void mapWdmpStatusToStatusMessage(WDMP_STATUS status, char **result) 
 {
 	if (status == WDMP_SUCCESS) 
 	{ 
-		strcpy(result,"Success");
+		*result = strdup("Success");
 	} 
 	else if (status == WDMP_ERR_INVALID_PARAMETER_NAME) 
 	{
-		strcpy(result, "Invalid parameter name");
+		*result = strdup("Invalid parameter name");
 	} 
 	else if (status == WDMP_ERR_INVALID_PARAMETER_TYPE) 
 	{
-		strcpy(result,"Invalid parameter type");
+		*result = strdup("Invalid parameter type");
 	}
 	else if (status == WDMP_ERR_INVALID_PARAMETER_VALUE) 
 	{
-		strcpy(result,"Invalid parameter value");
+		*result = strdup("Invalid parameter value");
 	} 
 	else if (status == WDMP_ERR_NOT_WRITABLE) 
 	{
-		strcpy(result,"Parameter is not writable");
+		*result = strdup("Parameter is not writable");
 	}
 	else if (status == WDMP_ERR_NOT_EXIST) 
 	{
-		strcpy(result,"Parameter does not exist");
+		*result = strdup("Parameter does not exist");
 	} 
 	else if (status == WDMP_FAILURE) 
 	{
-		strcpy(result,"Failure");
+		*result = strdup("Failure");
 	} 
 	else if (status == WDMP_ERR_TIMEOUT) 
 	{
-		strcpy(result,"Error Timeout");
+		*result = strdup("Error Timeout");
 	}
 	else if (status == WDMP_ERR_SETATTRIBUTE_REJECTED) 
 	{
-		strcpy(result,"SetAttribute rejected");
+		*result = strdup("SetAttribute rejected");
 	} 
 	else if (status == WDMP_ERR_NAMESPACE_OVERLAP) 
 	{
-		strcpy(result,"Error namespace overlap");
+		*result = strdup("Error namespace overlap");
 	} 
 	else if (status == WDMP_ERR_UNKNOWN_COMPONENT) 
 	{
-		strcpy(result,"Error unkown component");
+		*result = strdup("Error unkown component");
 	} 
 	else if (status == WDMP_ERR_NAMESPACE_MISMATCH) 
 	{
-		strcpy(result,"Error namespace mismatch");
+		*result = strdup("Error namespace mismatch");
 	} 
 	else if (status == WDMP_ERR_UNSUPPORTED_NAMESPACE) 
 	{
-		strcpy(result,"Error unsupported namespace");
+		*result = strdup("Error unsupported namespace");
 	} 
 	else if (status == WDMP_ERR_DP_COMPONENT_VERSION_MISMATCH) 
 	{
-		strcpy(result,"Error component version mismatch");
+		*result = strdup("Error component version mismatch");
 	} 
 	else if (status == WDMP_ERR_INVALID_PARAM) 
 	{
-		strcpy(result,"Invalid Param");
+		*result = strdup("Invalid Param");
 	}
 	else if (status == WDMP_ERR_UNSUPPORTED_DATATYPE) 
 	{
-		strcpy(result,"Unsupported datatype");
+		*result = strdup("Unsupported datatype");
 	}
 	else if (status == WDMP_ERR_WIFI_BUSY) 
 	{
-		strcpy(result,"WiFi is busy");
+		*result = strdup("WiFi is busy");
 	}
 	else if (status == WDMP_ERR_INVALID_ATTRIBUTES)
 	{
-	        strcpy(result,"Invalid attributes");
+	        *result = strdup("Invalid attributes");
 	}
 	else if (status == WDMP_ERR_WILDCARD_NOT_SUPPORTED)
 	{
-	        strcpy(result,"Wildcard is not supported");
+	        *result = strdup("Wildcard is not supported");
 	}
 	else if (status == WDMP_ERR_SET_OF_CMC_OR_CID_NOT_SUPPORTED)
 	{
-	        strcpy(result,"SET of CMC or CID is not supported");
+	        *result = strdup("SET of CMC or CID is not supported");
 	}
 	else if (status == WDMP_ERR_VALUE_IS_EMPTY)
 	{
-	        strcpy(result,"Parameter value field is not available");
+	        *result = strdup("Parameter value field is not available");
 	}
 	else if (status == WDMP_ERR_VALUE_IS_NULL)
 	{
-	        strcpy(result,"Parameter value is null");
+	        *result = strdup("Parameter value is null");
 	}
 	else if (status == WDMP_ERR_DATATYPE_IS_NULL)
 	{
-	        strcpy(result,"Parameter dataType is null");
+	        *result = strdup("Parameter dataType is null");
 	}
 	else if (status == WDMP_ERR_CMC_TEST_FAILED)
 	{
-	        strcpy(result,"CMC test failed");
+	        *result = strdup("CMC test failed");
 	}
 	else if (status == WDMP_ERR_NEW_CID_IS_MISSING)
 	{
-	        strcpy(result,"New-Cid is missing");
+	        *result = strdup("New-Cid is missing");
 	}
 	else if (status == WDMP_ERR_ATTRIBUTES_IS_NULL)
 	{
-	        strcpy(result,"attributes is null");
+	        *result = strdup("attributes is null");
 	}
 	else if (status == WDMP_ERR_NOTIFY_IS_NULL)
 	{
-	        strcpy(result,"notify is null");
+	        *result = strdup("notify is null");
 	}
 	else if (status == WDMP_ERR_CID_TEST_FAILED)
 	{
-	        strcpy(result,"CID test failed");
+	        *result = strdup("CID test failed");
 	}
 	else if (status == WDMP_ERR_ATOMIC_GET_SET_FAILED)
 	{
-	        strcpy(result,"Atomic Set failed");
+	        *result = strdup("Atomic Set failed");
 	}
 	else if (status == WDMP_ERR_SETTING_CMC_OR_CID)
 	{
-	        strcpy(result,"Error setting CID/CMC");
+	        *result = strdup("Error setting CID/CMC");
 	}
 	else if (status == WDMP_ERR_INVALID_WIFI_INDEX)
-        {
-                strcpy(result,"Invalid WiFi index, valid range is between 10001-10008 and 10101-10108");
-        }
+    {
+            *result = strdup("Invalid WiFi index, valid range is between 10001-10008 and 10101-10108");
+    }
 	else if (status == WDMP_ERR_INVALID_RADIO_INDEX)
-        {
-                strcpy(result,"Invalid Radio index, valid idexes are 10000 and 10100");
-        }
+    {
+            *result = strdup("Invalid Radio index, valid idexes are 10000 and 10100");
+    }
 	else if (status == WDMP_ERR_INVALID_INPUT_PARAMETER)
 	{
-	        strcpy(result,"Invalid Input parameter - CID/CMC value cannot be set");
+	        *result = strdup("Invalid Input parameter - CID/CMC value cannot be set");
 	}
 	else if (status == WDMP_ERR_METHOD_NOT_SUPPORTED)
 	{
-		strcpy(result,"Method is not supported");
+		*result = strdup("Method is not supported");
 	}
 	else 
 	{
-		strcpy(result,"Unknown Error");
+		*result = strdup("Unknown Error");
 	}
 }
 
