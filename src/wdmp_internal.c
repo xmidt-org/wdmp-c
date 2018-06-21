@@ -244,7 +244,12 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 	}
 	if(cJSON_GetObjectItem(request, "sync-cmc") != NULL)
 	{
-		(*reqObj)->u.testSetReq->syncCmc = strdup(cJSON_GetObjectItem(request, "sync-cmc")->valuestring);
+		if (cJSON_GetObjectItem(request, "sync-cmc")->type == cJSON_String) 
+			(*reqObj)->u.testSetReq->syncCmc = strdup(cJSON_GetObjectItem(request, "sync-cmc")->valuestring);
+		else {
+			printf("ZZZZZZZZZZZZZZZZZZ Error sync-cmc is not a string\n");
+			(*reqObj)->u.testSetReq->syncCmc = strdup("Error sync-cmc is not a string\n");
+		}
 		WdmpPrint("(*reqObj)->u.testSetReq->syncCmc : %s\n",(*reqObj)->u.testSetReq->syncCmc);
 	}
 		
