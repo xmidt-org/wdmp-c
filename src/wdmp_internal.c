@@ -224,6 +224,7 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 {
 
 	cJSON *reqParamObj = NULL, *paramArray = NULL;	
+    cJSON *object;
 	size_t paramCount, i;
 	
 	WdmpPrint("parsing Test and Set Request\n");
@@ -233,22 +234,36 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 	(*reqObj)->u.testSetReq = (test_set_req_t *) malloc(sizeof(test_set_req_t));
 	memset((*reqObj)->u.testSetReq,0,(sizeof(test_set_req_t)));
 		
-	if(cJSON_GetObjectItem(request, "old-cid") != NULL)
+    object = cJSON_GetObjectItem(request, "old-cid");
+	if(object != NULL)
 	{
-	        (*reqObj)->u.testSetReq->oldCid = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-	        strcpy((*reqObj)->u.testSetReq->oldCid, cJSON_GetObjectItem(request, "old-cid")->valuestring);
-	        WdmpPrint("(*reqObj)->u.testSetReq->oldCid : %s\n",(*reqObj)->u.testSetReq->oldCid);
+        if (object->type == cJSON_String) {
+            (*reqObj)->u.testSetReq->oldCid = strdup(object->valuestring);
+        } else {
+            (*reqObj)->u.testSetReq->oldCid = strdup("-error-old-cid-");
+        }
+	    WdmpPrint("(*reqObj)->u.testSetReq->oldCid : %s\n",(*reqObj)->u.testSetReq->oldCid);
 	}
-	if(cJSON_GetObjectItem(request, "new-cid") != NULL)
+
+    object = cJSON_GetObjectItem(request, "new-cid");
+	if(object != NULL)
 	{
-	        (*reqObj)->u.testSetReq->newCid = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-	        strcpy((*reqObj)->u.testSetReq->newCid, cJSON_GetObjectItem(request, "new-cid")->valuestring);
-	        WdmpPrint("(*reqObj)->u.testSetReq->newCid : %s\n",(*reqObj)->u.testSetReq->newCid);
+        if (object->type == cJSON_String) {
+	        (*reqObj)->u.testSetReq->newCid = strdup(object->valuestring);
+        } else {
+            (*reqObj)->u.testSetReq->newCid = strdup("-error-new-cid-");
+        }
+	    WdmpPrint("(*reqObj)->u.testSetReq->newCid : %s\n",(*reqObj)->u.testSetReq->newCid);
 	}
-	if(cJSON_GetObjectItem(request, "sync-cmc") != NULL)
+
+    object = cJSON_GetObjectItem(request, "sync-cmc");
+	if(object != NULL)
 	{
-		(*reqObj)->u.testSetReq->syncCmc = (char *) malloc(sizeof(char)*MAX_PARAMETER_LEN);
-		strcpy((*reqObj)->u.testSetReq->syncCmc, cJSON_GetObjectItem(request, "sync-cmc")->valuestring);
+        if (object->type == cJSON_String) {
+            (*reqObj)->u.testSetReq->syncCmc = strdup(object->valuestring);
+        } else {
+            (*reqObj)->u.testSetReq->syncCmc = strdup("-error-sync-cmc-");
+        }
 		WdmpPrint("(*reqObj)->u.testSetReq->syncCmc : %s\n",(*reqObj)->u.testSetReq->syncCmc);
 	}
 		
