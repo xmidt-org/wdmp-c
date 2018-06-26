@@ -251,7 +251,7 @@ void test_and_set_req_parse ()
     
     WdmpInfo("\n***************************************************** \n\n");
       
-    payload = "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0}],\"new-cid\":\"1234\",\"old-cid\":\"aq12\",\"sync-cmc\":512,\"command\":\"TEST_AND_SET\"}";
+    payload = "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0}],\"new-cid\":\"1234\",\"old-cid\":\"aq12\",\"sync-cmc\":\"512\",\"command\":\"TEST_AND_SET\"}";
  
     CU_ASSERT( NULL != payload);
     
@@ -552,7 +552,7 @@ void test_and_set_without_cid ()
     int i,paramCount;
     req_struct *reqObj = NULL;
       
-    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.X_CISCO_COM_FirmwareName\",\"value\":\"TG1682\",\"dataType\":0}],\"sync-cmc\":512,\"command\":\"TEST_AND_SET\"}";
+    char * request= "{\"parameters\":[{\"name\":\"Device.DeviceInfo.X_CISCO_COM_FirmwareName\",\"value\":\"TG1682\",\"dataType\":0}],\"sync-cmc\":\"512\",\"command\":\"TEST_AND_SET\"}";
  
     wdmp_parse_request(request,&reqObj);
 

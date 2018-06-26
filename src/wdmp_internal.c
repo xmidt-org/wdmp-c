@@ -259,10 +259,8 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
     object = cJSON_GetObjectItem(request, "sync-cmc");
 	if(object != NULL)
 	{
-        if (object->type == cJSON_Number) {
-            char syncCmc[32];
-            snprintf(syncCmc, 31, "%d", (int ) object->valuedouble);
-            (*reqObj)->u.testSetReq->syncCmc = strdup(syncCmc);
+        if (object->type == cJSON_String) {
+            (*reqObj)->u.testSetReq->syncCmc = strdup(object->valuestring);
         } else {
             (*reqObj)->u.testSetReq->syncCmc = strdup("0");
         }
