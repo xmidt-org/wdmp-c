@@ -262,9 +262,9 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
         if (object->type == cJSON_String) {
             (*reqObj)->u.testSetReq->syncCmc = strdup(object->valuestring);
         } else {
-            (*reqObj)->u.testSetReq->syncCmc = strdup("-error-sync-cmc-");
+            (*reqObj)->u.testSetReq->syncCmc = strdup("0");
         }
-		WdmpPrint("(*reqObj)->u.testSetReq->syncCmc : %s\n",(*reqObj)->u.testSetReq->syncCmc);
+		WdmpPrint("(*reqObj)->u.testSetReq->syncCmc : %s\n", (*reqObj)->u.testSetReq->syncCmc);
 	}
 		
 	if (cJSON_GetObjectItem(request, "parameters") != NULL) // No Parameters
