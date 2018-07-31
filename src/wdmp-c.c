@@ -238,7 +238,10 @@ void wdmp_free_req_struct( req_struct *reqObj )
             {
                 for(i = 0; i < reqObj->u.getReq->paramCnt; i++)
                 {
+                    if(reqObj->u.getReq->paramNames[i])
+                    {
                     free(reqObj->u.getReq->paramNames[i]);
+                    }
                 }
                 free(reqObj->u.getReq);
             }     
@@ -254,8 +257,14 @@ void wdmp_free_req_struct( req_struct *reqObj )
                 {
                     for (i = 0; i < reqObj->u.setReq->paramCnt; i++)
                     {
+                        if(reqObj->u.setReq->param[i].name)
+                        {
                         free(reqObj->u.setReq->param[i].name); 
+                        }
+                        if(reqObj->u.setReq->param[i].value)
+                        {
                         free(reqObj->u.setReq->param[i].value);
+                        }
                     }
                     free(reqObj->u.setReq->param);
                 }
@@ -287,8 +296,14 @@ void wdmp_free_req_struct( req_struct *reqObj )
                 {
                     for(i=0; i< reqObj->u.testSetReq->paramCnt; i++)
                     {
+                        if(reqObj->u.testSetReq->param[i].name)
+                        {
                         free(reqObj->u.testSetReq->param[i].name);
+                        }
+                        if(reqObj->u.testSetReq->param[i].value)
+                        {
                         free(reqObj->u.testSetReq->param[i].value);
+                        }
                     }
                     free(reqObj->u.testSetReq->param);
                 }
@@ -313,11 +328,23 @@ void wdmp_free_req_struct( req_struct *reqObj )
                     {
                         for(j=0; j<reqObj->u.tableReq->rows[i].paramCnt; j++)
                         {
+                            if(reqObj->u.tableReq->rows[i].names[j])
+                            {
                             free(reqObj->u.tableReq->rows[i].names[j]);
+                            }
+                            if(reqObj->u.tableReq->rows[i].values[j])
+                            {
                             free(reqObj->u.tableReq->rows[i].values[j]);
+                            }
                         } 
+                        if(reqObj->u.tableReq->rows[i].names)
+                        {
                         free(reqObj->u.tableReq->rows[i].names);
+                        }
+                        if(reqObj->u.tableReq->rows[i].values)
+                        {
                         free(reqObj->u.tableReq->rows[i].values);
+                        }
                     }
                     free(reqObj->u.tableReq->rows);
                 }
@@ -354,8 +381,14 @@ void wdmp_free_res_struct( res_struct *resObj )
                                                 {
                                                         for (j = 0; j < resObj->u.getRes->retParamCnt[i]; j++)
                                                         { 
+                                                                if(resObj->u.getRes->params[i][j].name)
+                                                                {
                                                                 free(resObj->u.getRes->params[i][j].name);
+                                                                }
+                                                                if(resObj->u.getRes->params[i][j].value)
+                                                                {
                                                                 free(resObj->u.getRes->params[i][j].value);
+                                                                }
                                                         }
                                                         free(resObj->u.getRes->params[i]);
                                                 }
@@ -384,7 +417,10 @@ void wdmp_free_res_struct( res_struct *resObj )
                                 {
                                         for (i = 0; i < resObj->paramCnt; i++)
                                         { 
+                                                if(resObj->u.paramRes->params[i].name)
+                                                {
                                                 free(resObj->u.paramRes->params[i].name);
+                                                }
                                                 if(resObj->u.paramRes->params[i].value)
                                                 {
                                                 	free(resObj->u.paramRes->params[i].value);

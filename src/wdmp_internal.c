@@ -71,13 +71,20 @@ void parse_get_request(cJSON *request, req_struct **reqObj, PAYLOAD_TYPE type)
 	
 	for (i = 0; i < paramCount; i++) 
 	{
-		(*reqObj)->u.getReq->paramNames[i] = strdup(cJSON_GetArrayItem(paramArray, i)->valuestring);
-		WdmpPrint("(*reqObj)->u.getReq->paramNames[%zu] : %s\n",i,(*reqObj)->u.getReq->paramNames[i]);
+		if(cJSON_GetArrayItem(paramArray, i) && cJSON_GetArrayItem(paramArray, i)->valuestring)
+		{
+			(*reqObj)->u.getReq->paramNames[i] = strdup(cJSON_GetArrayItem(paramArray, i)->valuestring);
+			WdmpPrint("(*reqObj)->u.getReq->paramNames[%zu] : %s\n",i,(*reqObj)->u.getReq->paramNames[i]);
+		}
+		else
+		{
+			(*reqObj)->u.getReq->paramNames[i] = strdup("nil");
+		}
 	}
 
 	if(cJSON_GetObjectItem(request, "attributes") != NULL) 
 	{
-		if(strlen(cJSON_GetObjectItem(request, "attributes")->valuestring) != 0)
+		if(cJSON_GetObjectItem(request, "attributes")->valuestring && strlen(cJSON_GetObjectItem(request, "attributes")->valuestring) != 0)
 		{	
 			if(strncmp(cJSON_GetObjectItem(request, "attributes")->valuestring, "notify", 6) == 0)
 			{
@@ -131,11 +138,25 @@ void parse_set_request(cJSON *request, req_struct **reqObj, PAYLOAD_TYPE type)
 
 		if(type == WDMP_SNMP)
 		{
-		        (*reqObj)->u.setReq->param[i].name = strdup(cJSON_GetObjectItem(reqParamObj, "oid")->valuestring);
+		        if(cJSON_GetObjectItem(reqParamObj, "oid") && cJSON_GetObjectItem(reqParamObj, "oid")->valuestring)
+			{
+				(*reqObj)->u.setReq->param[i].name = strdup(cJSON_GetObjectItem(reqParamObj, "oid")->valuestring);
+			}
+			else
+			{
+				(*reqObj)->u.setReq->param[i].name = strdup("nil");
+			}
 		}
 		else
 		{
-		        (*reqObj)->u.setReq->param[i].name = strdup(cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
+		        if(cJSON_GetObjectItem(reqParamObj, "name") && cJSON_GetObjectItem(reqParamObj, "name")->valuestring)
+			{
+				(*reqObj)->u.setReq->param[i].name = strdup(cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
+			}
+			else
+			{
+				(*reqObj)->u.setReq->param[i].name = strdup("nil");
+			}
 		}
 
 		WdmpPrint("(*reqObj)->u.setReq->param[%zu].name : %s\n",i,(*reqObj)->u.setReq->param[i].name);
@@ -197,8 +218,15 @@ void parse_set_attr_request(cJSON *request, req_struct **reqObj)
 	for (i = 0; i < paramCount; i++) 
 	{
 		reqParamObj = cJSON_GetArrayItem(paramArray, i);
+		if(cJSON_GetObjectItem(reqParamObj, "name") && cJSON_GetObjectItem(reqParamObj, "name")->valuestring)
+		{
 		(*reqObj)->u.setReq->param[i].name = strdup(cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
 		WdmpPrint("(*reqObj)->u.setReq->param[%zu].name : %s\n",i,(*reqObj)->u.setReq->param[i].name);
+		}
+		else
+		{
+		(*reqObj)->u.setReq->param[i].name = strdup("nil");
+		}
 		
 		if (cJSON_GetObjectItem(reqParamObj, "attributes") != NULL )
 		{
@@ -236,7 +264,7 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
     object = cJSON_GetObjectItem(request, "old-cid");
 	if(object != NULL)
 	{
-        if (object->type == cJSON_String) {
+        if (object->type == cJSON_String && object->valuestring) {
             (*reqObj)->u.testSetReq->oldCid = strdup(object->valuestring);
         } else {
             (*reqObj)->u.testSetReq->oldCid = strdup("-error-old-cid-");
@@ -247,7 +275,7 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
     object = cJSON_GetObjectItem(request, "new-cid");
 	if(object != NULL)
 	{
-        if (object->type == cJSON_String) {
+        if (object->type == cJSON_String && object->valuestring) {
 	        (*reqObj)->u.testSetReq->newCid = strdup(object->valuestring);
         } else {
             (*reqObj)->u.testSetReq->newCid = strdup("-error-new-cid-");
@@ -258,7 +286,7 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
     object = cJSON_GetObjectItem(request, "sync-cmc");
 	if(object != NULL)
 	{
-        if (object->type == cJSON_String) {
+        if (object->type == cJSON_String && object->valuestring) {
             (*reqObj)->u.testSetReq->syncCmc = strdup(object->valuestring);
         } else {
             (*reqObj)->u.testSetReq->syncCmc = strdup("0");
@@ -283,8 +311,8 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 		        if (cJSON_GetObjectItem(reqParamObj, "name") && cJSON_GetObjectItem(reqParamObj, "name")->valuestring) {
 			(*reqObj)->u.testSetReq->param[i].name = strdup(cJSON_GetObjectItem(reqParamObj, "name")->valuestring);
 			} else {
-				printf("Error In string name!\n");
-				(*reqObj)->u.testSetReq->param[i].name = strdup("-fed-up");
+				WdmpError("Error In string name!\n");
+				(*reqObj)->u.testSetReq->param[i].name = strdup("nil");
 			}
 			WdmpPrint("(*reqObj)->u.testSetReq->param[%zu].name : %s\n",i,(*reqObj)->u.testSetReq->param[i].name);
 		
@@ -294,10 +322,10 @@ void parse_test_and_set_request(cJSON *request, req_struct **reqObj)
 				(*reqObj)->u.testSetReq->param[i].value = strdup(cJSON_GetObjectItem(reqParamObj, "value")->valuestring);
 				} else {
 					(*reqObj)->u.testSetReq->param[i].value = strdup ("-nil-");
-					printf("Error in string value!\n");
+					WdmpError("Error in string value!\n");
 				}
 			} else {
-				printf("Error value is NULL\n");
+				WdmpError("Error value is NULL\n");
 				(*reqObj)->u.testSetReq->param[i].value = strdup ("-value-nil-");
 			}
 
@@ -331,7 +359,14 @@ void parse_replace_rows_request(cJSON *request, req_struct **reqObj)
 	
 	(*reqObj)->u.tableReq->rowCnt = rowCnt;
 	WdmpPrint("(*reqObj)->u.tableReq->rowCnt : %zu\n",(*reqObj)->u.tableReq->rowCnt);
+	if(cJSON_GetObjectItem(request,"table") && cJSON_GetObjectItem(request,"table")->valuestring)
+	{
 	(*reqObj)->u.tableReq->objectName = strdup(cJSON_GetObjectItem(request,"table")->valuestring);
+	}
+	else
+	{
+	(*reqObj)->u.tableReq->objectName = strdup("nil");
+	}
 	(*reqObj)->u.tableReq->rows = (TableData *) malloc(sizeof(TableData) * rowCnt);
 	memset((*reqObj)->u.tableReq->rows,0,(sizeof(TableData) * rowCnt));
 	
@@ -347,10 +382,24 @@ void parse_replace_rows_request(cJSON *request, req_struct **reqObj)
 	        (*reqObj)->u.tableReq->rows[i].values = (char **) malloc(sizeof(char *) * paramCount);
 	        for( j = 0 ; j < paramCount ; j++)
 	        {
-                        (*reqObj)->u.tableReq->rows[i].names[j] = strdup(cJSON_GetArrayItem(subitem, j)->string);
+                        if(cJSON_GetArrayItem(subitem, j)->string)
+			{
+			(*reqObj)->u.tableReq->rows[i].names[j] = strdup(cJSON_GetArrayItem(subitem, j)->string);
+			}
+			else
+			{
+			(*reqObj)->u.tableReq->rows[i].names[j] = strdup("nil");
+			}
 		        WdmpPrint("(*reqObj)->u.tableReq->rows[%zu].names[%zu] : %s\n",i,j,(*reqObj)->u.tableReq->rows[i].names[j]);		
 		        		
-		        (*reqObj)->u.tableReq->rows[i].values[j] = strdup(cJSON_GetArrayItem(subitem, j)->valuestring);
+		        if(cJSON_GetArrayItem(subitem, j)->valuestring)
+			{
+			(*reqObj)->u.tableReq->rows[i].values[j] = strdup(cJSON_GetArrayItem(subitem, j)->valuestring);
+			}
+			else
+			{
+			(*reqObj)->u.tableReq->rows[i].values[j] = strdup("nil");
+			}
 		        WdmpPrint("(*reqObj)->u.tableReq->rows[%zu].values[%zu] : %s\n",i,j,(*reqObj)->u.tableReq->rows[i].values[j]);	
 	        }
 	}
@@ -375,7 +424,14 @@ void parse_add_row_request(cJSON *request, req_struct **reqObj)
 	
 	(*reqObj)->u.tableReq->rowCnt = 1;
 	WdmpPrint("(*reqObj)->u.tableReq->rowCnt : %zu\n",(*reqObj)->u.tableReq->rowCnt);
+	if(cJSON_GetObjectItem(request,"table") && cJSON_GetObjectItem(request,"table")->valuestring)
+	{
 	(*reqObj)->u.tableReq->objectName = strdup(cJSON_GetObjectItem(request,"table")->valuestring);
+	}
+	else
+	{
+	(*reqObj)->u.tableReq->objectName = strdup("nil");
+	}
 	(*reqObj)->u.tableReq->rows = (TableData *) malloc(sizeof(TableData));
 	memset((*reqObj)->u.tableReq->rows,0,(sizeof(TableData)));
 	
@@ -386,9 +442,19 @@ void parse_add_row_request(cJSON *request, req_struct **reqObj)
         
         for ( i = 0 ; i < paramCount ; i++)
         {
+		if(cJSON_GetArrayItem(paramArray, i)->string)
+		{
 	        (*reqObj)->u.tableReq->rows->names[i] = strdup(cJSON_GetArrayItem(paramArray, i)->string);
-	         WdmpPrint("(*reqObj)->u.tableReq->rows->names[%zu] : %s\n",i,(*reqObj)->u.tableReq->rows->names[i]);				
+		}
+		else
+		{
+		(*reqObj)->u.tableReq->rows->names[i] = strdup("nil");
+		}
+	         WdmpPrint("(*reqObj)->u.tableReq->rows->names[%zu] : %s\n",i,(*reqObj)->u.tableReq->rows->names[i]);
+		 if(cJSON_GetArrayItem(paramArray, i)->valuestring)
+		 {
 	        (*reqObj)->u.tableReq->rows->values[i] = strdup(cJSON_GetArrayItem(paramArray, i)->valuestring);
+		 }
 	        WdmpPrint("(*reqObj)->u.tableReq->rows->values[%zu] : %s\n",i,(*reqObj)->u.tableReq->rows->values[i]);		
 	        	
 	}
@@ -403,7 +469,14 @@ void parse_delete_row_request(cJSON *request, req_struct **reqObj)
 	
 	(*reqObj)->u.tableReq = (table_req_t *) malloc(sizeof(table_req_t));
 	memset((*reqObj)->u.tableReq,0,(sizeof(table_req_t)));
+	if(cJSON_GetObjectItem(request,"row") && cJSON_GetObjectItem(request,"row")->valuestring)
+	{
 	(*reqObj)->u.tableReq->objectName = strdup(cJSON_GetObjectItem(request,"row")->valuestring);
+	}
+	else
+	{
+	(*reqObj)->u.tableReq->objectName = strdup("nil");
+	}
 }
 
 void wdmp_form_get_response(res_struct *resObj, cJSON *response)
