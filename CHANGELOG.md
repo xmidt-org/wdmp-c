@@ -11,5 +11,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
 - Initial stable release.
 
+## [0.0.1] - 2016-06-29
+### Added
+- Initial creation
+
 [Unreleased]: https://github.com/Comcast/wdmp-c/compare/1.0.0...HEAD
-[1.0.0]: https://github.com/olivierlacan/keep-a-changelog/compare/0.0.1...1.0.0
+[1.0.0]: https://github.com/Comcast/wdmp-c/compare/83626ea45c4267350e3e1c11a7dbd5f28788fe09...1.0.0
