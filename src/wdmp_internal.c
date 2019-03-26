@@ -456,6 +456,8 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
                                 cJSON_AddStringToObject(resParamObj, "name", resObj->u.getRes->paramNames[i]);
                                 cJSON_AddStringToObject(resParamObj, "value","EMPTY");
                                 cJSON_AddNumberToObject(resParamObj, "parameterCount", resObj->u.getRes->retParamCnt[i]);
+				mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+	                        cJSON_AddStringToObject(resParamObj, "message", result);
                         }
                 }
         }
