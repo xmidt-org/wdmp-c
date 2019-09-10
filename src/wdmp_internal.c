@@ -796,6 +796,10 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 	{
 		strcpy(result,"Method is not supported");
 	}
+	else if (status == WDMP_ERR_SESSION_IN_PROGRESS)
+	{
+		strcpy(result,"Previous request is in progress");
+	}
 	else 
 	{
 		strcpy(result,"Unknown Error");
