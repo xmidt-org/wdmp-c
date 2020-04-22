@@ -34,7 +34,8 @@ typedef enum
     WDMP_FLOAT,
     WDMP_DOUBLE,
     WDMP_BYTE,
-    WDMP_NONE
+    WDMP_NONE,
+    WDMP_BLOB
 } DATA_TYPE;
 
 typedef enum
