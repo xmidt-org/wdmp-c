@@ -273,6 +273,8 @@ void wdmp_free_req_struct( req_struct *reqObj );
  */
 void wdmp_free_res_struct( res_struct *resObj );
 
+void mapWdmpStatusToStatusMessage(WDMP_STATUS status, char *result);
+
 /*----------------------------------------------------------------------------*/
 /*                             Internal functions                             */
 /*----------------------------------------------------------------------------*/
