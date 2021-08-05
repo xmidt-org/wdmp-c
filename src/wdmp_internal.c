@@ -782,11 +782,11 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 	}
 	else if (status == WDMP_ERR_INVALID_WIFI_INDEX)
         {
-                strcpy(result,"Invalid WiFi index, valid range is between 10001-10008 and 10101-10108");
+                strcpy(result,"Invalid WiFi index, valid range is between 10001-10008, 10101-10108 and 10201-10208");
         }
 	else if (status == WDMP_ERR_INVALID_RADIO_INDEX)
         {
-                strcpy(result,"Invalid Radio index, valid idexes are 10000 and 10100");
+                strcpy(result,"Invalid Radio index, valid indexes are 10000, 10100 and 10200");
         }
 	else if (status == WDMP_ERR_INVALID_INPUT_PARAMETER)
 	{
