@@ -19,7 +19,9 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#if ! defined(DEVICE_EXTENDER)
 #include <cimplog/cimplog.h>
+#endif
 
 #include "wdmp-c.h"
 
@@ -46,9 +48,16 @@ typedef enum
 
 #define LOGGING_MODULE                      "WDMP-C"
 
+#if ! defined(DEVICE_EXTENDER)
 #define WdmpError(...)                      cimplog_error(LOGGING_MODULE, __VA_ARGS__)
 #define WdmpInfo(...)                       cimplog_info(LOGGING_MODULE, __VA_ARGS__)
 #define WdmpPrint(...)                      cimplog_debug(LOGGING_MODULE, __VA_ARGS__)
+#else
+#define WdmpError(...)                      printf(__VA_ARGS__)
+#define WdmpInfo(...)                       printf(__VA_ARGS__)
+#define WdmpPrint(...)                      printf(__VA_ARGS__)
+#endif
+
 /*----------------------------------------------------------------------------*/
 /*                               Data Structures                              */
 /*----------------------------------------------------------------------------*/
