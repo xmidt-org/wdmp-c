@@ -21,6 +21,10 @@ add_library(${PROJ_WDMP} STATIC ${HEADERS} ${SOURCES})
 add_library(${PROJ_WDMP}.shared SHARED ${HEADERS} ${SOURCES})
 set_target_properties(${PROJ_WDMP}.shared PROPERTIES OUTPUT_NAME ${PROJ_WDMP})
 
+if (DEVICE_EXTENDER)
+add_definitions(-DDEVICE_EXTENDER)
+endif()
+
 install (TARGETS ${PROJ_WDMP} DESTINATION lib${LIB_SUFFIX})
 install (TARGETS ${PROJ_WDMP}.shared DESTINATION lib${LIB_SUFFIX})
 install (FILES wdmp-c.h wdmp_internal.h DESTINATION include/${PROJ_WDMP})
