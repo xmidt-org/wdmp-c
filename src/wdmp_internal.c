@@ -695,7 +695,11 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 	else if (status == WDMP_ERR_SETATTRIBUTE_REJECTED) 
 	{
 		strcpy(result,"SetAttribute rejected");
-	} 
+	}
+	else if (status == WDMP_ERR_REQUEST_REJECTED)
+        {
+                strcpy(result,"Request rejected");
+        }
 	else if (status == WDMP_ERR_NAMESPACE_OVERLAP) 
 	{
 		strcpy(result,"Error namespace overlap");
