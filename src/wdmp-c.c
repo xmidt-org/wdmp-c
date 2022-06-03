@@ -131,7 +131,7 @@ void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, req_s
 
             if (out != NULL)
             {
-                free(out);
+                cJSON_free(out);
             }
         }
 
