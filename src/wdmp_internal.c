@@ -804,6 +804,10 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 	{
 		strcpy(result,"Previous request is in progress");
 	}
+	else if (status == WDMP_ERR_MAX_REQUEST)
+	{
+		strcpy(result,"Max SET request limit reached");
+	}
 	else 
 	{
 		strcpy(result,"Unknown Error");
