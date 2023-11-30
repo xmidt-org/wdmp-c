@@ -64,6 +64,18 @@ void get_req_parse ()
     }  
 }
 
+void test_wdmp_parse_generic_request_negative()
+{
+        WdmpInfo("\n***************************************************** \n\n");
+        char *payload = NULL;
+        req_struct *req =  NULL;
+
+        wdmp_parse_request(payload,&req);
+        CU_ASSERT( NULL == req);
+}
+
+
+
 void get_attr_req_parse ()
 {
     
@@ -99,6 +111,9 @@ void get_attr_req_parse ()
     CU_ASSERT_EQUAL( 2, paramCount );
     CU_ASSERT_STRING_EQUAL( "Device.WiFi.SSID.1.Enable", reqObj->u.getReq->paramNames[0] );
     CU_ASSERT_STRING_EQUAL( "Device.WiFi.SSID.1.SSID", reqObj->u.getReq->paramNames[1] );
+
+    parse_get_request(request,&reqObj,WDMP_SNMP);
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
     
     if (NULL != reqObj) {
         wdmp_free_req_struct(reqObj );
@@ -108,6 +123,35 @@ void get_attr_req_parse ()
     {
         cJSON_Delete(request);
     }
+}
+
+void test_parse_set_request ()
+{
+    cJSON *request = NULL;
+    req_struct *reqObj = NULL;
+    char * payload= NULL;
+    
+    WdmpInfo("\n***************************************************** \n\n");
+    
+    payload = "{ \"names\":[\"Device.WiFi.SSID.1.Enable\",\"Device.WiFi.SSID.1.SSID\"],\"old-cid\": 42, \"attributes\":\"notify\",\"command\": \"SET\"}";    
+    CU_ASSERT( NULL != payload);
+    
+    request = cJSON_Parse(payload);
+    
+    (reqObj) = (req_struct *) malloc(sizeof(req_struct));
+    memset( (reqObj), 0, sizeof( req_struct ) );
+    
+    parse_set_request(request,&reqObj,WDMP_SNMP);
+
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+
+    if(NULL != request)
+    {
+        cJSON_Delete(request);
+    }
+
 }
 
 void set_req_parse ()
@@ -292,6 +336,39 @@ void test_and_set_req_parse ()
     CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.testSetReq->param[0].type );
     CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.testSetReq->param[1].type ); 
     
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+    if(NULL != request)
+    {
+        cJSON_Delete(request);
+    }
+}
+
+void test_and_set_req_parse_negative ()
+{
+    cJSON *request = NULL;
+    req_struct *reqObj = NULL;
+    char * payload= NULL;
+    
+    WdmpInfo("\n***************************************************** \n\n");
+    
+    payload = "{\"parameters\":[{\"name\":\"Device.DeviceInfo.ProductClass\",\"value\":\"XB3\",\"dataType\":0},{\"name\":\"Device.DeviceInfo.SerialNumber\",\"value\":\"14cfe2142142\",\"dataType\":0}],\"new-cid\":1234,\"old-cid\":3456,\"sync-cmc\":512,\"command\":\"TEST_AND_SET\"}";
+ 
+    CU_ASSERT( NULL != payload);
+    
+    request = cJSON_Parse(payload);
+    
+    (reqObj) = (req_struct *) malloc(sizeof(req_struct));
+    memset( (reqObj), 0, sizeof( req_struct ) );
+
+
+    
+    parse_test_and_set_request(request,&reqObj);
+
+    CU_ASSERT( NULL != reqObj);
+    CU_ASSERT_EQUAL( TEST_AND_SET, reqObj->reqType );
+
     if (NULL != reqObj) {
         wdmp_free_req_struct(reqObj );
     }
@@ -514,6 +591,69 @@ void get_req_empty_notify ()
     if (NULL != reqObj) {
         wdmp_free_req_struct(reqObj );
     }
+}
+
+void test_replace_rows ()
+{
+    WdmpInfo("\n***************************************************** \n\n");
+    req_struct *reqObj = NULL;
+    
+    char *request = "{\"rows\":{\"0\":{\"DeviceName\":\"Device1\",\"MacAddress\":\"12:2:3:5:11\"},\"1\":{\"DeviceName\":\"Device2\",\"MacAddress\":\"2:1:3:5:7\"} },\"table\" : \"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.\",\"command\":\"REPLACE_ROWS\"}";    
+    wdmp_parse_request(request,&reqObj);
+    
+    CU_ASSERT( NULL != reqObj);    
+    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+}
+
+void test_add_row ()
+{
+    WdmpInfo("\n***************************************************** \n\n");
+    req_struct *reqObj = NULL;
+    
+    char *request = "{\"row\":{\"DeviceName\":\"Device1\",\"MacAddress\":\"12:2:3:5:11\"},\"table\":\"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.\",\"command\":\"ADD_ROW\"}";
+    
+    wdmp_parse_request(request,&reqObj);
+    
+    CU_ASSERT( NULL != reqObj);    
+    
+    if (NULL != reqObj) {
+       wdmp_free_req_struct(reqObj );
+    }
+}
+
+void test_delete_row ()
+{
+    WdmpInfo("\n***************************************************** \n\n");
+    req_struct *reqObj = NULL;
+    
+    char *request = "{\"row\":\"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.\",\"command\":\"DELETE_ROW\"}";
+    
+    wdmp_parse_request(request,&reqObj);
+    
+    CU_ASSERT( NULL != reqObj);    
+    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+}
+
+void test__invalid_payload_type()
+{
+    WdmpInfo("\n***************************************************** \n\n");
+    req_struct *reqObj = NULL;
+    
+    char *request = "{\"row\":\"Device.WiFi.AccessPoint.10001.X_CISCO_COM_MacFilterTable.1.\",\"command\":\"WRONG\"}";
+    
+    wdmp_parse_generic_request(request,2,&reqObj);
+    
+    CU_ASSERT( NULL == reqObj);    
+    
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }    
 }
 
 void set_req_empty_notify ()
@@ -1045,6 +1185,10 @@ void get_wildcard_res_form()
         resObj->retStatus = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS) * 2);
         resObj->retStatus[0] = WDMP_SUCCESS;
         resObj->retStatus[1] = WDMP_SUCCESS;
+
+        resObj->timeSpan = (money_trace_spans *)malloc(sizeof(money_trace_spans));
+        resObj->timeSpan->spans = (money_trace_span *)malloc(sizeof(money_trace_span));
+        resObj->timeSpan->spans->name = strdup("dummy");
         
         wdmp_form_response(resObj,&payload);
         
@@ -1066,6 +1210,15 @@ void get_wildcard_res_form()
                 cJSON_Delete(response);
         }
         free(payload);
+}
+
+void test_wdmp_form_response_negative()
+{
+        res_struct *res = NULL;
+        char *payload = NULL;
+
+        wdmp_form_response(res,&payload);
+        CU_ASSERT( NULL != payload);
 }
 
 void get_attr_res_form()
@@ -1475,12 +1628,118 @@ void test_map_wdmp_status()
                 
         mapWdmpStatusToStatusMessage(status, result);
         
-        CU_ASSERT( NULL != result );
-        
-        CU_ASSERT_STRING_EQUAL( "SET of CMC or CID is not supported", result );
-        
+        CU_ASSERT( NULL != result );      
+        CU_ASSERT_STRING_EQUAL( "SET of CMC or CID is not supported", result );       
         WdmpInfo("result : %s\n",result);
+
+        status = WDMP_ERR_INVALID_PARAMETER_TYPE;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Invalid parameter type",result);
+
+        status = WDMP_ERR_NOT_EXIST;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Parameter does not exist",result);
+
+        status = WDMP_FAILURE;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Failure",result);
+
+        status = WDMP_ERR_TIMEOUT;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Error Timeout",result);
+
+        status = WDMP_ERR_SETATTRIBUTE_REJECTED;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("SetAttribute rejected",result);
+
+        status = WDMP_ERR_REQUEST_REJECTED;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Request rejected",result);
+
+        status = WDMP_ERR_NAMESPACE_OVERLAP;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Error namespace overlap",result);
+
+        status = WDMP_ERR_UNKNOWN_COMPONENT;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Error unkown component",result);
+
+        status = WDMP_ERR_NAMESPACE_MISMATCH;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Error namespace mismatch",result);
+
+        status = WDMP_ERR_DP_COMPONENT_VERSION_MISMATCH;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Error component version mismatch",result);
+
+        status = WDMP_ERR_INVALID_PARAM;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Invalid Param",result);
+
+        status = WDMP_ERR_UNSUPPORTED_DATATYPE;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Unsupported datatype",result);
+
+        status = WDMP_ERR_WIFI_BUSY;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("WiFi is busy",result);
+
+        status = WDMP_ERR_VALUE_IS_EMPTY;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Parameter value field is not available",result);
+
+        status = WDMP_ERR_VALUE_IS_NULL;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Parameter value is null",result);
+
+        status = WDMP_ERR_DATATYPE_IS_NULL;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Parameter dataType is null",result);
+
+        status = WDMP_ERR_ATTRIBUTES_IS_NULL;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("attributes is null",result);
+
+        status = WDMP_ERR_NOTIFY_IS_NULL;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("notify is null",result);
+
+        status = WDMP_ERR_CID_TEST_FAILED;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("CID test failed",result);
+
+        status = WDMP_ERR_ATOMIC_GET_SET_FAILED;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Atomic Set failed",result);
+
+        status = WDMP_ERR_INVALID_WIFI_INDEX;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Invalid WiFi index, valid range is between 10001-10008, 10101-10108 and 10201-10208",result);
+
+        status = WDMP_ERR_INVALID_RADIO_INDEX;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Invalid Radio index, valid indexes are 10000, 10100 and 10200",result);
         
+        status = WDMP_ERR_INVALID_INPUT_PARAMETER;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Invalid Input parameter - CID/CMC value cannot be set",result);
+
+        status = WDMP_ERR_METHOD_NOT_SUPPORTED;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Method is not supported",result);
+
+        status = WDMP_ERR_SESSION_IN_PROGRESS;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Previous request is in progress",result);
+
+        status = WDMP_ERR_MAX_REQUEST;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Max SET request limit reached",result);
+
+        status = 50;
+        mapWdmpStatusToStatusMessage(status, result);
+        CU_ASSERT_STRING_EQUAL("Unknown Error",result);
+
         if(result)
         {
                 free(result);
@@ -2206,19 +2465,26 @@ void add_request_parse_suites( CU_pSuite *suite )
     
     /* positive scenario tests */
     CU_add_test( *suite, "Test Get Request Parse", get_req_parse );
+    CU_add_test( *suite, "Test wdmp parse generic request negative", test_wdmp_parse_generic_request_negative );   
     CU_add_test( *suite, "Test Get attr Request Parse", get_attr_req_parse );
+    CU_add_test( *suite, "Test parse_set_request", test_parse_set_request );
     CU_add_test( *suite, "Test Set Request Parse", set_req_parse );
     CU_add_test( *suite, "Test Set Request Parse with both value and attributes field", set_req_parse_with_attributes );
     CU_add_test( *suite, "Test Set attr Request Parse", set_attr_req_parse );
     CU_add_test( *suite, "Test Test and set Request Parse", test_and_set_req_parse );
+    CU_add_test( *suite, "Test Test and set Request Parse negative", test_and_set_req_parse_negative );   
     CU_add_test( *suite, "Test Replace row Request Parse", replace_rows_req_parse );
     CU_add_test( *suite, "Test Add row Request Parse", add_row_req_parse );
-    CU_add_test( *suite, "Test Delete row Request Parse", delete_row_req_parse );
-        
+    CU_add_test( *suite, "Test Delete row Request Parse", delete_row_req_parse ); 
+
     /* negative scenario tests */
     CU_add_test( *suite, "Test Unknown command", test_unknown_command );
     CU_add_test( *suite, "Test Get Empty names", get_req_empty_names );
     CU_add_test( *suite, "Test Get Empty notify", get_req_empty_notify );
+    CU_add_test( *suite, "Test replace rows", test_replace_rows );
+    CU_add_test( *suite, "Test add rows", test_add_row );
+    CU_add_test( *suite, "Test delete rows", test_delete_row );
+    CU_add_test( *suite, "test invalid payload type", test__invalid_payload_type );
     CU_add_test( *suite, "Test Set Empty notify", set_req_empty_notify );
     CU_add_test( *suite, "Test and Set without cid", test_and_set_without_cid );
     CU_add_test( *suite, "Test Empty Test and Set Request", empty_test_and_set );
@@ -2227,7 +2493,6 @@ void add_request_parse_suites( CU_pSuite *suite )
     CU_add_test( *suite, "Test Get large parameter name Request", get_large_parameter_req_parse );
     CU_add_test( *suite, "Test Set large parameter name and value Request", set_large_parameter_req_parse );
     CU_add_test( *suite, "Test large parameter table Request", test_large_parameter_table_request );
- 
 }
 
 void add_response_form_suites ( CU_pSuite *suite )
@@ -2235,7 +2500,8 @@ void add_response_form_suites ( CU_pSuite *suite )
     *suite = CU_add_suite( "wdmp-c Response forming tests", NULL, NULL );
     
     CU_add_test( *suite, "Get Response Form", get_res_form );
-    CU_add_test( *suite, "Get wild card Response Form", get_wildcard_res_form );
+    CU_add_test( *suite, "test wdmp form response negative", get_wildcard_res_form );
+    CU_add_test( *suite, "Get wild card Response Form", test_wdmp_form_response_negative );
     CU_add_test( *suite, "Get attributes Response Form", get_attr_res_form );
     CU_add_test( *suite, "Set Response Form", set_res_form );
     CU_add_test( *suite, "Set attributes Response Form", set_attr_res_form );
@@ -2246,7 +2512,6 @@ void add_response_form_suites ( CU_pSuite *suite )
     CU_add_test( *suite, "Table response Form", table_res_form );  
     CU_add_test( *suite, "Get status code", test_get_status_code );
     CU_add_test( *suite, "Map wdmp status", test_map_wdmp_status );   
-    
     CU_add_test( *suite, "Negative Get Response Form", neg_get_res_form );
     CU_add_test( *suite, "Get Wildcard empty Response Form", get_wildcard_empty_value_res_form);
     CU_add_test( *suite, "Negative Get attributes Response Form", neg_get_attr_res_form );
