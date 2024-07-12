@@ -37,10 +37,8 @@ jobs:
       - name: Make Build Directory
         run: mkdir build
 
-      - name: Get Sonarcloud Binaries
-        uses: xmidt-org/sonarcloud-installer-action@v1
-        with:
-          working-directory: build
+      - name: Install sonar-scanner and build-wrapper
+        uses: sonarsource/sonarcloud-github-c-cpp@v2
 
       - name: CMake
         working-directory: build
