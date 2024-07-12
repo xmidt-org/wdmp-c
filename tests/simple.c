@@ -194,6 +194,48 @@ void set_req_parse ()
 		
 }
 
+void set_req_parse_with_empty_value()
+{
+    WdmpInfo("\n***************************************************** \n\n");
+
+    int i,paramCount;
+    req_struct *reqObj = NULL;
+
+    char * request= "{\"parameters\":[{\"name\":\"Device.DHCPv6.Server.Pool.1.Option.2.Value\",\"value\":\"\",\"dataType\":0},{\"name\":\"Device.X_RDK_WanManager.CPEInterface.2.Selection.TimeOut\",\"value\":\"\",\"dataType\":1},{\"name\":\"Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.Telemetry.DcmRetryConfig.AttemptInterval\",\"value\":\"\",\"dataType\":2},{\"name\":\"Device.DHCPv4.Server.Pool.1.DNSServersEnabled\",\"value\":\"\",\"dataType\":3}],\"command\":\"SET\"}";
+    wdmp_parse_request(request,&reqObj);
+
+    CU_ASSERT( NULL != reqObj);
+    CU_ASSERT_EQUAL( SET, reqObj->reqType );
+
+    WdmpInfo("Request Type : %d\n",reqObj->reqType);
+    WdmpInfo("Param Count : %zu\n",reqObj->u.setReq->paramCnt);
+    paramCount = (int)reqObj->u.setReq->paramCnt;
+    for (i = 0; i < paramCount; i++)
+        {
+            WdmpPrint("param[%d].name : %s\n",i,reqObj->u.setReq->param[i].name);
+            WdmpPrint("param[%d].value : %s\n",i,reqObj->u.setReq->param[i].value);
+            WdmpPrint("param[%d].type : %d\n",i,reqObj->u.setReq->param[i].type);
+        }
+
+    CU_ASSERT_EQUAL( 4, paramCount );
+    CU_ASSERT_STRING_EQUAL( "Device.DHCPv6.Server.Pool.1.Option.2.Value", reqObj->u.setReq->param[0].name );
+    CU_ASSERT_STRING_EQUAL( "Device.X_RDK_WanManager.CPEInterface.2.Selection.TimeOut", reqObj->u.setReq->param[1].name );
+    CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.X_RDKCENTRAL-COM_RFC.Feature.Telemetry.DcmRetryConfig.AttemptInterval", reqObj->u.setReq->param[2].name );
+    CU_ASSERT_STRING_EQUAL( "Device.DHCPv4.Server.Pool.1.DNSServersEnabled", reqObj->u.setReq->param[3].name );
+    CU_ASSERT_STRING_EQUAL( "", reqObj->u.setReq->param[0].value );
+    CU_ASSERT_STRING_EQUAL( "", reqObj->u.setReq->param[1].value );
+    CU_ASSERT_STRING_EQUAL( "", reqObj->u.setReq->param[2].value );
+    CU_ASSERT_STRING_EQUAL( "", reqObj->u.setReq->param[3].value );
+    CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.setReq->param[0].type );
+    CU_ASSERT_EQUAL( WDMP_INT, reqObj->u.setReq->param[1].type );
+    CU_ASSERT_EQUAL( WDMP_UINT, reqObj->u.setReq->param[2].type );
+    CU_ASSERT_EQUAL( WDMP_BOOLEAN, reqObj->u.setReq->param[3].type );
+
+    if (NULL != reqObj) {
+        wdmp_free_req_struct(reqObj );
+    }
+}
+
 void set_req_parse_with_attributes ()
 {
     
@@ -777,7 +819,7 @@ void set_req_null_param_value ()
     CU_ASSERT_EQUAL( 2, paramCount );
     CU_ASSERT_STRING_EQUAL( "Device.DeviceInfo.HardwareVersion", reqObj->u.setReq->param[0].name );
     CU_ASSERT_STRING_EQUAL( "Device.WiFi.SSID.Enable", reqObj->u.setReq->param[1].name );
-    CU_ASSERT( NULL == reqObj->u.setReq->param[0].value );
+    CU_ASSERT_STRING_EQUAL( "", reqObj->u.setReq->param[0].value );
     CU_ASSERT_STRING_EQUAL( "true" , reqObj->u.setReq->param[1].value );  
     CU_ASSERT_EQUAL( WDMP_STRING, reqObj->u.setReq->param[0].type );
     CU_ASSERT_EQUAL( WDMP_BOOLEAN, reqObj->u.setReq->param[1].type );  
@@ -2469,6 +2511,7 @@ void add_request_parse_suites( CU_pSuite *suite )
     CU_add_test( *suite, "Test Get attr Request Parse", get_attr_req_parse );
     CU_add_test( *suite, "Test parse_set_request", test_parse_set_request );
     CU_add_test( *suite, "Test Set Request Parse", set_req_parse );
+    CU_add_test( *suite, "Test Set Request Parse with empty value for all data types", set_req_parse_with_empty_value );
     CU_add_test( *suite, "Test Set Request Parse with both value and attributes field", set_req_parse_with_attributes );
     CU_add_test( *suite, "Test Set attr Request Parse", set_attr_req_parse );
     CU_add_test( *suite, "Test Test and set Request Parse", test_and_set_req_parse );

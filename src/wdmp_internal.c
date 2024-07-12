@@ -141,20 +141,16 @@ void parse_set_request(cJSON *request, req_struct **reqObj, PAYLOAD_TYPE type)
 		WdmpPrint("(*reqObj)->u.setReq->param[%zu].name : %s\n",i,(*reqObj)->u.setReq->param[i].name);
 		
 		if (cJSON_GetObjectItem(reqParamObj, "value") != NULL )
-		{
-			if(cJSON_GetObjectItem(reqParamObj, "value")->valuestring != NULL && strlen(cJSON_GetObjectItem(reqParamObj, "value")->valuestring) == 0)
-			{
-				WdmpError("Parameter value is null\n");
-			}
-			else if(cJSON_GetObjectItem(reqParamObj, "value")->valuestring == NULL)
-			{
-				WdmpError("Parameter value field is not a string\n");
-			}
-			else
-			{
-				(*reqObj)->u.setReq->param[i].value = strdup(cJSON_GetObjectItem(reqParamObj, "value")->valuestring);
-				WdmpPrint("(*reqObj)->u.setReq->param[%zu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
-			}
+		{	
+			if(cJSON_GetObjectItem(reqParamObj, "value")->valuestring != NULL)
+                        {
+                                    (*reqObj)->u.setReq->param[i].value = strdup(cJSON_GetObjectItem(reqParamObj, "value")->valuestring);
+                                    WdmpPrint("(*reqObj)->u.setReq->param[%zu].value : %s\n",i,(*reqObj)->u.setReq->param[i].value);
+                        }
+                        else if(cJSON_GetObjectItem(reqParamObj, "value")->valuestring == NULL)
+                        {
+                                    WdmpError("Parameter value field is not a string\n");
+                        }
 		}
 		else
 		{
