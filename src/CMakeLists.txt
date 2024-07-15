@@ -14,8 +14,14 @@
 
 set(PROJ_WDMP wdmp-c)
 
+find_package(CJSON)
+
 file(GLOB HEADERS wdmp-c.h wdmp_internal.h)
 set(SOURCES wdmp-c.c wdmp_internal.c)
+
+if (CJSON_FOUND)
+    include_directories(${CJSON_INCLUDE_DIRS})
+endif (CJSON_FOUND)
 
 add_library(${PROJ_WDMP} STATIC ${HEADERS} ${SOURCES})
 add_library(${PROJ_WDMP}.shared SHARED ${HEADERS} ${SOURCES})
