@@ -29,6 +29,7 @@ typedef enum
 {
 	WDMP_STATUS_SUCCESS = 200,
 	WDMP_ADDROW_STATUS_SUCCESS = 201,
+	WDMP_STATUS_PREVIOUS_REQUEST_INPROGRESS = 202,
 	WDMP_STATUS_GENERAL_FALURE =  520,
 	WDMP_STATUS_CID_TEST_FAILED = 550,
 	WDMP_STATUS_CMC_TEST_FAILED = 551,
@@ -51,7 +52,7 @@ typedef enum
 #if ! defined(DEVICE_EXTENDER)
 #define WdmpError(...)                      cimplog_error(LOGGING_MODULE, __VA_ARGS__)
 #define WdmpInfo(...)                       cimplog_info(LOGGING_MODULE, __VA_ARGS__)
-#define WdmpPrint(...)                      cimplog_debug(LOGGING_MODULE, __VA_ARGS__)
+#define WdmpPrint(...)                      cimplog_info(LOGGING_MODULE, __VA_ARGS__)
 #else
 #define WdmpError(...)                      printf(__VA_ARGS__)
 #define WdmpInfo(...)                       printf(__VA_ARGS__)

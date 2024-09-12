@@ -47,6 +47,44 @@
 /*                             External Functions                             */
 /*----------------------------------------------------------------------------*/
 
+void write_to_file(char *payload);
+/*----------------------------------------------------------------------------*/
+/*                             External Functions                             */
+/*----------------------------------------------------------------------------*/
+void write_to_file(char *payload)
+{
+    FILE *fp = NULL;
+    fp = fopen("/tmp/webpa_request.txt", "a");
+    if(fp == NULL)
+    {
+        WdmpError("Error: Cannot open /tmp/webpa_request.txt\n");
+        return;
+    }
+    size_t payload_len = strlen(payload);
+    char *payload_cpy = (char*)malloc(sizeof(payload_len+2));
+    if(payload_cpy == NULL)
+    {
+        WdmpError("Error: Memory Allocation Failed\n");
+        fclose(fp);
+        return;
+    }
+    strcpy(payload_cpy, payload);
+    payload_cpy[payload_len] = '\n';
+    payload_cpy[payload_len+1] = '\0';
+    fprintf(fp, "%s", payload_cpy);
+    if(payload_cpy != NULL)
+    {
+        free(payload_cpy);
+    }
+    if(fp != NULL)
+    {
+        fclose(fp);
+    }
+    return;
+}
+
+
+
 void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, req_struct **reqObj)
 {
     cJSON *request = NULL;
@@ -57,6 +95,9 @@ void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, req_s
         WdmpPrint("wdmp_parse_generic_request - invalid param!\n");
         return;
     }
+
+    WdmpPrint("Obtained Raw Payload is %s\n", payload);
+    write_to_file(payload);
 
     request = cJSON_Parse(payload);
     if (request != NULL)
