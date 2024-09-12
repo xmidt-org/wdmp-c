@@ -546,7 +546,6 @@ void wdmp_form_get_response(res_struct *resObj, cJSON *response)
         
         WdmpPrint("resObj->retStatus : %d\n",resObj->retStatus[0]);
         getStatusCode(&statusCode, paramCount, resObj->retStatus);
-        
         result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
         
         if(resObj->u.paramRes->params)
@@ -838,6 +837,11 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
 		else if (ret[i] == WDMP_ERR_ATOMIC_GET_SET_FAILED || ret[i] == WDMP_ERR_WILDCARD_NOT_SUPPORTED || ret[i] == WDMP_ERR_SET_OF_CMC_OR_CID_NOT_SUPPORTED || ret[i] == WDMP_ERR_VALUE_IS_EMPTY || ret[i] == WDMP_ERR_VALUE_IS_NULL || ret[i] == WDMP_ERR_DATATYPE_IS_NULL || ret[i] == WDMP_ERR_NOTIFY_IS_NULL || ret[i] == WDMP_ERR_ATTRIBUTES_IS_NULL || ret[i] == WDMP_ERR_SETTING_CMC_OR_CID)
 		{
 			*statusCode = WDMP_STATUS_ATOMIC_GET_SET_FAILED;
+			break;
+		}
+		else if (ret[i] == WDMP_ERR_SESSION_IN_PROGRESS)
+		{
+			*statusCode = WDMP_STATUS_PREVIOUS_REQUEST_INPROGRESS;
 			break;
 		}
 		else 

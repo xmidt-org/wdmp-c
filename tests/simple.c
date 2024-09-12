@@ -1658,6 +1658,32 @@ void test_get_status_code()
         }
 }
 
+void test_get_status_code_inprogress()
+{
+        WDMP_RESPONSE_STATUS_CODE statusCode;
+        WDMP_STATUS * ret = NULL;
+        int paramCount = 3;
+        
+        WdmpInfo("\n***************************************************** \n\n");
+        
+        ret = (WDMP_STATUS *) malloc(sizeof(WDMP_STATUS)*paramCount);
+        
+        ret[0] = WDMP_SUCCESS;
+        ret[1] = WDMP_SUCCESS;
+        ret[2] = WDMP_ERR_SESSION_IN_PROGRESS;
+        
+        getStatusCode(&statusCode, paramCount, ret);
+        
+        CU_ASSERT_EQUAL( WDMP_STATUS_PREVIOUS_REQUEST_INPROGRESS, statusCode );
+        
+        WdmpInfo("statusCode : %d\n",statusCode);
+        
+        if(ret)
+        {
+                free(ret);
+        }
+}
+
 void test_map_wdmp_status()
 {
         WDMP_STATUS status;
@@ -2554,6 +2580,7 @@ void add_response_form_suites ( CU_pSuite *suite )
     CU_add_test( *suite, "Delete row Response Form", delete_row_res_form ); 
     CU_add_test( *suite, "Table response Form", table_res_form );  
     CU_add_test( *suite, "Get status code", test_get_status_code );
+    CU_add_test( *suite, "Get status code session inprogress", test_get_status_code_inprogress );
     CU_add_test( *suite, "Map wdmp status", test_map_wdmp_status );   
     CU_add_test( *suite, "Negative Get Response Form", neg_get_res_form );
     CU_add_test( *suite, "Get Wildcard empty Response Form", get_wildcard_empty_value_res_form);
