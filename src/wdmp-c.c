@@ -82,7 +82,11 @@ void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, req_s
             {
                 // allocate according to payload type.
                 // - currently no other data types supported
-                WdmpPrint("wdmp_parse_generic_request - invalid payload_type : %d\n", payload_type);
+                WdmpError("wdmp_parse_generic_request - invalid payload_type : %d\n", payload_type);
+		if (out != NULL)
+		{
+			free(out);
+		}
                 cJSON_Delete(request);
                 return;
             }
