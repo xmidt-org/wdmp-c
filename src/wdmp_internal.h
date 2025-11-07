@@ -73,6 +73,7 @@ typedef enum
 /*----------------------------------------------------------------------------*/
 void parse_get_request(cJSON *request, req_struct **reqObj, PAYLOAD_TYPE type);
 void parse_set_request(cJSON *request, req_struct **reqObj, PAYLOAD_TYPE type);
+void parse_method_request(cJSON *request, req_struct **reqObj);
 void parse_set_attr_request(cJSON *request, req_struct **reqObj);
 void parse_test_and_set_request(cJSON *request, req_struct **reqObj);
 void parse_replace_rows_request(cJSON *request, req_struct **reqObj);
@@ -84,8 +85,10 @@ void wdmp_form_get_attr_response(res_struct *resObj, cJSON *response);
 void wdmp_form_set_response(res_struct *resObj, cJSON *response);
 void wdmp_form_test_and_set_response(res_struct *resObj, cJSON *response);
 void wdmp_form_table_response(res_struct *resObj, cJSON *response);
+void wdmp_form_method_response(res_struct *resObj, cJSON *response);
 
 void getStatusCode(WDMP_RESPONSE_STATUS_CODE *statusCode, int paramCount, WDMP_STATUS * ret);
+DATA_TYPE infer_type(cJSON *item);
 
 /*----------------------------------------------------------------------------*/
 /*                             External Functions                             */

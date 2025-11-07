@@ -2527,6 +2527,172 @@ void test_large_parameter_table_request()
         cJSON_Delete(request);
     }
 }
+
+void test_parse_method_request_url()
+{
+    const char *json = "{ \"method\" : \"Test.SoftwareModules.InstallDU()\" ,\"parameters\" : [{\"URL\" : \"http://10.0.0.212/packages/cujo_agent.tar\"}]}";
+    cJSON *request = cJSON_Parse(json);
+    req_struct *reqObj = NULL;
+
+    if (request != NULL)
+    {
+        (reqObj) = (req_struct *)calloc(1, sizeof(req_struct));
+        CU_ASSERT_PTR_NOT_NULL_FATAL(reqObj);
+
+        parse_method_request(request, &reqObj);
+        cJSON_Delete(request);
+    }
+    CU_ASSERT_PTR_NOT_NULL(reqObj);
+    CU_ASSERT_STRING_EQUAL( "Test.SoftwareModules.InstallDU()", reqObj->u.methodReq->methodName);
+    CU_ASSERT_EQUAL(reqObj->reqType, METHOD);
+    CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq);
+    CU_ASSERT_EQUAL(reqObj->u.methodReq->objectCnt, 1);
+
+    CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq->objects[0].params);
+    CU_ASSERT_EQUAL(reqObj->u.methodReq->objects[0].paramCnt, 1);
+    CU_ASSERT_STRING_EQUAL("URL",reqObj->u.methodReq->objects[0].params[0].name);
+    CU_ASSERT_STRING_EQUAL("http://10.0.0.212/packages/cujo_agent.tar",reqObj->u.methodReq->objects[0].params[0].value);
+    wdmp_free_req_struct(reqObj);
+}
+
+void test_parse_method_request_zero_objects()
+{
+        const char *json = "{ \"method\" : \"Test.SoftwareModules.DeploymentUnit.1.Uninstall()\" ,\"parameters\" : []}";
+        cJSON *request = cJSON_Parse(json);
+        req_struct *reqObj = NULL;
+        
+        if (request != NULL)
+        {
+                (reqObj) = (req_struct *)calloc(1, sizeof(req_struct));
+                CU_ASSERT_PTR_NOT_NULL_FATAL(reqObj);
+        
+                parse_method_request(request, &reqObj);
+                cJSON_Delete(request);
+        }
+        CU_ASSERT_PTR_NOT_NULL(reqObj);
+        CU_ASSERT_STRING_EQUAL( "Test.SoftwareModules.DeploymentUnit.1.Uninstall()", reqObj->u.methodReq->methodName);
+        CU_ASSERT_EQUAL(reqObj->reqType, METHOD);
+        CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq);
+        CU_ASSERT_EQUAL(reqObj->u.methodReq->objectCnt, 0);
+        
+        wdmp_free_req_struct(reqObj);
+}
+
+void test_parse_method_request_startConnectivityCheck()
+{
+
+        
+    const char *json = "{ \"method\" : \"Test.X_RDK_DNSInternet.StartConnectivityCheck()\" ,\"parameters\" : [{\"linux_interface_name\": \"erouter0\",\"alias\": \"DOCSIS\",\"IPv4_DNS_Servers\": \"55.55.55.75,75.75.76.76\",\"IPv6_DNS_Servers\": \"ffff:558:aaaa::1,2001:558:feed::2\",\"IPv4_Gateway\": \"11.22.33.44\",\"IPv6_Gateway\": \"fe80::21c:73ff:fe00:99\"}]}";
+    cJSON *request = cJSON_Parse(json);
+    req_struct *reqObj = NULL;
+
+    if (request != NULL)
+    {
+        (reqObj) = (req_struct *)calloc(1, sizeof(req_struct));
+        CU_ASSERT_PTR_NOT_NULL_FATAL(reqObj);
+
+        parse_method_request(request, &reqObj);
+        cJSON_Delete(request);
+    }
+    CU_ASSERT_PTR_NOT_NULL(reqObj);
+    CU_ASSERT_STRING_EQUAL( "Test.X_RDK_DNSInternet.StartConnectivityCheck()", reqObj->u.methodReq->methodName);
+    CU_ASSERT_EQUAL(reqObj->reqType, METHOD);
+    CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq);
+    CU_ASSERT_EQUAL(reqObj->u.methodReq->objectCnt, 1);
+
+    CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq->objects[0].params);
+    CU_ASSERT_EQUAL(reqObj->u.methodReq->objects[0].paramCnt, 6);
+        CU_ASSERT_STRING_EQUAL("linux_interface_name",reqObj->u.methodReq->objects[0].params[0].name);
+        CU_ASSERT_STRING_EQUAL("erouter0",reqObj->u.methodReq->objects[0].params[0].value);
+        CU_ASSERT_STRING_EQUAL("alias",reqObj->u.methodReq->objects[0].params[1].name);
+        CU_ASSERT_STRING_EQUAL("DOCSIS",reqObj->u.methodReq->objects[0].params[1].value);
+        CU_ASSERT_STRING_EQUAL("IPv4_DNS_Servers",reqObj->u.methodReq->objects[0].params[2].name);
+        CU_ASSERT_STRING_EQUAL("55.55.55.75,75.75.76.76",reqObj->u.methodReq->objects[0].params[2].value);
+        CU_ASSERT_STRING_EQUAL("IPv6_DNS_Servers",reqObj->u.methodReq->objects[0].params[3].name);
+        CU_ASSERT_STRING_EQUAL("ffff:558:aaaa::1,2001:558:feed::2",reqObj->u.methodReq->objects[0].params[3].value);
+        CU_ASSERT_STRING_EQUAL("IPv4_Gateway",reqObj->u.methodReq->objects[0].params[4].name);
+        CU_ASSERT_STRING_EQUAL("11.22.33.44",reqObj->u.methodReq->objects[0].params[4].value);
+        CU_ASSERT_STRING_EQUAL("IPv6_Gateway",reqObj->u.methodReq->objects[0].params[5].name);
+        CU_ASSERT_STRING_EQUAL("fe80::21c:73ff:fe00:99",reqObj->u.methodReq->objects[0].params[5].value);
+
+    wdmp_free_req_struct(reqObj);
+}
+
+void test_parse_method_request_Dynamic_params()
+{
+    const char *json = "{ \"method\" : \"Test.Webpa.Subscription.NotifyEvent()\" ,\"parameters\" : [{\"name\": \"Test.WiFi.SSID.1.SSID\",\"notificationType\":\"ValueChange\"}, {\"name\":\"Test.WiFi.SSID.2.SSID\",\"notificationType\":\"ValueChange\"}]}";
+    cJSON *request = cJSON_Parse(json);
+    req_struct *reqObj = NULL;
+
+    if (request != NULL)
+    {
+        (reqObj) = (req_struct *)calloc(1, sizeof(req_struct));
+        CU_ASSERT_PTR_NOT_NULL_FATAL(reqObj);
+
+        parse_method_request(request, &reqObj);
+        cJSON_Delete(request);
+    }
+    CU_ASSERT_PTR_NOT_NULL(reqObj);
+    CU_ASSERT_STRING_EQUAL( "Test.Webpa.Subscription.NotifyEvent()", reqObj->u.methodReq->methodName);
+    CU_ASSERT_EQUAL(reqObj->reqType, METHOD);
+    CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq);
+    CU_ASSERT_EQUAL(reqObj->u.methodReq->objectCnt, 2);
+
+        CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq->objects[0].params);
+        CU_ASSERT_EQUAL(reqObj->u.methodReq->objects[0].paramCnt, 2);
+        CU_ASSERT_STRING_EQUAL("name",reqObj->u.methodReq->objects[0].params[0].name);
+        CU_ASSERT_STRING_EQUAL("Test.WiFi.SSID.1.SSID",reqObj->u.methodReq->objects[0].params[0].value);
+        CU_ASSERT_STRING_EQUAL("notificationType",reqObj->u.methodReq->objects[0].params[1].name);
+        CU_ASSERT_STRING_EQUAL("ValueChange",reqObj->u.methodReq->objects[0].params[1].value);
+        CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq->objects[1].params);
+        CU_ASSERT_EQUAL(reqObj->u.methodReq->objects[1].paramCnt, 2);
+        CU_ASSERT_STRING_EQUAL("name",reqObj->u.methodReq->objects[1].params[0].name);
+        CU_ASSERT_STRING_EQUAL("Test.WiFi.SSID.2.SSID",reqObj->u.methodReq->objects[1].params[0].value);
+        CU_ASSERT_STRING_EQUAL("notificationType",reqObj->u.methodReq->objects[1].params[1].name);
+        CU_ASSERT_STRING_EQUAL("ValueChange",reqObj->u.methodReq->objects[1].params[1].value);
+        
+
+    wdmp_free_req_struct(reqObj);
+}
+
+void test_parse_method_request_multiple_Params()
+{
+    const char *json = "{ \"method\" : \"Test.Webpa.Subscription.NotifyEvent()\" ,\"parameters\" : [{\"name\": \"Test.WiFi.SSID.1.SSID\",\"notificationType\":\"ValueChange\"}, {\"name\":\"Test.WiFi.SSID.2.SSID\",\"notificationType\":\"ValueChange\",\"Timeout\":\"ON\"}]}";
+    cJSON *request = cJSON_Parse(json);
+    req_struct *reqObj = NULL;
+
+    if (request != NULL)
+    {
+        (reqObj) = (req_struct *)calloc(1, sizeof(req_struct));
+        CU_ASSERT_PTR_NOT_NULL_FATAL(reqObj);
+
+        parse_method_request(request, &reqObj);
+        cJSON_Delete(request);
+    }
+    CU_ASSERT_PTR_NOT_NULL(reqObj);
+    CU_ASSERT_STRING_EQUAL( "Test.Webpa.Subscription.NotifyEvent()", reqObj->u.methodReq->methodName);
+    CU_ASSERT_EQUAL(reqObj->reqType, METHOD);
+    CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq);
+    CU_ASSERT_EQUAL(reqObj->u.methodReq->objectCnt, 2);
+
+        CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq->objects[0].params);
+        CU_ASSERT_EQUAL(reqObj->u.methodReq->objects[0].paramCnt, 2);
+        CU_ASSERT_STRING_EQUAL("name",reqObj->u.methodReq->objects[0].params[0].name);
+        CU_ASSERT_STRING_EQUAL("Test.WiFi.SSID.1.SSID",reqObj->u.methodReq->objects[0].params[0].value);
+        CU_ASSERT_STRING_EQUAL("notificationType",reqObj->u.methodReq->objects[0].params[1].name);
+        CU_ASSERT_STRING_EQUAL("ValueChange",reqObj->u.methodReq->objects[0].params[1].value);
+        CU_ASSERT_PTR_NOT_NULL(reqObj->u.methodReq->objects[1].params);
+        CU_ASSERT_EQUAL(reqObj->u.methodReq->objects[1].paramCnt, 3);
+        CU_ASSERT_STRING_EQUAL("name",reqObj->u.methodReq->objects[1].params[0].name);
+        CU_ASSERT_STRING_EQUAL("Test.WiFi.SSID.2.SSID",reqObj->u.methodReq->objects[1].params[0].value);
+        CU_ASSERT_STRING_EQUAL("notificationType",reqObj->u.methodReq->objects[1].params[1].name);
+        CU_ASSERT_STRING_EQUAL("ValueChange",reqObj->u.methodReq->objects[1].params[1].value);
+        CU_ASSERT_STRING_EQUAL("Timeout",reqObj->u.methodReq->objects[1].params[2].name);
+        CU_ASSERT_STRING_EQUAL("ON",reqObj->u.methodReq->objects[1].params[2].value);
+
+    wdmp_free_req_struct(reqObj);
+}
+
 void add_request_parse_suites( CU_pSuite *suite )
 {
     *suite = CU_add_suite( "wdmp-c request parsing tests", NULL, NULL );
@@ -2545,6 +2711,11 @@ void add_request_parse_suites( CU_pSuite *suite )
     CU_add_test( *suite, "Test Replace row Request Parse", replace_rows_req_parse );
     CU_add_test( *suite, "Test Add row Request Parse", add_row_req_parse );
     CU_add_test( *suite, "Test Delete row Request Parse", delete_row_req_parse ); 
+    CU_add_test( *suite, "Test One Object One Param method Request Parse", test_parse_method_request_url );
+    CU_add_test( *suite, "Test Zero Objects method Request Parse", test_parse_method_request_zero_objects );
+    CU_add_test( *suite, "Test One Object six Params method Request Parse", test_parse_method_request_startConnectivityCheck );
+    CU_add_test( *suite, "Test Dynamic Params method Request Parse", test_parse_method_request_Dynamic_params);
+    CU_add_test( *suite, "Test multiple Object multiple Params method Request Parse", test_parse_method_request_multiple_Params);
 
     /* negative scenario tests */
     CU_add_test( *suite, "Test Unknown command", test_unknown_command );

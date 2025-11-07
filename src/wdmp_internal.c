@@ -389,6 +389,89 @@ void parse_delete_row_request(cJSON *request, req_struct **reqObj)
 	(*reqObj)->u.tableReq->objectName = strdup(cJSON_GetObjectItem(request,"row")->valuestring);
 }
 
+DATA_TYPE param_type(cJSON *item)
+{
+    if (cJSON_IsString(item))
+        return WDMP_STRING;
+    if (cJSON_IsNumber(item))
+        return WDMP_INT;
+    if (cJSON_IsBool(item))
+        return WDMP_BOOLEAN;
+    return WDMP_NONE;
+}
+
+void parse_method_request(cJSON *request, req_struct **reqObj)
+{
+	WdmpInfo("parsing Method Request\n");
+    if (!request || !reqObj)
+	{
+        return;
+	}
+	(*reqObj)->reqType = METHOD;
+	WdmpInfo("(*reqObj)->reqType : %d\n",(*reqObj)->reqType);
+    cJSON *method = cJSON_GetObjectItem(request, "method");
+    cJSON *params_array = cJSON_GetObjectItem(request, "parameters");
+
+    if (!cJSON_IsString(method) || !cJSON_IsArray(params_array))
+    {
+        WdmpError("parse_method_request: Invalid request\n");
+        return;
+    }
+
+    /* Allocate req_struct */
+
+
+    (*reqObj)->u.methodReq = (method_req_t *)calloc(1, sizeof(method_req_t));
+
+    (*reqObj)->u.methodReq->methodName = strdup(method->valuestring);
+
+    /* Count number of objects in "parameters" array */
+    size_t objCount = cJSON_GetArraySize(params_array);
+    (*reqObj)->u.methodReq->objectCnt = objCount;
+    (*reqObj)->u.methodReq->objects = (method_param_t *)calloc(objCount, sizeof(method_param_t));
+    WdmpInfo("Parsed METHOD request: %s with %zu objects\n", (*reqObj)->u.methodReq->methodName, (*reqObj)->u.methodReq->objectCnt);
+    for (size_t i = 0; i < objCount; i++)
+    {
+        cJSON *param_obj = cJSON_GetArrayItem(params_array, i);
+        if (!cJSON_IsObject(param_obj))
+            continue;
+
+        /* Count fields in this object */
+        size_t ParamCount = 0;
+        cJSON *child = NULL;
+        cJSON_ArrayForEach(child, param_obj)
+        {
+            ParamCount++;
+        }
+
+        (*reqObj)->u.methodReq->objects[i].paramCnt = ParamCount;
+        (*reqObj)->u.methodReq->objects[i].params = (param_t *)calloc(ParamCount, sizeof(param_t));
+		WdmpInfo("paramCnt %zu \n", (*reqObj)->u.methodReq->objects[i].paramCnt);
+        size_t j = 0;
+        cJSON_ArrayForEach(child, param_obj)
+        {
+            (*reqObj)->u.methodReq->objects[i].params[j].name = strdup(child->string);
+
+            if (cJSON_IsString(child))
+                (*reqObj)->u.methodReq->objects[i].params[j].value = strdup(child->valuestring);
+            else if (cJSON_IsNumber(child))
+            {
+                char buf[64];
+                snprintf(buf, sizeof(buf), "%d", child->valueint);
+                (*reqObj)->u.methodReq->objects[i].params[j].value = strdup(buf);
+            }
+            else if (cJSON_IsBool(child))
+                (*reqObj)->u.methodReq->objects[i].params[j].value = strdup(cJSON_IsTrue(child) ? "true" : "false");
+            else
+                (*reqObj)->u.methodReq->objects[i].params[j].value = strdup("");
+
+            (*reqObj)->u.methodReq->objects[i].params[j].type = param_type(child);
+			WdmpInfo("%s %s %d\n", (*reqObj)->u.methodReq->objects[i].params[j].name,(*reqObj)->u.methodReq->objects[i].params[j].value,(*reqObj)->u.methodReq->objects[i].params[j].type);
+			j++;
+        }
+    }
+}
+
 void wdmp_form_get_response(res_struct *resObj, cJSON *response)
 {
         cJSON *parameters = NULL,*resParamObj = NULL, *value = NULL, *valueObj = NULL;
@@ -636,6 +719,52 @@ void wdmp_form_table_response(res_struct *resObj, cJSON *response)
         }
         
         WdmpPrint("statusCode :%d\n",statusCode);
+        cJSON_AddNumberToObject(response, "statusCode", statusCode);
+}
+
+void wdmp_form_method_response(res_struct *resObj, cJSON *response)
+{
+        cJSON *parameters = NULL,*resParamObj = NULL;
+        size_t i, paramCount;
+        char *result = NULL;
+        WDMP_RESPONSE_STATUS_CODE statusCode = WDMP_STATUS_GENERAL_FALURE;
+
+        WdmpPrint("resObj->paramCnt : %zu\n",resObj->paramCnt);
+        paramCount = resObj->paramCnt;
+        WdmpPrint("paramCount : %zu\n",paramCount);
+
+        WdmpPrint("resObj->retStatus : %d\n",resObj->retStatus[0]);
+        getStatusCode(&statusCode, paramCount, resObj->retStatus);
+        result = (char *) malloc(sizeof(char) * MAX_RESULT_LEN);
+
+        if(resObj->u.paramRes->params)
+        {
+                cJSON_AddItemToObject(response, "parameters", parameters =cJSON_CreateArray());
+
+                for (i = 0; i < paramCount; i++)
+                {
+                        cJSON_AddItemToArray(parameters, resParamObj = cJSON_CreateObject());
+
+                        WdmpPrint("resObj->u.paramRes->params[%zu].name :%s\n",i,resObj->u.paramRes->params[i].name);
+                        cJSON_AddStringToObject(resParamObj, "name", resObj->u.paramRes->params[i].name);
+
+                        WdmpPrint("resObj->retStatus[%zu] : %d\n",i,resObj->retStatus[i]);
+                        mapWdmpStatusToStatusMessage(resObj->retStatus[i], result);
+                        cJSON_AddStringToObject(resParamObj, "message", result);
+                }
+
+        }
+        else
+        {
+                mapWdmpStatusToStatusMessage(resObj->retStatus[0], result);
+	        cJSON_AddStringToObject(response, "message", result);
+        }
+
+        if(result)
+        {
+                free(result);
+        }
+        WdmpPrint("statusCode : %d\n",statusCode);
         cJSON_AddNumberToObject(response, "statusCode", statusCode);
 }
 

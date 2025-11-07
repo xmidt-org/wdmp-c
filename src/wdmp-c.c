@@ -121,6 +121,11 @@ void wdmp_parse_generic_request(char * payload, PAYLOAD_TYPE payload_type, req_s
             {
                 WdmpInfo("DELETE_ROW Request: %s\n", out);
                 parse_delete_row_request(request, reqObj);
+            } 
+            else if (strcmp(command, "METHOD") == 0)
+            {
+                WdmpInfo("METHOD Request: %s\n", out);
+                parse_method_request(request, reqObj);
             }
             else
             {
@@ -193,6 +198,12 @@ void wdmp_form_response(res_struct *resObj, char **payload)
                         case ADD_ROWS:
                         {
                                 wdmp_form_table_response(resObj, response);
+                        }
+                        break;
+
+                        case METHOD:
+                        {
+                                wdmp_form_method_response(resObj, response);
                         }
                         break;
                         
@@ -325,6 +336,26 @@ void wdmp_free_req_struct( req_struct *reqObj )
             }
         }
         break;
+        case METHOD:
+        {
+                if (reqObj->u.methodReq->methodName)  
+                {
+                    free(reqObj->u.methodReq->methodName);
+
+                    for (size_t i = 0; i < reqObj->u.methodReq->objectCnt; i++)
+                    {
+                        for (size_t j = 0; j < reqObj->u.methodReq->objects[i].paramCnt; j++)
+                        {
+                            free(reqObj->u.methodReq->objects[i].params[j].name);
+                            free(reqObj->u.methodReq->objects[i].params[j].value);
+                        }
+                        free(reqObj->u.methodReq->objects[i].params);
+                    }
+
+                    free(reqObj->u.methodReq->objects);
+                }
+        }
+        break;
 
         default:
         WdmpError("Unknown request type\n");
@@ -417,6 +448,11 @@ void wdmp_free_res_struct( res_struct *resObj )
                                 }
                                 free(resObj->u.tableRes);
                         }
+                }
+                break;
+                case METHOD:
+                {
+
                 }
                 break;
         }

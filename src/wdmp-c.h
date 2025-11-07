@@ -102,7 +102,8 @@ typedef enum
     TEST_AND_SET,
     REPLACE_ROWS,
     ADD_ROWS,
-    DELETE_ROW
+    DELETE_ROW,
+    METHOD
 } REQ_TYPE;
 
 typedef struct
@@ -141,6 +142,19 @@ typedef struct
     size_t rowCnt;
 } table_req_t;
 
+typedef struct
+{
+    param_t *params;
+    size_t paramCnt;
+} method_param_t;
+
+typedef struct
+{	
+    char *methodName;
+    method_param_t *objects;
+    size_t objectCnt;
+} method_req_t;
+
 typedef struct {
     REQ_TYPE reqType;
     union {
@@ -148,6 +162,7 @@ typedef struct {
         set_req_t *setReq;
         table_req_t *tableReq;
         test_set_req_t *testSetReq;
+        method_req_t *methodReq;
     } u;
 } req_struct;
 
