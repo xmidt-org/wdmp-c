@@ -19,7 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <cJSON.h>
+#include <cjson/cJSON.h>
 
 #include "wdmp-c.h"
 #include "wdmp_internal.h"
